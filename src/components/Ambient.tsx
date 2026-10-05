@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { FishGlyph } from "./icons";
+import seaBg from "../assets/sea-habitat-bg.svg";
 
 interface BubbleSpec {
   left: number;
@@ -26,16 +27,13 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      {/* gradasi kedalaman laut */}
+      {/* gradasi kedalaman laut (fallback di bawah SVG) */}
       <div
         className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(1100px 700px at 12% -8%, rgba(38,120,168,0.38), transparent 60%)," +
-            "radial-gradient(900px 600px at 95% 108%, rgba(14,74,110,0.5), transparent 62%)," +
-            "linear-gradient(180deg, #072036 0%, #051829 42%, #04121f 100%)",
-        }}
+        style={{ background: "linear-gradient(180deg, #072036 0%, #051829 42%, #04121f 100%)" }}
       />
+      {/* latar habitat laut 2D (SVG) */}
+      <img src={seaBg} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
       {/* grid titik sonar */}
       <div
         className="absolute inset-0 opacity-60"
@@ -44,10 +42,6 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
           backgroundSize: "30px 30px",
         }}
       />
-      {/* berkas cahaya */}
-      <div className="ray" style={{ left: "6%", animationDelay: "0s" }} />
-      <div className="ray" style={{ left: "26%", animationDelay: "-3s", opacity: 0.7 }} />
-      <div className="ray" style={{ left: "58%", animationDelay: "-6s", opacity: 0.5 }} />
       {/* gelembung */}
       {bubbles.map((b, i) => (
         <span
