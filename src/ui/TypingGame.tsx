@@ -2,11 +2,11 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { AgeCfg, ModuleDef } from "../data/modules";
 import { tokenize } from "../lib/highlight";
 import { sfx } from "../lib/audio";
-import { scene } from "../lib/scene";
+import { scene } from "../graphics/scene";
 import {
   IconX, IconHeart, IconBolt, IconTimer, IconPause, IconPlay, IconRetry, IconMap, IconFin, IconTarget,
 } from "./icons";
-import { SharkMascot } from "./icons";
+import { SharkMascot, Diver } from "../characters";
 
 export interface GameResult {
   won: boolean;
@@ -432,12 +432,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
           <div className="absolute inset-x-0 bottom-0 h-3 bg-[rgba(126,196,236,0.08)]" />
           {/* pangkalan penyelam */}
           <div className="absolute left-4 md:left-8 bottom-3 flex flex-col items-center gap-1">
-            <svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true" className="anim-bob">
-              <circle cx="24" cy="22" r="15" fill="#16456d" stroke="#45c6ff" strokeWidth="2.5" />
-              <circle cx="24" cy="22" r="8" fill="#0b2a44" stroke="#9ad7f5" strokeWidth="2" />
-              <circle cx="21" cy="20" r="2" fill="#9ad7f5" />
-              <path d="M14 40 C18 34 30 34 34 40 Z" fill="#16456d" stroke="#45c6ff" strokeWidth="2" />
-            </svg>
+            <Diver />
             <span className="text-[9px] font-extrabold tracking-[0.2em] uppercase text-[var(--faint)]">Pangkalan</span>
           </div>
           {/* hiu */}

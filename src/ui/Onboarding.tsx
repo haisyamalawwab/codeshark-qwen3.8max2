@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { AgeId } from "../lib/storage";
 import { AGE_GROUPS } from "../data/modules";
+import { SharkMascot } from "../characters";
 import { sfx } from "../lib/audio";
 import {
-  SharkMascot,
+
   IconFin,
   IconArrowR,
   IconBook,

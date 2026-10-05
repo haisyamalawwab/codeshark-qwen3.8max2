@@ -10,7 +10,7 @@ import {
   IconMap, IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
 } from "./icons";
 import { tokenize } from "../lib/highlight";
-import { SharkMascot } from "./icons";
+import { SharkMascot } from "../characters";
 
 interface Props {
   save: SaveData;

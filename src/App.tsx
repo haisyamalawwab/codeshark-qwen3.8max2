@@ -3,13 +3,13 @@ import type { AgeId, SaveData } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, persist, rankOf } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { sfx } from "./lib/audio";
-import Ambient from "./components/Ambient";
-import Onboarding from "./components/Onboarding";
-import Dashboard from "./components/Dashboard";
-import Materi from "./components/Materi";
-import TypingGame from "./components/TypingGame";
-import type { GameResult } from "./components/TypingGame";
-import Results from "./components/Results";
+import Ambient from "./graphics/Ambient";
+import Onboarding from "./ui/Onboarding";
+import Dashboard from "./ui/Dashboard";
+import Materi from "./ui/Materi";
+import TypingGame from "./ui/TypingGame";
+import type { GameResult } from "./ui/TypingGame";
+import Results from "./ui/Results";
 
 type Screen =
   | { s: "dash" }

@@ -1,0 +1,52 @@
+/* ============ TEMA: token warna, font, reset ============ */
+:root {
+  --deep: #04121f;
+  --deep2: #072036;
+  --panel: #0b2a44;
+  --panel2: #0e3352;
+  --line: rgba(126, 196, 236, 0.16);
+  --line-soft: rgba(126, 196, 236, 0.09);
+  --ink: #e9f6ff;
+  --dim: #8fb4ca;
+  --faint: #5d8199;
+  --teal: #2ee6c8;
+  --teal-deep: #17a58e;
+  --cyan: #45c6ff;
+  --amber: #ffc247;
+  --amber-deep: #c98d17;
+  --coral: #ff6b57;
+  --coral-deep: #c74436;
+  --mint: #9ff0dd;
+
+  --accent: #2ee6c8;
+  --accent-deep: #17a58e;
+
+  --font-d: "Baloo 2", "Nunito", sans-serif;
+  --font-b: "Nunito", sans-serif;
+  --font-m: "JetBrains Mono", monospace;
+}
+
+.age-junior { --accent: #ffc247; --accent-deep: #c98d17; }
+.age-teen   { --accent: #2ee6c8; --accent-deep: #17a58e; }
+.age-senior { --accent: #45c6ff; --accent-deep: #1f8fd4; }
+.age-academy{ --accent: #8be9fd; --accent-deep: #37a9c9; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--deep);
+  color: var(--ink);
+  font-family: var(--font-b);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+#root { min-height: 100vh; }
+::selection { background: rgba(46, 230, 200, 0.35); color: #fff; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: #143c5e; border-radius: 8px; border: 2px solid var(--deep); }
+::-webkit-scrollbar-thumb:hover { background: #1d5583; }
+
+.font-display { font-family: var(--font-d); }
+.font-code { font-family: var(--font-m); }

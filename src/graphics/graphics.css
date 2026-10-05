@@ -1,0 +1,47 @@
+/* ============ GRAFIS: elemen dekoratif latar laut ============ */
+@keyframes rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  8% { opacity: var(--o, 0.5); }
+  90% { opacity: var(--o, 0.5); }
+  100% { transform: translateY(-108vh) translateX(var(--dx, 20px)); opacity: 0; }
+}
+.bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.5), rgba(160, 225, 255, 0.12) 55%, rgba(160, 225, 255, 0.04));
+  border: 1px solid rgba(190, 235, 255, 0.22);
+  animation: rise linear infinite;
+  pointer-events: none;
+}
+
+@keyframes raySway {
+  0%, 100% { transform: rotate(16deg) translateX(0); opacity: 0.5; }
+  50% { transform: rotate(19deg) translateX(40px); opacity: 0.85; }
+}
+.ray {
+  position: absolute;
+  top: -20%;
+  width: 130px;
+  height: 80vh;
+  background: linear-gradient(180deg, rgba(120, 220, 255, 0.13), rgba(120, 220, 255, 0.02) 70%, transparent);
+  filter: blur(6px);
+  transform-origin: top center;
+  animation: raySway 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes swimR {
+  0% { transform: translateX(-12vw) translateY(0) scaleX(1); }
+  49% { transform: translateX(105vw) translateY(-24px) scaleX(1); }
+  50% { transform: translateX(105vw) translateY(-24px) scaleX(-1); }
+  100% { transform: translateX(-12vw) translateY(0) scaleX(-1); }
+}
+.fish { position: absolute; animation: swimR linear infinite; pointer-events: none; opacity: 0.55; }
+
+@keyframes driftY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.anim-drift { animation: driftY 5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble, .ray, .fish, .anim-drift { animation: none !important; }
+}
