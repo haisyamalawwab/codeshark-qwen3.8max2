@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { AgeCfg, ModuleDef } from "../data/modules";
 import { tokenize } from "../lib/highlight";
 import { sfx } from "../lib/audio";
+import { scene } from "../lib/scene";
 import {
   IconX, IconHeart, IconBolt, IconTimer, IconPause, IconPlay, IconRetry, IconMap, IconFin, IconTarget,
 } from "./icons";
@@ -74,6 +75,12 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
   const idRef = useRef(0);
   const onDoneRef = useRef(onDone);
   useEffect(() => { onDoneRef.current = onDone; });
+
+  /* latar laut: aktif selama game berjalan, reset saat keluar */
+  useEffect(() => {
+    scene.active = true;
+    return () => { scene.active = false; scene.threat = 0; scene.progress = 0; };
+  }, []);
 
   const elapsedSec = () => {
     const gg = gref.current;
@@ -294,6 +301,8 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
   const liveAcc = totalKeys > 0 ? Math.round((g.correct / totalKeys) * 100) : 100;
   const accColor = liveAcc >= 95 ? "var(--teal)" : liveAcc >= 85 ? "var(--amber)" : "var(--coral)";
   const danger = g.status === "play" && (g.lives === 1 || g.threat > 78);
+  scene.threat = g.status === "dead" ? 100 : g.threat;
+  scene.progress = progress / 100;
 
   return (
     <div className="relative z-10 min-h-screen flex flex-col select-none">

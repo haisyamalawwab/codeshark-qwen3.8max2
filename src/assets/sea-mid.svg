@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Lapisan tengah: kelp, ubur-ubur, karang">
+  <defs>
+    <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#08263d"/><stop offset="1" stop-color="#041321"/>
+    </linearGradient>
+    <linearGradient id="kelp" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#0b4a46"/><stop offset="1" stop-color="#1fae95"/>
+    </linearGradient>
+    <linearGradient id="kelpDark" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#062a2c"/><stop offset="1" stop-color="#0f6b62"/>
+    </linearGradient>
+    <radialGradient id="jelly" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#9ff0ff" stop-opacity="0.75"/><stop offset="1" stop-color="#2ee6c8" stop-opacity="0.12"/>
+    </radialGradient>
+    <radialGradient id="jellyPink" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#ffb3e6" stop-opacity="0.7"/><stop offset="1" stop-color="#9a6bff" stop-opacity="0.12"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#2ee6c8" stop-opacity="0.55"/><stop offset="1" stop-color="#2ee6c8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    <g id="jellyBody"><path d="M-34 0 C-34 -40 34 -40 34 0 C20 6 -20 6 -34 0 Z"/></g>
+  </defs>
+  <style>
+    .sway  { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 7s ease-in-out infinite; }
+    .sway2 { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 9s ease-in-out infinite reverse; }
+    @keyframes sway { 0%,100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg); } }
+    .bob  { animation: bob 6s ease-in-out infinite; }
+    .bob2 { animation: bob 8s ease-in-out infinite reverse; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-22px); } }
+    .pulse { animation: pulse 3.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+
+  <path fill="url(#mid)" d="M0 860 C120 820 240 850 380 830 C520 810 640 860 800 840 C960 820 1100 790 1260 830 C1420 870 1560 830 1700 850 C1800 862 1860 840 1920 850 L1920 1080 L0 1080 Z"/>
+
+  <g fill="none" stroke-linecap="round">
+    <path class="sway"  d="M90 900 C60 800 130 730 90 640 C60 570 120 520 100 450" stroke="url(#kelpDark)" stroke-width="16"/>
+    <path class="sway2" d="M150 910 C190 820 120 760 160 680 C190 620 140 570 170 510" stroke="url(#kelp)" stroke-width="12" opacity=".8"/>
+    <path class="sway"  d="M230 905 C200 840 260 790 230 730 C210 690 250 650 240 610" stroke="url(#kelpDark)" stroke-width="10"/>
+    <path class="sway2" d="M1740 900 C1780 800 1700 730 1750 640 C1790 570 1730 510 1760 440" stroke="url(#kelpDark)" stroke-width="18"/>
+    <path class="sway"  d="M1810 910 C1770 830 1840 770 1800 700 C1770 650 1820 600 1800 550" stroke="url(#kelp)" stroke-width="12" opacity=".8"/>
+    <path class="sway2" d="M1670 905 C1700 850 1650 800 1680 750 C1700 710 1670 680 1685 640" stroke="url(#kelpDark)" stroke-width="10"/>
+  </g>
+  <g fill="none" stroke-linecap="round" opacity=".75">
+    <path class="sway"  d="M760 850 C740 800 790 770 765 720" stroke="url(#kelpDark)" stroke-width="8"/>
+    <path class="sway2" d="M1130 840 C1155 790 1110 760 1135 710" stroke="url(#kelpDark)" stroke-width="8"/>
+  </g>
+
+  <g class="bob" transform="translate(1380 250)">
+    <circle r="90" fill="url(#glow)" opacity=".5" filter="url(#blur6)"/>
+    <g class="pulse"><use href="#jellyBody" fill="url(#jelly)" stroke="#9ff0ff" stroke-opacity=".5" stroke-width="1.5"/></g>
+    <g stroke="#9ff0ff" stroke-opacity=".5" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M-22 4 C-28 30 -16 46 -24 70"/><path d="M-8 6 C-12 34 -2 50 -8 84"/>
+      <path d="M8 6 C14 34 2 50 10 80"/><path d="M22 4 C28 30 16 44 24 66"/>
+    </g>
+  </g>
+  <g class="bob2" transform="translate(520 330) scale(.7)">
+    <circle r="80" fill="#9a6bff" opacity=".18" filter="url(#blur6)"/>
+    <g class="pulse"><use href="#jellyBody" fill="url(#jellyPink)" stroke="#ffb3e6" stroke-opacity=".5" stroke-width="2"/></g>
+    <g stroke="#ffb3e6" stroke-opacity=".5" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M-22 4 C-30 32 -14 50 -24 78"/><path d="M0 6 C-6 36 6 52 -2 92"/><path d="M22 4 C30 32 14 48 24 74"/>
+    </g>
+  </g>
+  <g class="bob" transform="translate(1650 520) scale(.45)" opacity=".7">
+    <g class="pulse"><use href="#jellyBody" fill="url(#jelly)" stroke="#9ff0ff" stroke-opacity=".5" stroke-width="3"/></g>
+    <g stroke="#9ff0ff" stroke-opacity=".5" stroke-width="4" fill="none" stroke-linecap="round">
+      <path d="M-20 4 C-28 30 -12 48 -22 72"/><path d="M10 6 C16 34 2 50 12 80"/>
+    </g>
+  </g>
+
+  <g opacity=".95">
+    <g fill="#0d3b52">
+      <path d="M470 870 C450 820 430 790 440 740 C455 780 470 800 480 760 C490 810 500 830 495 870 Z"/>
+      <path d="M520 872 C505 830 510 800 530 770 C535 810 545 830 550 872 Z"/>
+    </g>
+    <g stroke="#ff6b87" stroke-opacity=".55" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M980 870 L980 800 M980 830 L945 790 M980 830 L1015 790 M980 810 L960 765 M980 810 L1000 765 M945 790 L930 760 M1015 790 L1030 760"/>
+    </g>
+    <g stroke="#ffc247" stroke-opacity=".4" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M1330 868 L1330 810 M1330 840 L1300 800 M1330 840 L1360 800 M1330 820 L1315 780 M1330 820 L1345 780"/>
+    </g>
+    <g fill="#145a63"><ellipse cx="640" cy="868" rx="60" ry="30"/><ellipse cx="1480" cy="872" rx="70" ry="32"/></g>
+    <g stroke="#2ee6c8" stroke-opacity=".3" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M600 866 C615 848 630 878 645 858 C660 840 672 870 684 856"/>
+      <path d="M1440 870 C1455 852 1470 880 1485 862 C1500 846 1512 872 1524 860"/>
+    </g>
+    <g class="pulse" stroke="#2ee6c8" stroke-opacity=".7" stroke-width="3" stroke-linecap="round" fill="none">
+      <path d="M840 880 L828 840 M850 880 L850 832 M860 880 L872 838 M870 882 L888 846 M830 882 L812 848"/>
+    </g>
+    <g fill="#2ee6c8" class="pulse">
+      <circle cx="828" cy="838" r="4"/><circle cx="850" cy="830" r="4"/><circle cx="872" cy="836" r="4"/>
+      <circle cx="888" cy="844" r="3.5"/><circle cx="812" cy="846" r="3.5"/>
+    </g>
+  </g>
+</svg>

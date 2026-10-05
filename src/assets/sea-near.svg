@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Lapisan depan: dasar laut, batu, rumput laut">
+  <defs>
+    <linearGradient id="near" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#051a2b"/><stop offset="1" stop-color="#02080f"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="0.5" cy="0.5" r="0.75">
+      <stop offset="0.45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.65"/>
+    </radialGradient>
+    <filter id="blur6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+  <style>
+    .sway  { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 7s ease-in-out infinite; }
+    .sway2 { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 9s ease-in-out infinite reverse; }
+    @keyframes sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+
+  <path d="M0 930 C160 900 320 940 520 920 C720 900 900 950 1100 930 C1300 910 1500 950 1700 925 C1800 915 1860 930 1920 925 L1920 1080 L0 1080 Z" fill="url(#near)"/>
+  <g fill="#03111c">
+    <path d="M60 1010 C90 950 190 940 240 975 C270 995 290 1010 300 1030 L40 1040 Z"/>
+    <path d="M1580 1020 C1620 960 1740 950 1800 990 C1830 1010 1850 1025 1860 1040 L1560 1045 Z"/>
+    <path d="M820 1030 C850 995 930 990 960 1020 L980 1045 L800 1048 Z"/>
+  </g>
+  <g fill="none" stroke="#0b3a3d" stroke-width="7" stroke-linecap="round">
+    <path class="sway"  d="M360 1010 C350 960 380 940 372 900"/>
+    <path class="sway2" d="M380 1012 C396 965 372 945 388 905"/>
+    <path class="sway"  d="M1230 1005 C1218 960 1250 940 1240 905"/>
+    <path class="sway2" d="M1252 1008 C1268 962 1244 944 1260 908"/>
+    <path class="sway"  d="M1420 1012 C1410 972 1436 954 1428 920"/>
+  </g>
+  <g fill="#ff6b57" opacity=".5">
+    <path d="M520 1022 l8 -20 l8 20 l20 -4 l-14 14 l12 18 l-22 -8 l-12 18 l-2 -22 l-22 -4 z" transform="scale(.6) translate(300 640)"/>
+  </g>
+  <g fill="#3a7690" opacity=".5"><path d="M1080 1030 C1100 1008 1140 1008 1160 1030 Z"/></g>
+  <g stroke="#0b2f45" stroke-width="10" stroke-linecap="round" fill="none" opacity=".8">
+    <path d="M1000 1060 C1010 990 1040 960 1100 950"/><path d="M1060 1062 C1068 1000 1090 972 1140 962"/>
+    <path d="M1120 1064 C1126 1008 1146 982 1190 974"/>
+  </g>
+
+  <rect x="360" y="120" width="1200" height="640" rx="40" fill="#030d18" opacity=".28" filter="url(#blur6)"/>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>

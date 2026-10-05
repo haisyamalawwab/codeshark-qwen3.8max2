@@ -316,7 +316,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .bubble, .ray, .fish, .anim-bob, .anim-wiggle, .anim-drift, .shimmer::after, .ping-dot::after, .glow-pulse,
-  .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char { animation: none !important; }
+  .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char, .shark-wag { animation: none !important; }
 }
 
 /* karakter salah ditekan (ghost) — tampil sesaat di posisi kursor */
@@ -337,3 +337,7 @@ body {
   box-shadow: inset 0 0 140px 30px rgba(255, 107, 87, 0.35);
   animation: dangerPulse 1.1s ease-in-out infinite;
 }
+
+/* hiu latar belakang: lenggok badan */
+@keyframes sharkWag { 0%, 100% { transform: skewY(-2deg) translateY(-2px); } 50% { transform: skewY(2deg) translateY(2px); } }
+.shark-wag { animation: sharkWag 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 10% 50%; }
