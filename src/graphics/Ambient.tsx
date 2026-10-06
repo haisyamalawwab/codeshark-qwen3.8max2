@@ -68,6 +68,20 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
         <img src={seaFar} alt="" className={img} draggable={false} />
       </div>
 
+      {/* berkas cahaya dari permukaan */}
+      {[
+        { left: "10%", w: 130, delay: "0s", dur: "11s" },
+        { left: "32%", w: 90, delay: "-4s", dur: "13s" },
+        { left: "56%", w: 190, delay: "-8s", dur: "10s" },
+        { left: "79%", w: 110, delay: "-2s", dur: "14s" },
+      ].map((r, i) => (
+        <span
+          key={i}
+          className="ray"
+          style={{ left: r.left, width: r.w, animationDelay: r.delay, animationDuration: r.dur }}
+        />
+      ))}
+
       {/* grid titik sonar */}
       <div
         className="absolute inset-0 opacity-60"

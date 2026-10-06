@@ -7,6 +7,11 @@ export default function SharkMascot({ className = "", style }: { className?: str
           <stop offset="0" stopColor="#5fc3e4" />
           <stop offset="1" stopColor="#2b7ea1" />
         </linearGradient>
+        <linearGradient id="gGoggle" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#8ff2ff" />
+          <stop offset="0.55" stopColor="#37cdf0" />
+          <stop offset="1" stopColor="#1596c4" />
+        </linearGradient>
       </defs>
       <circle cx="17" cy="42" r="4.5" fill="none" stroke="#9ad7f5" strokeWidth="1.6" opacity="0.6" />
       <circle cx="10" cy="27" r="2.6" fill="none" stroke="#9ad7f5" strokeWidth="1.4" opacity="0.45" />
@@ -27,12 +32,20 @@ export default function SharkMascot({ className = "", style }: { className?: str
       {/* insang */}
       <path d="M80 64 q7 11 0 24" stroke="#1f6488" strokeWidth="2.6" fill="none" strokeLinecap="round" opacity="0.65" />
       <path d="M90 62 q7 13 0 28" stroke="#1f6488" strokeWidth="2.6" fill="none" strokeLinecap="round" opacity="0.5" />
-      {/* mata */}
-      <circle cx="52" cy="70" r="10.5" fill="#ffffff" />
-      <circle cx="49" cy="71.5" r="5.2" fill="#0a2438" />
-      <circle cx="46.8" cy="68.6" r="1.9" fill="#ffffff" />
+      {/* kacamata selam: tali di belakang lensa, lensa cyan menyala */}
+      <path d="M38 61 C56 54 74 54 90 60 L90 76 C74 81 56 81 38 75 Z" fill="#0b2f47" opacity="0.9" />
+      <circle cx="54" cy="70" r="17" fill="#0b2f47" />
+      <circle cx="54" cy="70" r="13.5" fill="url(#gGoggle)" />
+      <circle cx="54" cy="70" r="13.5" fill="none" stroke="#0a2438" strokeWidth="2" />
+      {/* kilau lensa */}
+      <ellipse cx="49.5" cy="65" rx="5.5" ry="3.2" fill="#e9fcff" opacity="0.9" transform="rotate(-28 49.5 65)" />
+      <circle cx="59" cy="74" r="2.2" fill="#d9fbff" opacity="0.5" />
+      {/* baut vent robot di badan */}
+      <circle cx="96" cy="99" r="2.4" fill="#1f6488" opacity="0.8" />
+      <circle cx="105" cy="102" r="2.4" fill="#1f6488" opacity="0.65" />
+      <circle cx="114" cy="103" r="2.4" fill="#1f6488" opacity="0.5" />
       {/* pipi & mulut */}
-      <circle cx="37" cy="85" r="4" fill="#ff9a76" opacity="0.45" />
+      <circle cx="36" cy="86" r="4" fill="#ff9a76" opacity="0.45" />
       <path d="M27 90 q11 9 24 8" stroke="#1f6488" strokeWidth="3" fill="none" strokeLinecap="round" />
     </svg>
   );
