@@ -57,7 +57,7 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
             dan saksikan kodemu hidup di preview.
           </p>
 
-          <div className="mt-7 space-y-3 max-w-md">
+          <div className="mt-6 space-y-3 max-w-md">
             {[
               { ic: <IconBook size={17} />, t: "Pelajari ilmu", d: "Materi singkat + kuis ber-XP di tiap misi" },
               { ic: <IconKeyboard size={17} />, t: "Ketik kodenya", d: "Game mengetik dengan poin, combo, nyawa & ancaman hiu" },
@@ -79,13 +79,13 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
             ))}
           </div>
 
-          <div className="anim-bob w-56 md:w-72 mt-6 lg:mt-2">
+          <div className="anim-bob w-52 md:w-64 mt-6 lg:mt-2">
             <SharkMascot className="w-full drop-shadow-[0_18px_30px_rgba(0,0,0,0.45)]" />
           </div>
         </div>
 
         {/* ===== Sisi kanan: pembuatan profil dalam bingkai HUD ===== */}
-        <div className="hud-panel p-6 md:p-8 screen-in" style={{ animationDelay: "0.12s" }}>
+        <div className="hud-panel p-6 md:p-7 screen-in" style={{ animationDelay: "0.12s" }}>
           <span className="hud-tick" style={{ right: 26 }} aria-hidden="true" />
           <span className="hud-tick" style={{ right: 64, opacity: 0.55 }} aria-hidden="true" />
 
@@ -96,7 +96,7 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
 
           <label
             htmlFor="hud-name"
-            className="block text-xs font-extrabold tracking-[0.16em] uppercase text-[var(--dim)] mb-2 mt-6"
+            className="block text-xs font-extrabold tracking-[0.16em] uppercase text-[var(--dim)] mb-2 mt-5"
           >
             Nama panggilan
           </label>
@@ -120,7 +120,7 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
 
           <p
             id="hud-level-label"
-            className="text-xs font-extrabold tracking-[0.16em] uppercase text-[var(--dim)] mt-6 mb-2"
+            className="text-xs font-extrabold tracking-[0.16em] uppercase text-[var(--dim)] mt-5 mb-2"
           >
             Level tantangan{" "}
             <span className="text-[var(--faint)] normal-case tracking-normal font-semibold">
@@ -171,7 +171,7 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
             })}
           </div>
 
-          <div className="flex items-center justify-between mt-6 panel-flat px-4 py-3">
+          <div className="flex items-center justify-between mt-5 panel-flat px-4 py-3">
             <span className="flex items-center gap-2.5 text-sm font-bold">
               <span
                 className={`w-8 h-8 rounded-lg grid place-items-center border transition-colors ${
@@ -200,7 +200,7 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
           </div>
 
           <button
-            className="btn btn-hud w-full py-3.5 text-lg mt-6"
+            className="btn btn-hud w-full py-3.5 text-lg mt-5"
             disabled={!valid}
             onClick={tryCreate}
           >
@@ -208,7 +208,7 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
             Mulai Petualangan
             <IconArrowR size={20} />
           </button>
-          <p className="text-center text-xs text-[var(--faint)] mt-3">
+          <p className="text-center text-xs text-[var(--faint)] mt-2">
             Butuh keyboard fisik untuk misi ketik • Data disimpan via localStorage
           </p>
         </div>

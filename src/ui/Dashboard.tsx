@@ -7,7 +7,7 @@ import { sfx } from "../lib/audio";
 import {
   IconFin, IconBolt, IconCoin, IconBook, IconKeyboard, IconStar, IconStarLine,
   IconLock, IconCheck, IconArrowR, IconEye, IconRetry, IconSound, IconMute,
-  IconMap, IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
+   IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
 } from "./icons";
 import { tokenize } from "../lib/highlight";
 import { CaptainAvatar } from "../characters";
@@ -239,7 +239,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSou
                 const done = prog.completions > 0;
                 const isCurrentActive = unlocked && !done;
                 const MIcon = MOD_ICON[m.icon];
-                const stars = prog.best?.stars ?? 3;
+                
                 const isLast = idx === MODULES.length - 1;
 
                 return (
