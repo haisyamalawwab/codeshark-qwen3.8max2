@@ -1,0 +1,25 @@
+# Konfigurasi Deployment Netlify untuk CodeShark Academy (Vite + React SPA)
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA Fallback Routing (agar refresh halaman tetap mengarah ke index.html)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache-Control untuk aset statis berekstensi hash
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
