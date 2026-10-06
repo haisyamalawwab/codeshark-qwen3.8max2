@@ -11,6 +11,194 @@
   border-radius: 12px;
 }
 
+/* ===== DASHBOARD HUD STYLES (Sesuai dashboard_hud.jfif) ===== */
+.hud-hero-card {
+  background: linear-gradient(145deg, rgba(9, 28, 48, 0.82) 0%, rgba(5, 17, 30, 0.92) 100%);
+  border: 1.5px solid rgba(46, 230, 200, 0.28);
+  border-radius: 24px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 35px rgba(46, 230, 200, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.hud-stat-box {
+  background: rgba(7, 24, 42, 0.72);
+  border: 1.5px solid rgba(46, 230, 200, 0.32);
+  border-radius: 16px;
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(46, 230, 200, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.hud-stat-box:hover {
+  border-color: rgba(46, 230, 200, 0.65);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(46, 230, 200, 0.2);
+  transform: translateY(-2px);
+}
+
+.hud-stat-box-amber {
+  border-color: rgba(255, 194, 71, 0.38);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(255, 194, 71, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.hud-stat-box-amber:hover {
+  border-color: rgba(255, 194, 71, 0.75);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 22px rgba(255, 194, 71, 0.25);
+}
+
+/* Kartu Misi: Selesai (Cyan Glow Frame) */
+.hud-card-done {
+  background: linear-gradient(135deg, rgba(8, 28, 48, 0.88) 0%, rgba(4, 16, 29, 0.94) 100%);
+  border: 1.5px solid rgba(46, 230, 200, 0.65);
+  border-radius: 20px;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 26px rgba(46, 230, 200, 0.16),
+    inset 0 0 20px rgba(46, 230, 200, 0.04);
+}
+
+/* Kartu Misi: Sedang Aktif (Amber/Gold Glow Frame) */
+.hud-card-active {
+  background: linear-gradient(135deg, rgba(14, 30, 48, 0.92) 0%, rgba(7, 18, 32, 0.96) 100%);
+  border: 1.5px solid rgba(255, 194, 71, 0.75);
+  border-radius: 20px;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 30px rgba(255, 194, 71, 0.22),
+    inset 0 0 20px rgba(255, 194, 71, 0.05);
+}
+
+/* Kartu Misi: Terkunci (Dark Ghost Frame) */
+.hud-card-locked {
+  background: rgba(5, 17, 30, 0.65);
+  border: 1px solid rgba(126, 196, 236, 0.14);
+  border-radius: 20px;
+}
+
+/* Tombol Aksi Praktik (HUD Frame Button) */
+.hud-btn-practice {
+  background: linear-gradient(180deg, rgba(16, 56, 88, 0.85) 0%, rgba(8, 32, 54, 0.92) 100%);
+  border: 1.5px solid rgba(46, 230, 200, 0.7);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: var(--font-d);
+  font-weight: 700;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    0 0 16px rgba(46, 230, 200, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.15s ease;
+}
+.hud-btn-practice:hover {
+  background: linear-gradient(180deg, rgba(22, 74, 115, 0.95) 0%, rgba(12, 44, 72, 0.98) 100%);
+  border-color: #2ee6c8;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 24px rgba(46, 230, 200, 0.4);
+  transform: translateY(-2px);
+}
+.hud-btn-practice:active {
+  transform: translateY(1px);
+}
+
+/* Tombol Pelajari Materi (Emas Menyala) */
+.hud-btn-learn {
+  background: linear-gradient(135deg, #ffc247 0%, #f59e0b 100%);
+  color: #2b1802;
+  border-radius: 14px;
+  font-family: var(--font-d);
+  font-weight: 800;
+  border: none;
+  box-shadow:
+    0 6px 20px rgba(255, 194, 71, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.15s ease;
+}
+.hud-btn-learn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 8px 26px rgba(255, 194, 71, 0.55);
+  transform: translateY(-2px);
+}
+.hud-btn-learn:active {
+  transform: translateY(2px);
+}
+
+/* Tombol Preview Pill */
+.hud-btn-preview {
+  background: linear-gradient(135deg, #ffc247 0%, #f59e0b 100%);
+  color: #261601;
+  border-radius: 999px;
+  font-family: var(--font-d);
+  font-weight: 800;
+  border: none;
+  box-shadow: 0 4px 14px rgba(255, 194, 71, 0.35);
+  transition: all 0.15s ease;
+}
+.hud-btn-preview:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(255, 194, 71, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Gembok HUD Glowing */
+.hud-lock-glow {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 30, 50, 0.6);
+  border: 1.5px solid rgba(46, 230, 200, 0.45);
+  color: var(--teal);
+  box-shadow: 0 0 25px rgba(46, 230, 200, 0.3), inset 0 0 15px rgba(46, 230, 200, 0.12);
+}
+
+/* Chip HUD Tag */
+.hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(6, 22, 38, 0.85);
+  border: 1px solid rgba(126, 196, 236, 0.2);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--dim);
+}
+.hud-chip-done {
+  border-color: rgba(46, 230, 200, 0.45);
+  color: var(--teal);
+}
+
+/* Garis Timeline HUD */
+.hud-timeline-line {
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: -36px;
+  width: 3px;
+  background: linear-gradient(180deg, var(--teal) 0%, rgba(46, 230, 200, 0.6) 80%, rgba(255, 194, 71, 0.7) 100%);
+  box-shadow: 0 0 12px rgba(46, 230, 200, 0.6);
+}
+.hud-timeline-dashed {
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: -36px;
+  width: 2px;
+  background-image: linear-gradient(180deg, rgba(126, 196, 236, 0.4) 50%, transparent 50%);
+  background-size: 2px 10px;
+}
+
+@media (min-width: 768px) {
+  .hud-timeline-line, .hud-timeline-dashed {
+    left: 21px;
+  }
+}
+
 /* ===== BINGKAI HUD: panel dengan bracket sudut & glow ala konsol selam ===== */
 .hud-panel {
   --hud-c: rgba(69, 198, 255, 0.9);
@@ -21,7 +209,6 @@
     0 24px 60px rgba(1, 8, 17, 0.55),
     0 0 24px rgba(69, 198, 255, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  /* bracket L di 4 sudut (didaftar sebelum body supaya tampil di atasnya) */
   background-image:
     linear-gradient(var(--hud-c), var(--hud-c)),
     linear-gradient(var(--hud-c), var(--hud-c)),
@@ -46,7 +233,6 @@
     center;
   background-repeat: no-repeat;
 }
-/* notch diagonal kecil di pojok kanan-atas */
 .hud-panel::after {
   content: "";
   position: absolute;
@@ -63,7 +249,6 @@
   );
   pointer-events: none;
 }
-/* dua tick dekoratif di tepi atas panel */
 .hud-tick {
   position: absolute;
   top: -11px;
@@ -90,7 +275,6 @@
     inset 0 0 18px rgba(69, 198, 255, 0.09);
 }
 
-/* radio bulat level tantangan */
 .radio {
   width: 18px;
   height: 18px;
@@ -108,7 +292,6 @@
   box-shadow: 0 0 9px currentColor;
 }
 
-/* toggle switch ala HUD */
 .hud-toggle {
   width: 48px;
   height: 26px;
@@ -137,7 +320,6 @@
 }
 .hud-toggle.on .knob { left: 24px; }
 
-/* CTA primer ala HUD: sudut terpotong + glow (glow via drop-shadow karena clip-path memotong box-shadow) */
 .btn-hud {
   border-radius: 6px;
   background: linear-gradient(94deg, #3bd4f0 0%, var(--teal) 55%, #1fc4ae 100%);
@@ -293,7 +475,6 @@
   animation: caretPulse 1s ease infinite;
   color: #fff !important;
 }
-/* karakter salah ditekan (ghost) — tampil sesaat di posisi kursor */
 .caret-char.ch-wrong {
   background: rgba(255, 107, 87, 0.28);
   border-bottom-color: var(--coral);
@@ -360,7 +541,6 @@
 
 .code-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
 
-/* vignette bahaya: tepi layar berdenyut merah saat nyawa terakhir / hiu hampir menyerang */
 @keyframes dangerPulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
 .danger-vignette {
   position: fixed;

@@ -30,11 +30,11 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
   };
 
   return (
-    <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-10">
+    <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-6">
       <div className="w-full max-w-6xl grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
         {/* ===== Sisi kiri: identitas ===== */}
         <div className="screen-in">
-          <div className="inline-flex items-center gap-2 chip px-3 py-1.5 mb-6">
+          <div className="inline-flex items-center gap-2 chip px-3 py-1.5 mb-5">
             <span className="w-5 h-5 rounded-full grid place-items-center bg-[rgba(69,198,255,0.15)] text-[var(--cyan)] border border-[rgba(69,198,255,0.3)]">
               <IconFin size={13} />
             </span>

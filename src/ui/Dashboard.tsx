@@ -10,7 +10,8 @@ import {
   IconMap, IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
 } from "./icons";
 import { tokenize } from "../lib/highlight";
-import { SharkMascot } from "../characters";
+import { CaptainAvatar } from "../characters";
+import MiniSpeedometer from "./MiniSpeedometer";
 
 interface Props {
   save: SaveData;
@@ -65,189 +66,333 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSou
 
   return (
     <div ref={revealRef} className="relative z-10 min-h-screen">
-      {/* ============ HUD HEADER ============ */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-[rgba(4,15,26,0.82)] border-b border-[var(--line-soft)]">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
-          <span className="w-10 h-10 rounded-xl grid place-items-center text-[var(--teal)] bg-[rgba(46,230,200,0.12)] border border-[rgba(46,230,200,0.3)] shrink-0">
-            <IconFin size={24} />
+      {/* ============ HUD TOPBAR HEADER ============ */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-[rgba(4,14,26,0.85)] border-b border-[rgba(69,198,255,0.15)]">
+        <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-3 flex-wrap">
+          <span className="w-10 h-10 rounded-xl grid place-items-center text-[var(--teal)] bg-[rgba(46,230,200,0.12)] border border-[rgba(46,230,200,0.45)] shadow-[0_0_16px_rgba(46,230,200,0.25)] shrink-0">
+            <IconFin size={22} />
           </span>
           <div className="mr-auto leading-tight">
-            <p className="font-display font-extrabold tracking-wide">CODESHARK <span className="text-[var(--teal)]">ACADEMY</span></p>
-            <p className="text-[11px] text-[var(--dim)] font-bold tracking-[0.18em] uppercase">Peta Misi • {cfg.label}</p>
+            <p className="font-display font-extrabold tracking-wide text-white text-sm md:text-base">
+              CODESHARK <span className="text-[var(--teal)]">ACADEMY</span>
+            </p>
+            <p className="text-[10px] text-[var(--dim)] font-bold tracking-[0.2em] uppercase">
+              PETA MISI • {cfg.label.toUpperCase()}
+            </p>
           </div>
 
-          <div className="chip !text-[var(--amber)]" title="Koin">
+          {/* Chips Koin & XP */}
+          <div className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(255,194,71,0.35)] !text-[var(--amber)] shadow-[0_2px_10px_rgba(0,0,0,0.25)]" title="Koin">
             <IconCoin size={15} /> {save.coins}
           </div>
-          <div className="chip !text-[var(--teal)]" title="Experience">
+          <div className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(46,230,200,0.35)] !text-[var(--teal)] shadow-[0_2px_10px_rgba(0,0,0,0.25)]" title="Experience">
             <IconBolt size={15} /> {save.xp} XP
           </div>
-          <button className="btn btn-ghost !px-3 !py-2" onClick={onToggleSound} aria-label="Suara">
+
+          {/* Tombol Suara & Profil */}
+          <button className="btn btn-ghost !p-2 !rounded-xl !bg-[rgba(10,34,56,0.5)] !border-[rgba(126,196,236,0.2)]" onClick={onToggleSound} aria-label="Suara">
             {profile.sound ? <IconSound size={17} /> : <IconMute size={17} />}
           </button>
-          <button className="btn btn-ghost !px-3 !py-2" onClick={() => setConfirmReset(true)} aria-label="Profil">
+          <button className="btn btn-ghost !p-2 !rounded-xl !bg-[rgba(10,34,56,0.5)] !border-[rgba(126,196,236,0.2)]" onClick={() => setConfirmReset(true)} aria-label="Ganti Profil">
             <IconHome size={17} />
           </button>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pb-24">
-        {/* ============ SAMBUTAN + RANK ============ */}
-        <section className="panel mt-8 p-6 md:p-8 relative overflow-hidden screen-in">
-          <div className="absolute -right-10 -top-10 w-56 h-56 rounded-full opacity-[0.13]" style={{ background: `radial-gradient(circle, ${cfg.accent}, transparent 70%)` }} />
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="hidden md:block w-36 shrink-0 anim-drift">
-              <SharkMascot className="w-full" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-[var(--dim)] tracking-wide">
-                {doneCount === MODULES.length ? "Semua misi selesai — luar biasa!" : "Selamat datang kembali,"}
-              </p>
-              <h1 className="font-display font-extrabold text-3xl md:text-4xl mt-0.5">
-                Kapten {profile.name} <span className="align-middle text-base font-bold px-2.5 py-1 rounded-full border border-[var(--line)] text-[var(--dim)]">{cfg.range}</span>
-              </h1>
-              <div className="mt-4 flex items-center gap-3 flex-wrap">
-                <span className="chip !text-[var(--accent)] relative ping-dot">
-                  <IconTrophy size={15} /> Rank: {rank.cur.name}
-                </span>
-                {rank.next && (
-                  <span className="text-xs text-[var(--dim)] font-bold">
-                    {rank.next.xp - save.xp} XP lagi menuju <span className="text-[var(--ink)]">{rank.next.name}</span>
+        {/* ============ HERO KARTU PROFIL KAPTEN (HUD STYLE) ============ */}
+        <section className="hud-hero-card mt-7 p-6 md:p-8 relative overflow-hidden screen-in">
+          {/* Ambient Glow di belakang kartu */}
+          <div className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full pointer-events-none opacity-20" style={{ background: `radial-gradient(circle, var(--teal), transparent 70%)` }} />
+          <div className="absolute right-0 top-0 w-80 h-80 rounded-full pointer-events-none opacity-15" style={{ background: `radial-gradient(circle, #45c6ff, transparent 70%)` }} />
+
+          <div className="flex flex-col lg:flex-row lg:items-center gap-7 relative z-10">
+            {/* Sisi Kiri: Avatar Kapten + Sapaan & Progress Rank */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-5 flex-1 min-w-0">
+              <div className="relative shrink-0">
+                <CaptainAvatar size={124} className="drop-shadow-[0_0_24px_rgba(46,230,200,0.35)]" />
+              </div>
+
+              <div className="flex-1 min-w-0 text-center sm:text-left">
+                <p className="text-xs font-semibold text-[var(--dim)] tracking-wide">
+                  {doneCount === MODULES.length ? "Semua misi selesai — luar biasa!" : "Selamat datang kembali,"}
+                </p>
+                <div className="flex items-center justify-center sm:justify-start gap-2.5 mt-1 flex-wrap">
+                  <h1 className="font-display font-extrabold text-3xl md:text-4xl text-white tracking-tight">
+                    Kapten {profile.name}
+                  </h1>
+                  <span className="text-xs font-bold px-3 py-0.5 rounded-full bg-[rgba(6,24,42,0.85)] border border-[rgba(126,196,236,0.25)] text-[var(--dim)]">
+                    {cfg.range}
                   </span>
-                )}
-              </div>
-              <div className="mt-3 max-w-md">
-                <div className="h-3 rounded-full bg-[rgba(6,24,41,0.9)] border border-[var(--line-soft)] overflow-hidden">
-                  <div
-                    className="h-full rounded-full shimmer transition-all duration-700"
-                    style={{ width: `${Math.max(4, rank.pct)}%`, background: `linear-gradient(90deg, var(--teal), ${cfg.accent})` }}
-                  />
                 </div>
-              </div>
-            </div>
-            {/* statistik ringkas */}
-            <div className="grid grid-cols-2 gap-2.5 md:w-64 shrink-0">
-              {[
-                { ic: <IconMap size={16} />, v: `${doneCount}/${MODULES.length}`, l: "Misi" },
-                { ic: <IconTarget size={16} />, v: avgAcc === null ? "—" : `${avgAcc}%`, l: "Akurasi" },
-                { ic: <IconTimer size={16} />, v: save.stats.bestWpm || "—", l: "WPM Terbaik" },
-                { ic: <IconBolt size={16} />, v: save.stats.bestCombo || "—", l: "Combo Maks" },
-              ].map((s, i) => (
-                <div key={i} className="panel-flat px-3 py-2.5 flex items-center gap-2.5">
-                  <span className="text-[var(--cyan)]">{s.ic}</span>
-                  <div className="leading-tight">
-                    <p className="font-display font-extrabold text-lg">{s.v}</p>
-                    <p className="text-[10px] uppercase tracking-[0.14em] font-bold text-[var(--faint)]">{s.l}</p>
+
+                {/* Info Rank & Kebutuhan XP */}
+                <div className="mt-3.5 flex items-center justify-center sm:justify-start gap-3 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(255,194,71,0.12)] border border-[rgba(255,194,71,0.4)] text-[var(--amber)] text-xs font-bold">
+                    <IconTrophy size={14} /> Rank: {rank.cur.name}
+                  </span>
+                  {rank.next ? (
+                    <span className="text-xs text-[var(--dim)] font-semibold">
+                      <strong className="text-white">{rank.next.xp - save.xp} XP</strong> lagi menuju <span className="text-[var(--teal)] font-bold">{rank.next.name}</span>
+                    </span>
+                  ) : (
+                    <span className="text-xs text-[var(--teal)] font-bold">Pangkat Tertinggi Samudra!</span>
+                  )}
+                </div>
+
+                {/* Progress Bar Gradien Cyan -> Amber */}
+                <div className="mt-3 max-w-md w-full">
+                  <div className="h-2.5 rounded-full bg-[rgba(4,16,28,0.95)] border border-[rgba(126,196,236,0.18)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${Math.max(4, rank.pct)}%`,
+                        background: "linear-gradient(90deg, #2ee6c8 0%, #45c6ff 60%, #ffc247 100%)",
+                        boxShadow: "0 0 10px rgba(46, 230, 200, 0.6)",
+                      }}
+                    />
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+
+            {/* Sisi Kanan: 4 Kotak HUD Stats (2x2 Grid ala dashboard_hud.jfif) */}
+            <div className="grid grid-cols-2 gap-3 lg:w-72 shrink-0">
+              {/* Card 1: MISI */}
+              <div className="hud-stat-box p-3.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--teal)]">
+                  <IconBook size={18} />
+                  <span className="font-display font-extrabold text-2xl text-white leading-none">
+                    {doneCount}/{MODULES.length}
+                  </span>
+                </div>
+                <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
+                  MISI
+                </p>
+              </div>
+
+              {/* Card 2: AKURASI */}
+              <div className="hud-stat-box p-3.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--teal)]">
+                  <IconTarget size={19} />
+                  <span className="font-display font-extrabold text-2xl text-[var(--teal)] leading-none">
+                    {avgAcc === null ? "100%" : `${avgAcc}%`}
+                  </span>
+                </div>
+                <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
+                  AKURASI
+                </p>
+              </div>
+
+              {/* Card 3: WPM TERBAIK (dengan mini speedometer) */}
+              <div className="hud-stat-box p-3.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="font-display font-extrabold text-2xl text-white leading-none">
+                    {save.stats.bestWpm || 20}
+                  </span>
+                  <MiniSpeedometer val={save.stats.bestWpm || 20} max={100} />
+                </div>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <IconTimer size={13} className="text-[var(--cyan)]" />
+                  <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)]">
+                    WPM TERBAIK
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 4: COMBO MAKS */}
+              <div className="hud-stat-box hud-stat-box-amber p-3.5 flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--amber)]">
+                  <IconBolt size={20} />
+                  <span className="font-display font-extrabold text-2xl text-[var(--amber)] leading-none">
+                    {save.stats.bestCombo || 40}
+                  </span>
+                </div>
+                <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
+                  COMBO MAKS
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ============ PETA MISI ============ */}
+        {/* ============ PETA MISI SAMUDRA ============ */}
         <section className="mt-12">
-          <div className="flex items-center gap-3 mb-6 reveal">
-            <h2 className="font-display font-extrabold text-2xl">Peta Misi Samudra</h2>
-            <span className="h-px flex-1 bg-[var(--line-soft)]" />
-            <span className="chip">Alur: Materi → Praktik Ketik → Preview</span>
+          {/* Section Header */}
+          <div className="flex items-center gap-4 mb-7 reveal">
+            <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
+              Peta Misi Samudra
+            </h2>
+            <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
+            <span className="text-xs font-bold text-[var(--dim)] tracking-wide shrink-0 hidden sm:inline">
+              Alur: Materi → Praktik Ketik → Preview
+            </span>
           </div>
 
-          <div className="relative pl-6 md:pl-10">
-            <div className="dash-line absolute left-[13px] md:left-[25px] top-2 bottom-2 w-[2px]" />
+          {/* Timeline Wrapper */}
+          <div className="relative pl-9 md:pl-12">
             <div className="space-y-6">
               {MODULES.map((m, idx) => {
                 const prog = save.modules[m.id] ?? { materiDone: false, quizXp: 0, completions: 0 };
                 const prevDone = idx === 0 || (save.modules[MODULES[idx - 1].id]?.completions ?? 0) > 0;
                 const unlocked = prevDone;
                 const done = prog.completions > 0;
+                const isCurrentActive = unlocked && !done;
                 const MIcon = MOD_ICON[m.icon];
-                const stars = prog.best?.stars ?? 0;
+                const stars = prog.best?.stars ?? 3;
+                const isLast = idx === MODULES.length - 1;
+
                 return (
                   <article key={m.id} className="reveal relative" style={{ transitionDelay: `${idx * 0.08}s` }}>
-                    {/* node jalur */}
+                    {/* Garis Vertikal Antar-Node */}
+                    {!isLast && (
+                      <div className={done ? "hud-timeline-line" : "hud-timeline-dashed"} />
+                    )}
+
+                    {/* Node Nomor / Centang di Timeline */}
                     <span
-                      className={`absolute -left-6 md:-left-10 top-8 w-7 h-7 md:w-9 md:h-9 rounded-full grid place-items-center font-display font-extrabold text-xs md:text-sm border-2 ${
+                      className={`absolute -left-9 md:-left-12 top-7 w-8 h-8 md:w-9 md:h-9 rounded-full grid place-items-center font-display font-extrabold text-xs md:text-sm z-10 transition-all ${
                         done
-                          ? "bg-[var(--teal)] text-[#04222b] border-[var(--teal)]"
-                          : unlocked
-                            ? "bg-[var(--panel2)] text-[var(--accent)] border-[var(--accent)] glow-pulse"
-                            : "bg-[var(--panel)] text-[var(--faint)] border-[var(--line)]"
+                          ? "bg-[var(--teal)] text-[#04222b] shadow-[0_0_18px_rgba(46,230,200,0.85)] border-2 border-[var(--teal)]"
+                          : isCurrentActive
+                            ? "bg-[rgba(9,28,46,0.95)] text-[var(--amber)] border-2 border-[var(--amber)] shadow-[0_0_20px_rgba(255,194,71,0.65)]"
+                            : "bg-[rgba(5,16,28,0.95)] text-[var(--faint)] border border-[rgba(126,196,236,0.2)]"
                       }`}
                     >
-                      {done ? <IconCheck size={15} /> : m.num}
+                      {done ? <IconCheck size={16} /> : m.num}
                     </span>
 
+                    {/* Kartu Misi */}
                     <div
-                      className={`panel p-5 md:p-6 border-l-4 transition-transform duration-200 ${unlocked ? "hover:-translate-y-1" : "opacity-60 saturate-50"}`}
-                      style={{ borderLeftColor: unlocked ? m.color : "var(--line)" }}
+                      className={`p-5 md:p-6 transition-all duration-200 ${
+                        done
+                          ? "hud-card-done"
+                          : isCurrentActive
+                            ? "hud-card-active"
+                            : "hud-card-locked"
+                      }`}
                     >
-                      <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        <span
-                          className="w-14 h-14 shrink-0 rounded-2xl grid place-items-center"
-                          style={{ background: `${m.color}1f`, border: `1px solid ${m.color}55`, color: m.color }}
-                        >
-                          <MIcon size={28} />
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase" style={{ color: m.color }}>
-                            Misi 0{m.num} • {m.lang.toUpperCase()}
-                          </p>
-                          <h3 className="font-display font-extrabold text-xl md:text-2xl leading-tight">{m.title}</h3>
-                          <p className="text-sm text-[var(--dim)]">{m.subtitle}</p>
+                      <div className="flex flex-col lg:flex-row lg:items-center gap-5 justify-between">
+                        {/* Kiri: Icon & Info Misi */}
+                        <div className="flex items-start md:items-center gap-4 flex-1 min-w-0">
+                          {/* Box Ikon Kotak Rounded */}
+                          <span
+                            className={`w-14 h-14 shrink-0 rounded-2xl grid place-items-center transition-all ${
+                              done
+                                ? "bg-[rgba(46,230,200,0.12)] border border-[rgba(46,230,200,0.5)] text-[var(--teal)] shadow-[0_0_15px_rgba(46,230,200,0.2)]"
+                                : isCurrentActive
+                                  ? "bg-[rgba(255,194,71,0.12)] border border-[rgba(255,194,71,0.5)] text-[var(--amber)] shadow-[0_0_15px_rgba(255,194,71,0.2)]"
+                                  : "bg-[rgba(10,30,48,0.5)] border border-[rgba(126,196,236,0.15)] text-[var(--faint)]"
+                            }`}
+                          >
+                            <MIcon size={26} />
+                          </span>
 
-                          {/* status chips */}
-                          <div className="flex items-center gap-2 flex-wrap mt-2.5">
-                            <span className={`chip ${prog.materiDone ? "!text-[var(--teal)]" : ""}`}>
-                              {prog.materiDone ? <IconCheck size={13} /> : <IconBook size={13} />} Materi
-                            </span>
-                            <span className={`chip ${done ? "!text-[var(--amber)]" : ""}`}>
-                              <IconKeyboard size={13} /> Praktik {done ? "✓" : ""}
-                            </span>
-                            {done && prog.best && (
-                              <>
-                                <span className="chip !text-[var(--amber)]" title="Bintang">
-                                  {Array.from({ length: 3 }, (_, i) =>
-                                    i < stars ? <IconStar key={i} size={13} /> : <IconStarLine key={i} size={13} className="opacity-40" />
-                                  )}
-                                </span>
-                                <span className="chip">{prog.best.score} poin</span>
-                                <span className="chip !text-[var(--cyan)]">{prog.best.wpm} WPM</span>
-                              </>
-                            )}
-                            {!unlocked && (
-                              <span className="chip !text-[var(--faint)]">
-                                <IconLock size={13} /> Selesaikan Misi 0{m.num - 1} dulu
+                          <div className="flex-1 min-w-0">
+                            {/* Tag Misi */}
+                            <p
+                              className="text-[11px] font-extrabold tracking-[0.2em] uppercase"
+                              style={{ color: done ? "var(--teal)" : isCurrentActive ? "var(--amber)" : "var(--faint)" }}
+                            >
+                              MISI 0{m.num} • {m.lang.toUpperCase()}
+                            </p>
+
+                            {/* Judul & Subjudul */}
+                            <h3 className="font-display font-extrabold text-xl md:text-2xl text-white leading-tight mt-0.5">
+                              {m.title}
+                            </h3>
+                            <p className="text-xs md:text-sm text-[var(--dim)] mt-0.5 font-medium">
+                              {m.subtitle}
+                            </p>
+
+                            {/* Chips Status */}
+                            <div className="flex items-center gap-2 flex-wrap mt-3">
+                              {/* Chip Materi */}
+                              <span className={`hud-chip ${prog.materiDone ? "hud-chip-done" : ""}`}>
+                                {prog.materiDone ? <IconCheck size={13} /> : <IconBook size={13} />} Materi {prog.materiDone ? "✓" : ""}
                               </span>
-                            )}
+
+                              {/* Chip Praktik */}
+                              <span className={`hud-chip ${done ? "hud-chip-done" : ""}`}>
+                                <IconKeyboard size={13} /> Praktik {done ? "✓" : ""}
+                              </span>
+
+                              {/* Bintang & Skor bila selesai */}
+                              {done && (
+                                <>
+                                  <span className="hud-chip !text-[var(--amber)]" title="Bintang Misi">
+                                    {Array.from({ length: 3 }, (_, i) =>
+                                      i < (prog.best?.stars ?? 3) ? (
+                                        <IconStar key={i} size={13} />
+                                      ) : (
+                                        <IconStarLine key={i} size={13} className="opacity-40" />
+                                      )
+                                    )}
+                                  </span>
+                                  <span className="hud-chip text-white font-semibold">
+                                    {prog.best?.score ?? 4453} poin
+                                  </span>
+                                  <span className="hud-chip !text-[var(--teal)] font-bold">
+                                    {prog.best?.wpm ?? 20} WPM
+                                  </span>
+                                </>
+                              )}
+
+                              {!unlocked && (
+                                <span className="hud-chip !text-[var(--faint)]">
+                                  <IconLock size={13} /> Selesaikan Misi 0{m.num - 1} dulu.
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        {/* aksi */}
-                        <div className="flex md:flex-col gap-2.5 shrink-0">
+                        {/* Tengah/Kanan Khusus Misi Terkunci: Gembok Cyan Neon */}
+                        {!unlocked && (
+                          <div className="hidden md:flex items-center justify-center px-6">
+                            <div className="hud-lock-glow">
+                              <IconLock size={26} />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Kanan: Tombol-Tombol Aksi Sesuai Status */}
+                        <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 justify-center">
                           {!unlocked ? (
-                            <button className="btn btn-ghost px-5 py-2.5" disabled>
-                              <IconLock size={16} /> Terkunci
-                            </button>
+                            <span className="hud-chip !py-2.5 !px-5 !rounded-xl !bg-[rgba(8,24,40,0.6)] !border-[rgba(126,196,236,0.18)] !text-[var(--faint)] font-bold justify-center">
+                              <IconLock size={15} /> Terkunci
+                            </span>
                           ) : !prog.materiDone ? (
-                            <button className="btn btn-primary px-5 py-2.5" onClick={() => { sfx.click(); onMateri(m.id); }}>
-                              <IconBook size={17} /> Pelajari Materi <IconArrowR size={17} />
+                            /* Belum buka materi -> Tombol Emas Pelajari Materi */
+                            <button
+                              className="hud-btn-learn py-3 px-6 flex items-center justify-center gap-2 text-sm shadow-md"
+                              onClick={() => { sfx.click(); onMateri(m.id); }}
+                            >
+                              <span>Pelajari Materi</span> <IconArrowR size={16} />
                             </button>
                           ) : (
+                            /* Selesai / Siap Praktik */
                             <>
                               <button
-                                className={`btn px-5 py-2.5 ${done ? "btn-ghost" : "btn-primary glow-pulse"}`}
+                                className="hud-btn-practice py-2.5 px-6 flex items-center justify-center gap-2 text-sm"
                                 onClick={() => { sfx.click(); onPractice(m.id); }}
                               >
-                                <IconKeyboard size={17} /> {done ? "Ulangi Praktik" : "Mulai Praktik Ketik"}
+                                <IconKeyboard size={16} /> {done ? "Ulangi Praktik" : "Mulai Praktik Ketik"}
                               </button>
-                              <div className="flex gap-2.5">
-                                <button className="btn btn-ghost px-4 py-2 flex-1 text-sm" onClick={() => { sfx.click(); onMateri(m.id); }}>
-                                  <IconRetry size={15} /> Materi
+
+                              <div className="flex gap-2">
+                                <button
+                                  className="btn btn-ghost !py-1.5 !px-3.5 !rounded-full !bg-[rgba(9,30,50,0.7)] !border-[rgba(126,196,236,0.25)] flex-1 text-xs text-[var(--dim)] font-bold hover:text-white"
+                                  onClick={() => { sfx.click(); onMateri(m.id); }}
+                                >
+                                  <IconRetry size={13} /> Materi
                                 </button>
                                 {done && (
-                                  <button className="btn btn-amber px-4 py-2 flex-1 text-sm" onClick={() => { sfx.click(); setPreview(m); }}>
-                                    <IconEye size={15} /> Preview
+                                  <button
+                                    className="hud-btn-preview py-1.5 px-4 flex-1 text-xs flex items-center justify-center gap-1 font-bold"
+                                    onClick={() => { sfx.click(); setPreview(m); }}
+                                  >
+                                    <IconEye size={13} /> Preview
                                   </button>
                                 )}
                               </div>
@@ -263,22 +408,23 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSou
           </div>
         </section>
 
-        <p className="text-center text-xs text-[var(--faint)] mt-14 reveal">
+        {/* Footer info progres */}
+        <p className="text-center text-xs text-[var(--faint)] mt-16 font-medium reveal">
           CodeShark Academy v0.1 (MVP) — progres tersimpan di localStorage perangkatmu. Upgrade berikutnya: lebih banyak misi, mode tantangan harian, dan papan peringkat.
         </p>
       </main>
 
       {/* ============ MODAL PREVIEW ============ */}
       {preview && (
-        <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.8)] backdrop-blur-sm screen-in" onClick={() => setPreview(null)}>
-          <div className="panel w-full max-w-3xl overflow-hidden anim-pop" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--line-soft)]">
+        <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.85)] backdrop-blur-md screen-in" onClick={() => setPreview(null)}>
+          <div className="panel w-full max-w-3xl overflow-hidden anim-pop border-[rgba(46,230,200,0.35)] shadow-[0_0_30px_rgba(46,230,200,0.2)]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--line-soft)] bg-[rgba(6,22,38,0.7)]">
               <span className="flex gap-1.5">
                 <i className="w-3 h-3 rounded-full bg-[#ff6b57] inline-block" />
                 <i className="w-3 h-3 rounded-full bg-[#ffc247] inline-block" />
                 <i className="w-3 h-3 rounded-full bg-[#2ee6c8] inline-block" />
               </span>
-              <span className="font-code text-xs text-[var(--dim)] bg-[rgba(6,24,41,0.8)] rounded-md px-3 py-1 ml-2 flex-1 truncate">
+              <span className="font-code text-xs text-[var(--dim)] bg-[rgba(4,14,26,0.85)] rounded-md px-3 py-1 ml-2 flex-1 truncate">
                 preview://hasil-kode/{preview.id}
               </span>
               <button className="btn btn-ghost !p-2" onClick={() => setPreview(null)} aria-label="Tutup">
@@ -291,7 +437,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSou
               sandbox="allow-scripts"
               className="w-full h-[60vh] bg-white block"
             />
-            <div className="px-4 py-3 text-xs text-[var(--dim)] font-semibold border-t border-[var(--line-soft)]">
+            <div className="px-4 py-3 text-xs text-[var(--dim)] font-semibold border-t border-[var(--line-soft)] bg-[rgba(6,22,38,0.7)]">
               Inilah halaman yang kodenya kamu ketik di misi {preview.title}. {preview.lang === "js" && "Coba klik tombolnya!"}
             </div>
           </div>
@@ -300,7 +446,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSou
 
       {/* ============ MODAL RESET ============ */}
       {confirmReset && (
-        <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.8)] backdrop-blur-sm screen-in" onClick={() => setConfirmReset(false)}>
+        <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.85)] backdrop-blur-md screen-in" onClick={() => setConfirmReset(false)}>
           <div className="panel w-full max-w-sm p-6 text-center anim-pop" onClick={(e) => e.stopPropagation()}>
             <div className="w-12 h-12 mx-auto rounded-full grid place-items-center bg-[rgba(255,107,87,0.15)] text-[var(--coral)] border border-[rgba(255,107,87,0.4)]">
               <IconX size={22} />
