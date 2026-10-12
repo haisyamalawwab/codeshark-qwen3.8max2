@@ -147,7 +147,10 @@ export default function MateriHtml({ onPractice, onExit }: Props) {
   const [no, setNo] = useState(htmlNos[0]);
   const doc = getHtmlDoc(no)!;
   const lesson = getLesson(no);
-  const blocks = useMemo(() => parseMd(doc.source), [doc]);
+  const blocks = useMemo(
+    () => parseMd(doc.source).filter((b) => !(b.t === "h" && b.level === 1)), // judul # sudah tampil di kepala panel
+    [doc],
+  );
 
   const idxInPhase = htmlNos.indexOf(no);
   const go = (n: number) => {

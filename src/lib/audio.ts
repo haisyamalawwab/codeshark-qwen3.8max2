@@ -45,6 +45,7 @@ class SFX {
   }
 
   click() { this.tone(720, 0.06, "triangle", 0.1); }
+  back() { this.tone(420, 0.07, "triangle", 0.1, 0, 300); }
   key(combo: number) { this.tone(460 + Math.min(combo, 40) * 14, 0.05, "square", 0.045); }
   err() { this.tone(160, 0.16, "sawtooth", 0.13, 0, 90); }
   line() { [523, 659, 784].forEach((f, i) => this.tone(f, 0.09, "triangle", 0.11, i * 0.055)); }
