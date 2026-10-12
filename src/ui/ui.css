@@ -198,6 +198,37 @@
 .md-table tr:last-child td { border-bottom: none; }
 .md-table tbody tr:hover td { background: rgba(69, 198, 255, 0.05); }
 
+/* Gambar ilustrasi materi (SVG inline) — bingkai HUD dengan bracket sudut */
+.md-figure { margin: 4px 0; }
+.md-figure-frame {
+  position: relative;
+  border: 1.5px solid rgba(69, 198, 255, 0.35);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(10, 36, 64, 0.75), rgba(5, 19, 35, 0.9));
+  padding: 10px;
+  box-shadow: inset 0 0 40px rgba(69, 198, 255, 0.06), 0 10px 30px rgba(2, 8, 16, 0.5);
+}
+.md-figure-frame::before,
+.md-figure-frame::after {
+  content: "";
+  position: absolute;
+  width: 22px; height: 22px;
+  border-color: #45c6ff;
+  border-style: solid;
+  pointer-events: none;
+}
+.md-figure-frame::before { top: -1.5px; left: -1.5px; border-width: 3px 0 0 3px; border-radius: 14px 0 0 0; }
+.md-figure-frame::after { bottom: -1.5px; right: -1.5px; border-width: 0 3px 3px 0; border-radius: 0 0 14px 0; }
+.md-figure-frame svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+.md-figure-cap {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--faint, #7ec4ec);
+  text-align: center;
+  font-style: italic;
+}
+
 /* Kartu Misi: Selesai (Cyan Glow Frame) */
 .hud-card-done {
   background: linear-gradient(135deg, rgba(8, 28, 48, 0.88) 0%, rgba(4, 16, 29, 0.94) 100%);

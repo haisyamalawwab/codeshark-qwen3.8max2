@@ -1,7 +1,8 @@
 /* ============ PARSER MARKDOWN RINGAN (tanpa dependensi) ============
    Mendukung subset yang dipakai dokumen materi:
    # h1-h4, paragraf, **tebal**, *miring*, `kode inline`, list (-, 1.),
-   ```blok kode```, > kutipan, --- garis, dan tabel pipe. */
+   ```blok kode```, > kutipan, --- garis, tabel pipe, dan placeholder
+   gambar "%%IMG:<kunci>%%" pada baris sendiri (blok t: "img"). */
 
 export type MdBlock =
   | { t: "h"; level: number; text: string }
@@ -11,6 +12,7 @@ export type MdBlock =
   | { t: "code"; lang: string; code: string }
   | { t: "quote"; html: string }
   | { t: "hr" }
+  | { t: "img"; key: string }
   | { t: "table"; head: string[]; rows: string[][] };
 
 const esc = (s: string) =>
@@ -63,6 +65,14 @@ export function parseMd(src: string): MdBlock[] {
     /* garis pemisah */
     if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) {
       blocks.push({ t: "hr" });
+      i++;
+      continue;
+    }
+
+    /* placeholder gambar: %%IMG:kunci%% (satu per baris) */
+    const img = line.match(/^\s*%%IMG:([\w-]+)%%\s*$/);
+    if (img) {
+      blocks.push({ t: "img", key: img[1] });
       i++;
       continue;
     }
