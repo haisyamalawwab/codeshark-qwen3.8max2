@@ -26,6 +26,8 @@ Setiap halaman HTML modern dibangun dari empat pilar: `<!DOCTYPE html>`, `<html>
 | `<head>` | Judul tab, charset, link CSS | Tidak |
 | `<body>` | Semua konten di layar | ✅ Ya |
 
+%%IMG:anatomi-dokumen%%
+
 > 💡 **charset UTF-8.** Tanpa `<meta charset="UTF-8" />`, huruf unik seperti é atau emoji bisa tampil aneh.
 
 ## Head vs Body: Mana Tempatmu?

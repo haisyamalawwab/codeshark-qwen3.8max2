@@ -6,6 +6,8 @@
 
 `<form>` membungkus isian. `<input>` adalah kolom isian yang jenisnya diatur atribut `type`: `text`, `email`, `password`, `number`, `checkbox`, `radio`, `date`. `<label for="...">` memasangkan keterangan dengan kolom lewat `id` yang sama — kunci aksesibilitas.
 
+%%IMG:form-semantik%%
+
 ```html
 <form>
   <label for="nama">Nama:</label>

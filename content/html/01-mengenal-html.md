@@ -4,6 +4,8 @@
 
 Saat kamu membuka sebuah situs, **browser** mengirim permintaan ke **server**, dan server mengirimkan balik sebuah dokumen HTML. Browser lalu membaca dokumen itu dan menggambar halamannya. HTML adalah bahasa yang dipakai server dan browser untuk saling bicara.
 
+%%IMG:web-browser-server%%
+
 ## Web Bekerja: Browser, Server, HTML
 
 - **HTML** = *HyperText Markup Language* — bahasa penanda (*markup*), bukan bahasa pemrograman.
@@ -18,6 +20,8 @@ Dua baris HTML saja sudah menjadi sebuah halaman:
 ```
 
 > 💡 **Trio web.** HTML itu tulang dan kerangka, CSS pakaian, JavaScript perilaku. Ketiganya selalu bekerja bersama — dan di CodeShark, kamu melatih ketiganya lewat ajang latihan mengetik tiap pertemuan.
+
+%%IMG:web-trio%%
 
 ## Berkas Pertama & Cara Membukanya
 
