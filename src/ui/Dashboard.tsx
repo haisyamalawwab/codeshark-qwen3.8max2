@@ -3,6 +3,7 @@ import type { SaveData } from "../lib/storage";
 import { rankOf } from "../lib/storage";
 import type { AgeCfg, ModuleDef } from "../data/modules";
 import { MODULES } from "../data/modules";
+import { HTML_DOCS } from "../data/materiHtml";
 import { sfx } from "../lib/audio";
 import {
   IconFin, IconBolt, IconCoin, IconBook, IconKeyboard, IconStar, IconStarLine,
@@ -18,6 +19,8 @@ interface Props {
   cfg: AgeCfg;
   onMateri: (id: string) => void;
   onPractice: (id: string) => void;
+  /** buka Materi HTML berbasis dokumen .md per pertemuan */
+  onMateriHtml?: () => void;
   onToggleSound: () => void;
   onResetProfile: () => void;
 }
@@ -49,7 +52,7 @@ function useReveal() {
   return ref;
 }
 
-export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSound, onResetProfile }: Props) {
+export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtml, onToggleSound, onResetProfile }: Props) {
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -212,6 +215,26 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onToggleSou
                   COMBO MAKS
                 </p>
               </div>
+
+              {/* Card 5: AKSES CEPAT — Materi HTML dokumen .md per pertemuan (P1-P6) */}
+              {onMateriHtml && (
+                <button
+                  type="button"
+                  onClick={() => { sfx.click(); onMateriHtml(); }}
+                  title={`Materi HTML: ${HTML_DOCS.map((d) => `P${d.no}`).join(" · ")}`}
+                  className="hud-stat-box hud-stat-box-html p-3.5 flex flex-col justify-between text-left cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <div className="flex items-center justify-between" style={{ color: "#7ee4ff" }}>
+                    <IconBook size={18} />
+                    <span className="font-display font-extrabold text-lg leading-none" style={{ color: "#7ee4ff" }}>
+                      P1–P6
+                    </span>
+                  </div>
+                  <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
+                    MATERI HTML (.md)
+                  </p>
+                </button>
+              )}
             </div>
           </div>
         </section>
