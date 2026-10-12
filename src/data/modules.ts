@@ -253,6 +253,73 @@ export const MODULES: ModuleDef[] = [
           },
         ],
       },
+      {
+        kicker: "Materi 4 • Teks & Media",
+        title: "Teks, Gambar, dan Link",
+        blocks: [
+          {
+            t: "p",
+            text: "Selain judul dan paragraf, ada tag untuk menekankan teks: <strong> untuk tebal (penting!) dan <em> untuk miring (penekanan). Link dibuat dengan tag <a> yang memakai atribut href — mengkliknya membawa pengunjung ke halaman lain. Gambar dipasang dengan <img> yang punya atribut src sebagai alamat file, dan alt sebagai deskripsi bila gambar gagal dimuat.",
+          },
+          {
+            t: "code",
+            lang: "html",
+            code: `<p>Hati-hati, air ini <strong>dalam</strong>!</p>\n<a href="https://developer.mozilla.org">Belajar lagi di MDN</a>\n<img src="hiu.png" alt="Ilustrasi hiu" />`,
+            caption: "<img> tidak butuh tag penutup — disebut tag tunggal",
+          },
+          {
+            t: "callout",
+            tone: "tip",
+            title: "Jangan lupa alt",
+            text: "Isi selalu atribut alt pada gambar. Selain tampil saat gambar gagal dimuat, alt dibaca oleh pembaca layar untuk teman-teman tunanetra.",
+          },
+          {
+            t: "quiz",
+            q: "Atribut apa yang menentukan alamat tujuan sebuah link <a>?",
+            options: ["src", "link", "href", "url"],
+            answer: 2,
+            explain: "<a> memakai href (hypertext reference) untuk alamat tujuan, sedangkan <img> memakai src.",
+          },
+        ],
+      },
+      {
+        kicker: "Materi 5 • Formulir",
+        title: "Formulir: Input & Tombol",
+        blocks: [
+          {
+            t: "p",
+            text: "Formulir adalah cara halaman web bertanya kepada pengunjung: nama, pesan, atau pilihan. <form> membungkus seluruh isian, <input> adalah kolom yang bisa diketik, dan <label> memberi nama pada kolom supaya mudah diklik dan terbaca alat bantu.",
+          },
+          {
+            t: "code",
+            lang: "html",
+            code: `<form>\n  <label for="nama">Nama:</label>\n  <input id="nama" type="text" placeholder="Tulis namamu" />\n  <button type="submit">Kirim</button>\n</form>`,
+            caption: 'type="text", "checkbox", "email", "password" — banyak jenis input',
+          },
+          {
+            t: "list",
+            items: [
+              'type="text" → kolom teks satu baris.',
+              'type="checkbox" → kotak centang, boleh pilih banyak.',
+              'type="radio" → bulatan pilihan, hanya boleh satu.',
+              "placeholder → teks samar panduan sebelum mengetik.",
+            ],
+          },
+          {
+            t: "callout",
+            tone: "warn",
+            title: "Hati-hati!",
+            text: "Setiap <input> sebaiknya punya <label> dengan for yang sama dengan id input-nya. Tanpa itu, formulir sulit dipakai dan membingungkan.",
+          },
+          {
+            t: "quiz",
+            q: "Tag mana yang membuat kolom isian yang bisa diketik pengunjung?",
+            options: ["<box>", "<input>", "<type>", "<field>"],
+            answer: 1,
+            explain: "<input> adalah kolom isian. Jenisnya diatur lewat atribut type, misalnya text atau email.",
+          },
+        ],
+      },
     ],
   },
   {
