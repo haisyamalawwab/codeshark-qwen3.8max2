@@ -7,6 +7,7 @@ import Ambient from "./graphics/Ambient";
 import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
 import Materi from "./ui/Materi";
+import MateriHtml from "./ui/MateriHtml";
 import TypingGame from "./ui/TypingGame";
 import type { GameResult } from "./ui/TypingGame";
 import Results from "./ui/Results";
@@ -14,6 +15,7 @@ import Results from "./ui/Results";
 type Screen =
   | { s: "dash" }
   | { s: "materi"; id: string }
+  | { s: "materi-html" }
   | { s: "game"; id: string; k: number }
   | { s: "result"; id: string; r: GameResult; xp: number; coins: number; rankUp: string | null };
 
@@ -132,10 +134,19 @@ export default function App() {
         <Dashboard
           save={save}
           cfg={cfg}
-          onMateri={(id) => setScreen({ s: "materi", id })}
+          onMateri={(id) =>
+            /* modul HTML memakai dokumen .md per pertemuan sebagai materi utama */
+            id === "html" ? setScreen({ s: "materi-html" }) : setScreen({ s: "materi", id })
+          }
           onPractice={enterPractice}
+          onMateriHtml={() => setScreen({ s: "materi-html" })}
           onToggleSound={toggleSound}
           onResetProfile={resetProfile}
+        />
+      ) : screen.s === "materi-html" ? (
+        <MateriHtml
+          onPractice={enterPractice}
+          onExit={() => setScreen({ s: "dash" })}
         />
       ) : screen.s === "materi" ? (
         <Materi
