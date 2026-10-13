@@ -276,7 +276,8 @@ export function Pertemuan({ save, startNo, onExit, onMateri, onPlay }: Props) {
                   ))}
                 </div>
                 <p className="text-[11px] text-[var(--faint)]">
-                  Urutan yang disarankan: Quest → Drill (lulus = Perak) → Juggling (Emas). Mesin ketik: {LESSON_LANG[no] ?? "html"}.
+                  Urutan yang disarankan: Quest → Drill (lulus = Perak) → Juggling (Emas). Mesin: {LESSON_LANG[no] ?? "html"}.
+                  Di HP otomatis memakai <strong className="text-[var(--teal)]">mode Susun Menara</strong> (ketuk blok, tanpa keyboard) — di PC memakai mode Ketik. Bisa diganti manual di layar permainan.
                 </p>
               </div>
 

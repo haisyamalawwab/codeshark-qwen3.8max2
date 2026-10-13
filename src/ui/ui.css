@@ -730,6 +730,153 @@
   animation: dangerPulse 1.1s ease-in-out infinite;
 }
 
+/* ===== MODE SWITCH: Ketik vs Susun (satu layar game, tanpa halaman berbeda) ===== */
+.mode-switch {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: rgba(4, 16, 29, 0.85);
+  border: 1px solid var(--line-soft);
+  max-width: 430px;
+  margin: 0 auto;
+}
+.mode-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--dim);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+.mode-btn.on {
+  background: linear-gradient(180deg, rgba(46, 230, 200, 0.2), rgba(46, 230, 200, 0.08));
+  border-color: rgba(46, 230, 200, 0.55);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(46, 230, 200, 0.2);
+}
+
+/* ===== TOWER PUZZLE (mode sentuh) ===== */
+.tower-shaft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 6px 4px;
+  max-height: 46vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.tower-floor {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 9px 12px 9px 38px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(21, 66, 102, 0.95), rgba(10, 34, 56, 0.95));
+  border: 1.5px solid rgba(46, 230, 200, 0.5);
+  box-shadow: 0 4px 0 rgba(3, 14, 25, 0.9), 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 14px rgba(46, 230, 200, 0.12);
+}
+.tower-floor-no {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-family: var(--font-m);
+  font-size: 11px;
+  font-weight: 800;
+  color: #04222b;
+  background: linear-gradient(160deg, #7ee4ff, #2ee6c8);
+}
+.tower-floor-code {
+  font-family: var(--font-m);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #d7ecf9;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.tower-crane {
+  position: absolute;
+  right: -6px;
+  top: -19px;
+  font-size: 20px;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+}
+.tower-base {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 3px solid rgba(255, 194, 71, 0.5);
+  width: min(100%, 340px);
+}
+
+.puzzle-block {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  min-height: 52px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: rgba(9, 30, 50, 0.8);
+  border: 1.5px solid rgba(126, 196, 236, 0.28);
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.puzzle-block:hover:not(:disabled) { border-color: rgba(46, 230, 200, 0.6); background: rgba(13, 42, 68, 0.9); }
+.puzzle-block:active:not(:disabled) { transform: scale(0.985); }
+.puzzle-block:disabled { opacity: 0.55; cursor: default; }
+.puzzle-code {
+  font-family: var(--font-m);
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.puzzle-wrong {
+  border-color: rgba(255, 107, 87, 0.7) !important;
+  background: rgba(255, 107, 87, 0.1) !important;
+}
+.puzzle-hint {
+  border-color: rgba(255, 194, 71, 0.8) !important;
+  background: rgba(255, 194, 71, 0.1) !important;
+  box-shadow: 0 0 18px rgba(255, 194, 71, 0.3);
+}
+.puzzle-badge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 800;
+  background: var(--coral);
+  color: #fff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shimmer::after, .ping-dot::after, .glow-pulse,
   .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char { animation: none !important; }

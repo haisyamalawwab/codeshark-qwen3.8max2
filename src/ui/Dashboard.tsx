@@ -257,6 +257,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <h2 className="font-display font-extrabold text-xl md:text-2xl text-white">Peta Pertemuan 16×</h2>
                 <p className="text-xs md:text-sm text-[var(--dim)] mt-0.5">
                   Tiap pertemuan: materi → <strong>Quest</strong> (kode utuh) → <strong>Drill</strong> (sintaks inti) → <strong>Juggling</strong> (anyam dua materi).
+                  Di HP main via <strong>Susun Menara</strong> 🧱, di PC via <strong>Ketik Kode</strong> ⌨️.
                 </p>
               </div>
               <span className="btn btn-primary !py-2.5 !px-5 shrink-0 justify-center">Buka Peta <IconArrowR size={15} /></span>

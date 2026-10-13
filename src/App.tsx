@@ -14,6 +14,9 @@ import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
 import TypingGame from "./ui/TypingGame";
 import type { GameResult } from "./ui/TypingGame";
+import TowerPuzzle from "./ui/TowerPuzzle";
+import { defaultMode, isTouchDevice } from "./lib/device";
+import type { PlayMode } from "./lib/device";
 import Results from "./ui/Results";
 
 type Screen =
@@ -29,6 +32,10 @@ export default function App() {
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
   const [screen, setScreen] = useState<Screen>({ s: "dash" });
   const [gameKey, setGameKey] = useState(0);
+  /* mode permainan: susun-menara (sentuh) vs ketik (keyboard).
+     Default otomatis dari perangkat; pemain bisa mengganti manual di layar game. */
+  const [playMode, setPlayMode] = useState<PlayMode>(() => defaultMode());
+  const [touch] = useState(() => isTouchDevice());
 
   useEffect(() => persist(save), [save]);
   useEffect(() => {
@@ -168,13 +175,56 @@ export default function App() {
           onExit={() => setScreen({ s: "dash" })}
         />
       ) : screen.s === "game" ? (
-        <TypingGame
-          key={`${screen.id}-${screen.k}`}
-          mod={sessionOf(screen.id)}
-          cfg={cfg}
-          onDone={(r) => finishPractice(screen.id, r)}
-          onExit={() => setScreen({ s: "dash" })}
-        />
+        <div key={`${screen.id}-${screen.k}`}>
+          {/* pemilih mode — satu layar game, dua cara main (tidak perlu halaman berbeda) */}
+          <div className="relative z-40 max-w-5xl mx-auto px-4 pt-3">
+            <div className="mode-switch" role="tablist" aria-label="Mode permainan">
+              <button
+                role="tab"
+                aria-selected={playMode === "susun"}
+                className={`mode-btn ${playMode === "susun" ? "on" : ""}`}
+                onClick={() => { setPlayMode("susun"); setGameKey((k) => k + 1); }}
+              >
+                🧱 Susun Menara{touch ? " • HP" : ""}
+              </button>
+              <button
+                role="tab"
+                aria-selected={playMode === "ketik"}
+                className={`mode-btn ${playMode === "ketik" ? "on" : ""}`}
+                onClick={() => { setPlayMode("ketik"); setGameKey((k) => k + 1); }}
+              >
+                ⌨️ Ketik Kode{touch ? "" : " • PC"}
+              </button>
+            </div>
+            {touch && playMode === "ketik" && (
+              <p className="text-center text-[11px] text-[var(--amber)] font-semibold mt-1.5">
+                Keyboard HP menyulitkan simbol &lt; &gt; {"{}"} ; — disarankan tetap di mode Susun Menara.
+              </p>
+            )}
+            {!touch && playMode === "susun" && (
+              <p className="text-center text-[11px] text-[var(--faint)] font-semibold mt-1.5">
+                Mode Susun juga bisa dimainkan dengan mouse — cocok untuk pemanasan sebelum mengetik.
+              </p>
+            )}
+          </div>
+          {playMode === "susun" ? (
+            <TowerPuzzle
+              key={`susun-${screen.id}-${screen.k}-${gameKey}`}
+              mod={sessionOf(screen.id)}
+              cfg={cfg}
+              onDone={(r) => finishPractice(screen.id, r)}
+              onExit={() => setScreen({ s: "dash" })}
+            />
+          ) : (
+            <TypingGame
+              key={`ketik-${screen.id}-${screen.k}-${gameKey}`}
+              mod={sessionOf(screen.id)}
+              cfg={cfg}
+              onDone={(r) => finishPractice(screen.id, r)}
+              onExit={() => setScreen({ s: "dash" })}
+            />
+          )}
+        </div>
       ) : (
         <Results
           mod={sessionOf(screen.id)}

@@ -147,7 +147,7 @@ export default function Results({ mod, cfg, result, passed, xpGained, coinsGaine
             ))}
           </div>
           <p className="text-xs text-[var(--faint)] font-semibold mt-3">
-            {r.correct} ketikan benar • {r.errors} kesalahan {r.errors === 0 && "— tanpa cela!"}
+            {r.correct} aksi benar • {r.errors} kesalahan {r.errors === 0 && "— tanpa cela!"}
           </p>
 
           {/* kenapa bintang ini? + karakter tersulit */}

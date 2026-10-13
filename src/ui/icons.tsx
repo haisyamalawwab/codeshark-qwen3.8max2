@@ -186,6 +186,16 @@ export const IconInfo = make(
     <circle cx="12" cy="7.8" r="1" fill="currentColor" stroke="none" />
   </>
 );
+export const IconTower = make(
+  <>
+    <path d="M8 3.5h8" />
+    <path d="M9 3.5V7h6V3.5" />
+    <path d="M7.5 7v3.5h9V7" />
+    <path d="M6 10.5v3.5h12v-3.5" />
+    <path d="M4.5 14v3.5h15V14" />
+    <path d="M3 17.5h18V21H3z" />
+  </>
+);
 export const IconFin = make(
   <path
     d="M4 19c1.5-8 7-12.5 16-13.5-3 3.5-4 6.5-4 13.5H4z M15.5 19c.8-3.4 2.5-5.6 5-7-.8 2.4-.9 4.2-.9 7h-4.1z"
