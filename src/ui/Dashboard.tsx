@@ -9,7 +9,10 @@ import {
   IconFin, IconBolt, IconCoin, IconBook, IconKeyboard, IconStar, IconStarLine,
   IconLock, IconCheck, IconArrowR, IconEye, IconRetry, IconSound, IconMute,
    IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
+  IconTower,
 } from "./icons";
+import { SUBGAMES, SUBGAME_ORDER } from "../data/subgames";
+import type { SubGameId } from "../data/subgames";
 import { tokenize } from "../lib/highlight";
 import { CaptainAvatar } from "../characters";
 import MiniSpeedometer from "./MiniSpeedometer";
@@ -23,6 +26,10 @@ interface Props {
   onMateriHtml?: () => void;
   /** buka Peta Pertemuan 16× (quest · drill · juggling) */
   onPeta?: () => void;
+  /** arena aktif + pemilih sub-game (hub utama) */
+  subGame?: SubGameId;
+  isTouch?: boolean;
+  onSelectSubGame?: (id: SubGameId) => void;
   onToggleSound: () => void;
   onResetProfile: () => void;
 }
@@ -54,7 +61,7 @@ function useReveal() {
   return ref;
 }
 
-export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtml, onPeta, onToggleSound, onResetProfile }: Props) {
+export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtml, onPeta, subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile }: Props) {
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -241,6 +248,75 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
           </div>
         </section>
 
+        {/* ============ HUB SUB-GAME: pilih arena dulu ============ */}
+        <section className="mt-10 reveal">
+          <div className="flex items-center gap-4 mb-5">
+            <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
+              Pilih Sub-Game
+            </h2>
+            <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
+            <span className="chip shrink-0">
+              Aktif: <strong className="text-[var(--teal)]">{SUBGAMES[subGame].name}</strong>
+            </span>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            {SUBGAME_ORDER.map((id) => {
+              const g = SUBGAMES[id];
+              const active = subGame === id;
+              const recommended = isTouch && id === "tower";
+              const GIcon = id === "tower" ? IconTower : IconKeyboard;
+              return (
+                <article
+                  key={id}
+                  className={`arena-card ${active ? "arena-active" : ""}`}
+                >
+                  <div className="flex items-start gap-3.5">
+                    <span className={`w-14 h-14 shrink-0 rounded-2xl grid place-items-center border ${active ? "bg-[rgba(46,230,200,0.14)] border-[rgba(46,230,200,0.55)] text-[var(--teal)]" : "bg-[rgba(10,30,48,0.6)] border-[rgba(126,196,236,0.2)] text-[var(--dim)]"}`}>
+                      <GIcon size={27} />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display font-extrabold text-xl text-white leading-tight">{g.name}</h3>
+                        {active && (
+                          <span className="chip !text-[var(--teal)] !border-[rgba(46,230,200,0.5)] !py-0.5 !text-[11px]">
+                            <IconCheck size={12} /> Aktif
+                          </span>
+                        )}
+                        {recommended && !active && (
+                          <span className="chip !text-[var(--amber)] !border-[rgba(255,194,71,0.5)] !py-0.5 !text-[11px]">
+                            Disarankan di HP
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-extrabold tracking-[0.16em] uppercase text-[var(--cyan)] mt-0.5">{g.tagline}</p>
+                      <p className="text-xs md:text-sm text-[var(--dim)] mt-1.5 leading-relaxed">{g.desc}</p>
+                      <ul className="flex flex-wrap gap-1.5 mt-2.5">
+                        {g.points.map((p) => (
+                          <li key={p} className="hud-chip !text-[11px]">{p}</li>
+                        ))}
+                      </ul>
+                      <button
+                        type="button"
+                        disabled={active && !onPeta}
+                        onClick={() => { sfx.click(); onSelectSubGame?.(id); if (!active) return; onPeta?.(); }}
+                        className={`mt-3.5 w-full sm:w-auto px-6 py-2.5 text-sm justify-center ${active ? "btn btn-primary" : "hud-btn-practice"}`}
+                      >
+                        {active ? <>Main {g.short} <IconArrowR size={15} /></> : g.cta}
+                      </button>
+                      {!active && onPeta && (
+                        <p className="text-[11px] text-[var(--faint)] font-semibold mt-1.5">Pilih lalu ketuk lagi untuk masuk peta.</p>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-[var(--faint)] font-semibold mt-2.5">
+            Satu kurikulum 16 pertemuan, dua cara main — progres XP, koin &amp; bintang berlaku untuk keduanya.
+          </p>
+        </section>
+
         {/* ============ PETA PERTEMUAN 16× ============ */}
         {onPeta && (
           <section className="mt-10 reveal">
@@ -253,11 +329,10 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <IconKeyboard size={26} />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--amber)]">Kurikulum • 16 pertemuan</p>
+                <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--amber)]">Kurikulum • 16 pertemuan • Arena {SUBGAMES[subGame].name}</p>
                 <h2 className="font-display font-extrabold text-xl md:text-2xl text-white">Peta Pertemuan 16×</h2>
                 <p className="text-xs md:text-sm text-[var(--dim)] mt-0.5">
-                  Tiap pertemuan: materi → <strong>Quest</strong> (kode utuh) → <strong>Drill</strong> (sintaks inti) → <strong>Juggling</strong> (anyam dua materi).
-                  Di HP main via <strong>Susun Menara</strong> 🧱, di PC via <strong>Ketik Kode</strong> ⌨️.
+                  Tiap pertemuan: materi → <strong>Quest</strong> (kode utuh) → <strong>Drill</strong> (sintaks inti) → <strong>Juggling</strong> (anyam dua materi) — dimainkan sebagai <strong>{subGame === "tower" ? "Susun Menara 🧱" : "Shark Typer ⌨️"}</strong>.
                 </p>
               </div>
               <span className="btn btn-primary !py-2.5 !px-5 shrink-0 justify-center">Buka Peta <IconArrowR size={15} /></span>
@@ -274,7 +349,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             </h2>
             <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
             <span className="text-xs font-bold text-[var(--dim)] tracking-wide shrink-0 hidden sm:inline">
-              Alur: Materi → Praktik Ketik → Preview
+              Alur: Materi → {subGame === "tower" ? "Susun Menara" : "Praktik Ketik"} → Preview
             </span>
           </div>
 
@@ -426,7 +501,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                                 className="hud-btn-practice py-2.5 px-6 flex items-center justify-center gap-2 text-sm"
                                 onClick={() => { sfx.click(); onPractice(m.id); }}
                               >
-                                <IconKeyboard size={16} /> {done ? "Ulangi Praktik" : "Mulai Praktik Ketik"}
+                                {subGame === "tower" ? <IconTower size={16} /> : <IconKeyboard size={16} />} {done ? (subGame === "tower" ? "Ulangi Susun" : "Ulangi Ketik") : (subGame === "tower" ? "Mulai Susun" : "Mulai Praktik Ketik")}
                               </button>
 
                               <div className="flex gap-2">

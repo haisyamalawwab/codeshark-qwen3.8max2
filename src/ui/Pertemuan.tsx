@@ -10,11 +10,15 @@ import type { SaveData } from "../lib/storage";
 import { meetingLevel, meetingUnlocked, sessionPassed, LEVEL_NAME, totalMeetings } from "../lib/progress";
 import { sfx } from "../lib/audio";
 import { tokenize } from "../lib/highlight";
-import { IconBook, IconKeyboard, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
+import { SUBGAMES } from "../data/subgames";
+import type { SubGameId } from "../data/subgames";
+import { IconBook, IconKeyboard, IconTower, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
 
 interface Props {
   save: SaveData;
   startNo: number;
+  /** arena yang sedang aktif (dipilih di hub) */
+  subGame?: SubGameId;
   onExit: () => void;
   /** buka materi .md (hanya pertemuan HTML) */
   onMateri: (no: number) => void;
@@ -121,10 +125,10 @@ function SlideView({ s, color }: { s: Slide; color: string }) {
 
 /* ---------- kartu sesi ketik (quest / drill / juggling) ---------- */
 function SessionCard({
-  no, kind, label, hint, save, locked, onPlay,
+  no, kind, label, hint, save, locked, subGame, onPlay,
 }: {
   no: number; kind: Exclude<SessionKind, "misi">; label: string; hint: string;
-  save: SaveData; locked: boolean; onPlay: () => void;
+  save: SaveData; locked: boolean; subGame: SubGameId; onPlay: () => void;
 }) {
   const sess = getSession(questId(no, kind));
   const done = sessionPassed(save, questId(no, kind));
@@ -147,13 +151,15 @@ function SessionCard({
         onClick={() => { sfx.click(); onPlay(); }}
         className="btn btn-primary !py-2 text-xs justify-center disabled:opacity-40"
       >
-        {locked ? <><IconLock size={13} /> Terkunci</> : <><IconKeyboard size={14} /> {done ? "Ulangi" : "Mulai"}</>}
+        {locked ? <><IconLock size={13} /> Terkunci</> : subGame === "tower"
+          ? <><IconTower size={14} /> {done ? "Ulangi Susun" : "Susun"}</>
+          : <><IconKeyboard size={14} /> {done ? "Ulangi Ketik" : "Ketik"}</>}
       </button>
     </div>
   );
 }
 
-export function Pertemuan({ save, startNo, onExit, onMateri, onPlay }: Props) {
+export function Pertemuan({ save, startNo, subGame = "shark", onExit, onMateri, onPlay }: Props) {
   const [no, setNo] = useState(startNo);
   const [openSlide, setOpenSlide] = useState<number | null>(0);
   const l: Lesson = getLesson(no);
@@ -183,7 +189,7 @@ export function Pertemuan({ save, startNo, onExit, onMateri, onPlay }: Props) {
           </button>
           <div className="leading-tight mr-auto min-w-0">
             <p className="text-[10px] font-extrabold tracking-[0.22em] uppercase text-[var(--amber)]">
-              Peta • {passedMeetings}/{totalMeetings()} tuntas (Perak+)
+              {SUBGAMES[subGame].name} • {passedMeetings}/{totalMeetings()} tuntas (Perak+)
             </p>
             <p className="font-display font-bold truncate">Peta Pertemuan 16×</p>
           </div>
@@ -266,18 +272,20 @@ export function Pertemuan({ save, startNo, onExit, onMateri, onPlay }: Props) {
                 })}
               </div>
 
-              {/* tiga sesi ketik */}
+              {/* tiga sesi — dimainkan sesuai arena aktif */}
               <div className="space-y-2">
-                <p className="text-[11px] font-extrabold uppercase tracking-[0.2em]" style={{ color: c }}>Misi ketik pertemuan ini</p>
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.2em]" style={{ color: c }}>
+                  Misi {SUBGAMES[subGame].short} pertemuan ini
+                </p>
                 <div className="grid sm:grid-cols-3 gap-2.5">
                   {KINDS.map((k) => (
                     <SessionCard key={k.kind} no={no} kind={k.kind} label={k.label} hint={k.hint}
-                      save={save} locked={!unlocked} onPlay={() => onPlay(no, k.kind)} />
+                      save={save} locked={!unlocked} subGame={subGame} onPlay={() => onPlay(no, k.kind)} />
                   ))}
                 </div>
                 <p className="text-[11px] text-[var(--faint)]">
-                  Urutan yang disarankan: Quest → Drill (lulus = Perak) → Juggling (Emas). Mesin: {LESSON_LANG[no] ?? "html"}.
-                  Di HP otomatis memakai <strong className="text-[var(--teal)]">mode Susun Menara</strong> (ketuk blok, tanpa keyboard) — di PC memakai mode Ketik. Bisa diganti manual di layar permainan.
+                  Urutan yang disarankan: Quest → Drill (lulus = Perak) → Juggling (Emas). Bahasa: {LESSON_LANG[no] ?? "html"}.
+                  Arena aktif: <strong className="text-[var(--teal)]">{SUBGAMES[subGame].name}</strong> ({SUBGAMES[subGame].tagline}) — ganti di hub utama atau banner layar permainan.
                 </p>
               </div>
 

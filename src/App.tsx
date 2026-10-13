@@ -15,8 +15,9 @@ import MateriHtml from "./ui/MateriHtml";
 import TypingGame from "./ui/TypingGame";
 import type { GameResult } from "./ui/TypingGame";
 import TowerPuzzle from "./ui/TowerPuzzle";
-import { defaultMode, isTouchDevice } from "./lib/device";
-import type { PlayMode } from "./lib/device";
+import { isTouchDevice } from "./lib/device";
+import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
+import type { SubGameId } from "./data/subgames";
 import Results from "./ui/Results";
 
 type Screen =
@@ -32,10 +33,17 @@ export default function App() {
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
   const [screen, setScreen] = useState<Screen>({ s: "dash" });
   const [gameKey, setGameKey] = useState(0);
-  /* mode permainan: susun-menara (sentuh) vs ketik (keyboard).
-     Default otomatis dari perangkat; pemain bisa mengganti manual di layar game. */
-  const [playMode, setPlayMode] = useState<PlayMode>(() => defaultMode());
+  /* SUB-GAME aktif — dipilih di hub Dashboard, tersimpan antar sesi.
+     Default: HP → Coding Tower, PC → CodeShark. Bisa diganti kapan saja. */
   const [touch] = useState(() => isTouchDevice());
+  const [subGame, setSubGame] = useState<SubGameId>(() =>
+    loadSubGame(isTouchDevice() ? "tower" : "shark")
+  );
+
+  const selectSubGame = (id: SubGameId) => {
+    setSubGame(id);
+    saveSubGame(id);
+  };
 
   useEffect(() => persist(save), [save]);
   useEffect(() => {
@@ -145,6 +153,9 @@ export default function App() {
           onPractice={enterPractice}
           onMateriHtml={() => setScreen({ s: "materi-html" })}
           onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
+          subGame={subGame}
+          isTouch={touch}
+          onSelectSubGame={selectSubGame}
           onToggleSound={toggleSound}
           onResetProfile={resetProfile}
         />
@@ -153,6 +164,7 @@ export default function App() {
           key={screen.no}
           save={save}
           startNo={screen.no}
+          subGame={subGame}
           onExit={() => setScreen({ s: "dash" })}
           onMateri={(no) => setScreen({ s: "materi-html", no })}
           onPlay={(no, kind) => playQuest(no, kind)}
@@ -176,38 +188,27 @@ export default function App() {
         />
       ) : screen.s === "game" ? (
         <div key={`${screen.id}-${screen.k}`}>
-          {/* pemilih mode — satu layar game, dua cara main (tidak perlu halaman berbeda) */}
+          {/* banner arena aktif — ganti sub-game tanpa kembali ke hub */}
           <div className="relative z-40 max-w-5xl mx-auto px-4 pt-3">
-            <div className="mode-switch" role="tablist" aria-label="Mode permainan">
-              <button
-                role="tab"
-                aria-selected={playMode === "susun"}
-                className={`mode-btn ${playMode === "susun" ? "on" : ""}`}
-                onClick={() => { setPlayMode("susun"); setGameKey((k) => k + 1); }}
-              >
-                🧱 Susun Menara{touch ? " • HP" : ""}
-              </button>
-              <button
-                role="tab"
-                aria-selected={playMode === "ketik"}
-                className={`mode-btn ${playMode === "ketik" ? "on" : ""}`}
-                onClick={() => { setPlayMode("ketik"); setGameKey((k) => k + 1); }}
-              >
-                ⌨️ Ketik Kode{touch ? "" : " • PC"}
-              </button>
+            <div className="mode-switch" role="tablist" aria-label="Sub-game aktif">
+              {(["tower", "shark"] as SubGameId[]).map((id) => (
+                <button
+                  key={id}
+                  role="tab"
+                  aria-selected={subGame === id}
+                  className={`mode-btn ${subGame === id ? "on" : ""}`}
+                  onClick={() => { selectSubGame(id); setGameKey((k) => k + 1); sfx.click(); }}
+                >
+                  {id === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"}
+                </button>
+              ))}
             </div>
-            {touch && playMode === "ketik" && (
-              <p className="text-center text-[11px] text-[var(--amber)] font-semibold mt-1.5">
-                Keyboard HP menyulitkan simbol &lt; &gt; {"{}"} ; — disarankan tetap di mode Susun Menara.
-              </p>
-            )}
-            {!touch && playMode === "susun" && (
-              <p className="text-center text-[11px] text-[var(--faint)] font-semibold mt-1.5">
-                Mode Susun juga bisa dimainkan dengan mouse — cocok untuk pemanasan sebelum mengetik.
-              </p>
-            )}
+            <p className="text-center text-[11px] text-[var(--faint)] font-semibold mt-1.5">
+              Arena: <strong className="text-[var(--teal)]">{SUBGAMES[subGame].name}</strong> — {SUBGAMES[subGame].tagline}
+              {touch && subGame === "shark" && " • keyboard HP menyulitkan simbol < > {} ;"}
+            </p>
           </div>
-          {playMode === "susun" ? (
+          {subGame === "tower" ? (
             <TowerPuzzle
               key={`susun-${screen.id}-${screen.k}-${gameKey}`}
               mod={sessionOf(screen.id)}
