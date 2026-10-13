@@ -86,7 +86,6 @@ export default defineConfig({
           if (id.includes("p5")) return "game-p5";
           if (id.includes("matter-js")) return "game-matter";
           if (id.includes("@dnd-kit")) return "game-dnd";
-          if (id.includes("animejs")) return "game-anime";
           if (id.includes("react") || id.includes("scheduler")) return "vendor-react";
           return "vendor";
         },

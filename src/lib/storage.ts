@@ -1,6 +1,6 @@
 /* Lapisan penyimpanan lokal (localStorage, namespace codeshark:v1).
-   Untuk v0.1 MVP ini pilihan paling tepat — SQLite browser (sql.js/WASM)
-   bisa dipertimbangkan di versi berikutnya bila data makin kompleks. */
+    Sejak v0.1 MVP hingga v0.9 pilihan paling tepat — SQLite browser (sql.js/WASM)
+    bisa dipertimbangkan bila data makin kompleks. */
 
 export type AgeId = "junior" | "teen" | "senior" | "academy";
 

@@ -534,7 +534,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
 
         {/* Footer info progres */}
         <p className="text-center text-xs text-[var(--faint)] mt-16 font-medium reveal">
-          CodeShark Academy v0.1 (MVP) — progres tersimpan di localStorage perangkatmu. Upgrade berikutnya: lebih banyak misi, mode tantangan harian, dan papan peringkat.
+          latihan.my.id v0.9 — progres tersimpan di localStorage perangkatmu.
         </p>
       </main>
 

@@ -3,9 +3,8 @@
    - Kartu CodeShark → ./codingshark/  (Shark Typer, ketik kode, butuh keyboard)
    - Kartu Coding Tower → ./codingtower/ (susun blok, ramah HP, Matter+Pixi+p5 lazy)
    - Slot "Segera hadir" untuk sub-game berikutnya (tinggal tambah folder + kartu).
-   Desain netral (tidak meniru tema gelap shark / terang tower) agar jadi payung. */
-import { useEffect, useRef } from "react";
-import { popIn } from "../lib/anims";
+   Desain netral (tidak meniru tema gelap shark / terang tower) agar jadi payung.
+   Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi. */
 
 interface HubGame {
   id: string;
@@ -72,15 +71,6 @@ const GAMES: HubGame[] = [
 ];
 
 export default function HubApp() {
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const cards = gridRef.current?.querySelectorAll("article");
-    cards?.forEach((c, i) => {
-      window.setTimeout(() => popIn(c as HTMLElement), 90 * i);
-    });
-  }, []);
-
   return (
     <div className="min-h-screen" style={{ background: "#060f1d", color: "#e6f2f8" }}>
       <header className="sticky top-0 z-40 backdrop-blur-md" style={{ background: "rgba(6,15,29,0.86)", borderBottom: "1px solid rgba(69,198,255,0.16)" }}>
@@ -123,15 +113,16 @@ export default function HubApp() {
           </div>
         </section>
 
-        <div ref={gridRef} className="grid md:grid-cols-2 gap-4 mt-8">
-          {GAMES.map((g) => (
+        <div className="grid md:grid-cols-2 gap-4 mt-8">
+          {GAMES.map((g, i) => (
             <article
               key={g.id}
-              className="rounded-2xl p-5 md:p-6 text-left"
+              className="rounded-2xl p-5 md:p-6 text-left anim-pop"
               style={{
                 background: "rgba(10,28,46,0.9)",
                 border: `1px solid ${g.live ? `${g.accent}66` : "rgba(126,196,236,0.18)"}`,
                 opacity: g.live ? 1 : 0.75,
+                animationDelay: `${i * 90}ms`,
               }}
             >
               <div className="flex items-start gap-3.5">
