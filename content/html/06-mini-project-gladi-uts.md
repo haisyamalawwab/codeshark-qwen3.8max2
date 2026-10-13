@@ -24,6 +24,8 @@ Waktunya merakit: kerangka + heading + daftar + gambar + link + formulir + seman
 - **Validasi gratis:** tempel kode ke validator.w3.org — error muncul baris per baris.
 - **Uji mobile:** buka di HP (DevTools → mode perangkat) — apakah masih terbaca?
 
+%%IMG:checklist-uts%%
+
 ## Gladi Ketik: Proyek Utuh
 
 Latihan ketik pertemuan ini adalah halaman profil gabungan — semua tag yang pernah kamu pelajari muncul. Target: WPM stabil dan akurasi ≥ 90% tanpa melihat keyboard untuk simbol `< > " /`.

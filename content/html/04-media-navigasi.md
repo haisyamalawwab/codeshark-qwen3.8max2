@@ -6,6 +6,8 @@
 
 Gambar dipasang dengan tag tunggal `<img>` — tidak punya pasangan penutup. Dua atribut wajib dipahami: `src` (alamat berkas) dan `alt` (teks alternatif untuk pembaca layar dan saat gambar gagal dimuat).
 
+%%IMG:media-link%%
+
 ```html
 <img src="img/hiu.jpg" alt="Ilustrasi hiu berenang" width="320" />
 ```

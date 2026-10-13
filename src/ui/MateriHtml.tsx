@@ -10,6 +10,7 @@ import { HTML_DOCS, getHtmlDoc } from "../data/materiHtml";
 import type { MdDoc } from "../data/materiHtml";
 import { parseMd } from "../lib/markdown";
 import type { MdBlock } from "../lib/markdown";
+import { getFigure } from "../lib/figures";
 import type { Lang } from "../lib/highlight";
 import { sfx } from "../lib/audio";
 import { CodePanel } from "./Dashboard";
@@ -84,6 +85,16 @@ function MdView({ blocks }: { blocks: MdBlock[] }) {
           }
           case "hr":
             return <hr key={i} className="md-hr" />;
+          case "img": {
+            const fig = getFigure(b.key);
+            if (!fig) return null; /* kunci tak dikenal → lewati diam-diam */
+            return (
+              <figure key={i} className="md-figure anim-fadeUp">
+                <div className="md-figure-frame">{fig.node}</div>
+                <figcaption className="md-figure-cap">{fig.caption}</figcaption>
+              </figure>
+            );
+          }
           case "table":
             return (
               <div key={i} className="md-table-wrap anim-fadeUp">

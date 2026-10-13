@@ -6,6 +6,8 @@
 
 Judul halaman memakai tingkat `<h1>` sampai `<h6>`. Gunakan **SATU** `<h1>` per halaman, lalu `<h2>` untuk sub-bab. Teks biasa dibungkus `<p>`. Untuk menekankan makna ada `<strong>` (penting — tampil tebal) dan `<em>` (penekanan — tampil miring).
 
+%%IMG:struktur-tag%%
+
 ```html
 <h1>Resep Samudra</h1>
 <h2>Bahan</h2>
@@ -18,6 +20,8 @@ Judul halaman memakai tingkat `<h1>` sampai `<h6>`. Gunakan **SATU** `<h1>` per 
 - `<br />` memaksa ganti baris — pakai secukupnya.
 
 > 💡 **Mesin pencari suka struktur.** Google membaca heading untuk memahami isi halamanmu. Heading acak-acakan = halaman sulit ditemukan.
+
+%%IMG:hierarki-heading%%
 
 ## Daftar Urut & Tak Berurut
 
