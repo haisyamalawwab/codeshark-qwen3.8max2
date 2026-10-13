@@ -1,18 +1,22 @@
-/* Mode SUSUN MENARA — pengganti mengetik untuk layar sentuh (HP/tablet).
-   Pemain mengetuk blok kode sesuai urutan; tiap blok benar = satu lantai menara.
-   Menghasilkan GameResult yang sama dengan TypingGame sehingga XP/koin/progres
-   memakai satu pintu (App.finishPractice → lib/progress.applyAttempt). */
+/* CODING TOWER — puzzle susun blok HTML berpasangan dengan menara builder.
+   Tiap lantai benar = satu lantai menara + halaman HTML ikut terbentuk (live preview).
+   Level per pertemuan diatur di data/towerLevels.ts — makin jauh makin sulit:
+   tahap dipecah, pengecoh disisipkan, ancaman naik, jatah petunjuk menipis.
+   Menghasilkan GameResult yang sama dengan TypingGame (satu pintu XP/progres). */
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AgeCfg } from "../data/modules";
 import type { Session } from "../data/quests";
 import type { GameResult } from "./TypingGame";
 import { toBlocks, shuffled, floorWidth } from "../lib/puzzle";
+import {
+  getTowerLevel, buildStages, decoysPerStage, extractTag, tagColor,
+} from "../data/towerLevels";
 import { tokenizeLine } from "../lib/highlight";
 import { sfx } from "../lib/audio";
 import { scene } from "../graphics/scene";
 import {
   IconX, IconHeart, IconBolt, IconTimer, IconPause, IconPlay, IconRetry,
-  IconMap, IconFin, IconTarget, IconCheck, IconEye,
+  IconMap, IconFin, IconTarget, IconCheck, IconEye, IconArrowR,
 } from "./icons";
 import { SharkMascot, Diver } from "../characters";
 
@@ -23,28 +27,49 @@ interface Props {
   onExit: () => void;
 }
 
-type Status = "count" | "play" | "pause" | "won" | "dead";
+type Status = "brief" | "count" | "play" | "pause" | "won" | "dead";
 
 interface BankItem {
   id: number;
   text: string;
+  decoy: boolean;
 }
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
 export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
+  const level = useMemo(() => getTowerLevel(mod.num), [mod.num]);
   const blocks = useMemo(() => toBlocks(mod.code), [mod.code]);
-  const bank0 = useMemo<BankItem[]>(
-    () => shuffled(blocks.map((text, i) => ({ id: i, text }))),
-    [blocks]
+  const stages = useMemo(() => buildStages(blocks, level.stageSize), [blocks, level.stageSize]);
+  const stageDecoys = useMemo(
+    () => decoysPerStage(level.decoys.slice(0, level.decoyCount), stages.length),
+    [level, stages.length]
   );
+  const isHtml = mod.lang === "html";
 
+  const offsetOf = (stage: number) => stages.slice(0, stage).reduce((a, s) => a + s.length, 0);
 
-  const [bank, setBank] = useState<BankItem[]>(bank0);
+  const makeBank = (stage: number, placedArr: string[]): BankItem[] => {
+    const offset = stages.slice(0, stage).reduce((a, s) => a + s.length, 0);
+    const k = Math.min(stages[stage]?.length ?? 0, Math.max(0, placedArr.length - offset));
+    const remaining = (stages[stage] ?? []).slice(k);
+    let n = 1000 + stage * 500 + k * 37;
+    const rand = () => { n = (n * 1103515245 + 12345) & 0x7fffffff; return n / 0x7fffffff; };
+    void rand;
+    const items: BankItem[] = [
+      ...remaining.map((text, i) => ({ id: stage * 1000 + k * 50 + i, text, decoy: false })),
+      ...(stageDecoys[stage] ?? []).map((text, i) => ({ id: stage * 1000 + 900 + i, text, decoy: true })),
+    ];
+    return shuffled(items);
+  };
+
+  const [bank, setBank] = useState<BankItem[]>(() => makeBank(0, []));
   const [placed, setPlaced] = useState<string[]>([]);
-  const [status, setStatus] = useState<Status>("count");
+  const [stageIdx, setStageIdx] = useState(0);
+  const [status, setStatus] = useState<Status>("brief");
   const [count, setCount] = useState(3);
   const [showGo, setShowGo] = useState(false);
+  const [view, setView] = useState<"tower" | "page">("tower");
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [correct, setCorrect] = useState(0);
@@ -55,18 +80,23 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
   const [missed, setMissed] = useState<Record<string, number>>({});
   const [wrongId, setWrongId] = useState<number | null>(null);
   const [hintId, setHintId] = useState<number | null>(null);
+  const [hintsUsed, setHintsUsed] = useState(0);
   const [shake, setShake] = useState(0);
   const [flash, setFlash] = useState(0);
   const [toast, setToast] = useState<{ id: number; txt: string } | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   const state = useRef({ startAt: 0, pauseAt: 0, pauseAccum: 0 });
-  const idRef = useRef(1000);
+  const idRef = useRef(100000);
   const onDoneRef = useRef(onDone);
   useEffect(() => { onDoneRef.current = onDone; });
 
-  const threatRate = cfg.threatRate * mod.threatMul * 0.7; // sedikit lebih ramah di sentuh
+  let threatRate = cfg.threatRate * level.threat;
+  if (mod.kind === "drill") threatRate *= 0.8;
+  if (mod.kind === "juggle") threatRate *= 1.25;
+
   const nextText = placed.length < blocks.length ? blocks[placed.length] : null;
+  const nextTag = nextText ? extractTag(nextText) : "";
   const progress = blocks.length ? (placed.length / blocks.length) * 100 : 0;
 
   useEffect(() => {
@@ -159,12 +189,18 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
       won: true, score: finalScore, accuracy: acc, wpm, maxCombo: Math.max(maxCombo, combo),
       stars, timeSec: Math.round(t), correct: finalCorrect, errors, missed: { ...missed },
     };
-    window.setTimeout(() => onDoneRef.current(r), 1500);
+    window.setTimeout(() => onDoneRef.current(r), 1600);
+  };
+
+  const popToast = (txt: string) => {
+    const id = ++idRef.current;
+    setToast({ id, txt });
+    window.setTimeout(() => setToast((t) => (t && t.id === id ? null : t)), 1200);
   };
 
   const tap = (item: BankItem) => {
     if (status !== "play" || nextText === null) return;
-    if (item.text === nextText) {
+    if (!item.decoy && item.text === nextText) {
       const nc = combo + 1;
       setCombo(nc);
       setMaxCombo((m) => Math.max(m, nc));
@@ -175,17 +211,33 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
       setScore(ns);
       setCorrect(nCorrect);
       setPlaced(nPlaced);
-      setBank((b) => b.filter((x) => x.id !== item.id));
       setThreat((th) => Math.max(0, th - cfg.relief * 0.8));
       sfx.key(nc);
       if (nc % 5 === 0) sfx.star();
-      if (nPlaced.length % 3 === 0) {
-        const id = ++idRef.current;
-        setToast({ id, txt: cfg.cheers[(nPlaced.length / 3 | 0) % cfg.cheers.length] });
-        window.setTimeout(() => setToast((t) => (t && t.id === id ? null : t)), 950);
-        sfx.line();
+      if (isHtml) setView((v) => v); // preview ikut bertambah otomatis
+      const offset = offsetOf(stageIdx);
+      const inStage = nPlaced.length - offset;
+      if (inStage >= (stages[stageIdx]?.length ?? 0)) {
+        if (stageIdx + 1 >= stages.length) {
+          setBank([]);
+          win(nPlaced, ns, nCorrect);
+        } else {
+          sfx.line();
+          popToast(`Tahap ${stageIdx + 1} selesai! 🎉`);
+          const nx = stageIdx + 1;
+          setStageIdx(nx);
+          setBank(makeBank(nx, nPlaced));
+        }
+      } else {
+        setBank((b) => b.filter((x) => x.id !== item.id));
+        if (nPlaced.length % 4 === 0) {
+          sfx.line();
+          popToast(cfg.cheers[(nPlaced.length / 4 | 0) % cfg.cheers.length]);
+        }
       }
-      if (nPlaced.length >= blocks.length) win(nPlaced, ns, nCorrect);
+      if (nPlaced.length >= blocks.length && stageIdx + 1 >= stages.length) {
+        /* pengaman ganda bila tahap terakhir berimpit */
+      }
     } else {
       const ne = errors + 1;
       setErrors(ne);
@@ -196,7 +248,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
       sfx.err();
       setShake((s) => s + 1);
       setWrongId(item.id);
-      window.setTimeout(() => setWrongId((w) => (w === item.id ? null : w)), 380);
+      window.setTimeout(() => setWrongId((w) => (w === item.id ? null : w)), 420);
       setThreat((th) => {
         if (th >= 100) {
           hurt();
@@ -209,31 +261,48 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
 
   const undo = () => {
     if (status !== "play" || placed.length === 0) return;
-    const last = placed[placed.length - 1];
-    // kembalikan satu salinan ke bank (id baru agar animasi segar)
-    setPlaced((p) => p.slice(0, -1));
-    setBank((b) => [...b, { id: ++idRef.current, text: last }]);
+    const nPlaced = placed.slice(0, -1);
+    setPlaced(nPlaced);
     setCorrect((c) => Math.max(0, c - 1));
     setCombo(0);
+    // kembali ke tahap pemilik lantai tersebut
+    let acc = 0;
+    let ns = 0;
+    for (let i = 0; i < stages.length; i++) {
+      if (nPlaced.length >= acc + stages[i].length) { acc += stages[i].length; ns = i + 1; }
+      else break;
+    }
+    ns = Math.min(ns, stages.length - 1);
+    setStageIdx(ns);
+    setBank(makeBank(ns, nPlaced));
     sfx.click();
   };
 
   const hint = () => {
-    if (status !== "play" || nextText === null) return;
-    const found = bank.find((b) => b.text === nextText);
+    if (status !== "play" || nextText === null || hintsUsed >= level.hintLimit) return;
+    const found = bank.find((b) => !b.decoy && b.text === nextText);
     if (!found) return;
+    setHintsUsed((h) => h + 1);
     setHintId(found.id);
-    setThreat((th) => Math.min(99, th + 4)); // petunjuk berbayar murah: +4 ancaman
+    setThreat((th) => Math.min(99, th + level.hintCost));
     sfx.quizOk();
-    window.setTimeout(() => setHintId((h) => (h === found.id ? null : h)), 1400);
+    window.setTimeout(() => setHintId((h) => (h === found.id ? null : h)), 1500);
+  };
+
+  const startFromBrief = () => {
+    sfx.click();
+    setCount(3);
+    setStatus("count");
   };
 
   const retry = () => {
-    setBank(bank0);
+    setBank(makeBank(0, []));
     setPlaced([]);
+    setStageIdx(0);
     setCombo(0); setMaxCombo(0); setCorrect(0); setErrors(0);
     setScore(0); setThreat(0); setLives(3); setMissed({});
-    setWrongId(null); setHintId(null); setToast(null); setShowPreview(false);
+    setWrongId(null); setHintId(null); setHintsUsed(0);
+    setToast(null); setShowAnswer(false); setView("tower");
     state.current = { startAt: 0, pauseAt: 0, pauseAccum: 0 };
     setCount(3);
     setStatus("count");
@@ -256,9 +325,12 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
   const accColor = liveAcc >= 95 ? "var(--teal)" : liveAcc >= 85 ? "var(--amber)" : "var(--coral)";
   const threatColor = threat > 78 ? "var(--coral)" : threat > 45 ? "var(--amber)" : "var(--teal)";
   const danger = status === "play" && (lives === 1 || threat > 78);
+  const hintsLeft = Math.max(0, level.hintLimit - hintsUsed);
+  const decoysHere = (stageDecoys[stageIdx] ?? []).length;
+  const assembled = placed.join("\n");
 
   return (
-    <div className="relative z-10 min-h-screen flex flex-col select-none">
+    <div className="tower-light relative z-10 min-h-screen flex flex-col select-none">
       {danger && <div className="danger-vignette" aria-hidden="true" />}
       <header className="sticky top-0 z-40 backdrop-blur-md bg-[rgba(4,15,26,0.85)] border-b border-[var(--line-soft)]">
         <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center gap-2.5 flex-wrap">
@@ -267,9 +339,11 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
           </button>
           <div className="leading-tight mr-auto">
             <p className="text-[10px] font-extrabold tracking-[0.2em] uppercase" style={{ color: mod.color }}>
-              {mod.tag} • MODE SUSUN
+              {mod.tag} • TOWER LV{level.level}
             </p>
-            <p className="font-display font-bold text-sm">Lantai {placed.length}/{blocks.length}</p>
+            <p className="font-display font-bold text-sm">
+              Lantai {placed.length}/{blocks.length} • Tahap {stageIdx + 1}/{stages.length}
+            </p>
           </div>
           <span className="chip"><IconTimer size={14} /> {fmt(elapsedSec())}</span>
           <span className="chip font-display" style={{ color: accColor, borderColor: accColor }} title={`Target lulus: akurasi ≥ ${mod.passAcc}%`}>
@@ -285,16 +359,16 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
           )}
           <span className="flex items-center gap-1">
             {[0, 1, 2].map((i) => (
-              <IconHeart key={i} size={20} className={i < lives ? "text-[var(--coral)]" : "text-[rgba(126,196,236,0.18)]"} />
+              <IconHeart key={i} size={20} className={i < lives ? "text-[var(--coral)]" : "text-[#e2e8f0]"} />
             ))}
           </span>
-          <button className="btn btn-ghost !px-3 !py-2" onClick={togglePause} aria-label="Jeda">
+          <button className="btn btn-ghost !px-3 !py-2" onClick={togglePause} aria-label="Jeda" disabled={status === "brief" || status === "count"}>
             {status === "pause" ? <IconPlay size={16} /> : <IconPause size={16} />}
           </button>
         </div>
         <div className="max-w-5xl mx-auto px-4 pb-2.5 flex items-center gap-3">
           <span className="text-[10px] font-extrabold tracking-[0.18em] uppercase text-[var(--dim)] whitespace-nowrap">Ancaman Hiu</span>
-          <div className="flex-1 h-2.5 rounded-full bg-[rgba(6,24,41,0.9)] border border-[var(--line-soft)] overflow-hidden">
+          <div className="threat-track flex-1 h-2.5 rounded-full bg-[rgba(6,24,41,0.9)] border border-[var(--line-soft)] overflow-hidden">
             <div className="h-full rounded-full transition-[width] duration-150" style={{ width: `${threat}%`, background: `linear-gradient(90deg, var(--teal), ${threatColor})` }} />
           </div>
           <span className="font-code text-xs font-bold tabular-nums" style={{ color: threatColor }}>{Math.round(threat)}%</span>
@@ -302,18 +376,38 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
       </header>
 
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-5 flex flex-col gap-4 pb-10">
+        {/* tahap + tab pasangan menara/halaman */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="stage-dots" aria-label={`Tahap ${stageIdx + 1} dari ${stages.length}`}>
+            {stages.map((s, i) => (
+              <span key={i} className={`stage-dot ${i < stageIdx ? "done" : i === stageIdx ? "now" : ""}`} title={`Tahap ${i + 1}: ${s.length} lantai`} />
+            ))}
+          </div>
+          <span className="text-[11px] font-bold text-[var(--dim)]">
+            {level.title} • {level.mechanic}
+          </span>
+          {isHtml && status !== "brief" && (
+            <div className="tower-tabs ml-auto">
+              <button className={`tab-btn ${view === "tower" ? "on" : ""}`} onClick={() => { sfx.click(); setView("tower"); }}>🧱 Menara</button>
+              <button className={`tab-btn ${view === "page" ? "on" : ""}`} onClick={() => { sfx.click(); setView("page"); }}>
+                🌐 Hasil{placed.length > 0 && <i className="tab-ping" />}
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className="panel p-1.5 relative overflow-hidden">
-          <div className="h-1.5 rounded-t-[10px] overflow-hidden bg-[rgba(6,24,41,0.8)]">
+          <div className="tower-progress-track h-1.5 rounded-t-[10px] overflow-hidden bg-[rgba(6,24,41,0.8)]">
             <div className="h-full transition-all duration-300" style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${mod.color}, var(--accent))` }} />
           </div>
           <div key={shake} className={`px-4 md:px-6 py-5 ${shake ? "shake" : ""}`}>
             <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
               <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--dim)]">
-                Menara {mod.lang.toUpperCase()} — ketuk blok sesuai urutan
+                {view === "page" ? "Halamanmu — terbentuk tiap lantai" : `Menara ${mod.lang.toUpperCase()} — ketuk blok sesuai urutan`}
               </p>
               <div className="flex gap-2">
-                <button className="btn btn-ghost !py-1.5 !px-3 !text-xs" onClick={hint} disabled={status !== "play"}>
-                  <IconEye size={13} /> Petunjuk
+                <button className="btn btn-ghost !py-1.5 !px-3 !text-xs" onClick={hint} disabled={status !== "play" || hintsLeft <= 0}>
+                  <IconEye size={13} /> Petunjuk ({level.hintLimit >= 99 ? "∞" : hintsLeft})
                 </button>
                 <button className="btn btn-ghost !py-1.5 !px-3 !text-xs" onClick={undo} disabled={status !== "play" || placed.length === 0}>
                   Lepas lantai
@@ -322,42 +416,77 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
             </div>
 
             {toast && (
-              <p key={toast.id} className="text-center font-display font-extrabold text-lg anim-pop mb-2" style={{ color: cfg.accent }}>
+              <p key={toast.id} className="text-center font-display font-extrabold text-lg anim-pop mb-2" style={{ color: "#ea580c" }}>
                 {toast.txt}
               </p>
             )}
 
-            {/* menara tersusun */}
-            <div className="tower-shaft" aria-live="polite">
-              {placed.length === 0 && (
-                <p className="text-center text-xs text-[var(--faint)] font-semibold py-6">
-                  Menaramu masih rata dengan laut… ketuk blok pertama di bawah!
-                  {nextText && <span className="block mt-2 font-code text-[13px] text-[var(--dim)]">⌄ {nextText.trim().slice(0, 48)} ⌄</span>}
-                </p>
-              )}
-              {[...placed].reverse().map((txt, ri) => {
-                const idx = placed.length - 1 - ri; // idx asli dari bawah
-                return (
-                  <div key={`${idx}-${txt}`} className="tower-floor anim-pop" style={{ width: `${floorWidth(idx, blocks.length)}%` }}>
-                    <span className="tower-floor-no">{idx + 1}</span>
-                    <code className="tower-floor-code">{txt.trim() === "" ? "…" : txt}</code>
-                    {ri === 0 && <span className="tower-crane" aria-hidden="true">🏗️</span>}
+            {!(isHtml && view === "page") ? (
+              <>
+                {/* bayangan lantai berikutnya: bentuk tag saja, bukan isi penuh */}
+                {nextText && status === "play" && (
+                  <p className="ghost-next">
+                    Lantai {placed.length + 1}:{" "}
+                    <span className="tag-chip" style={{ color: tagColor(nextTag), borderColor: `${tagColor(nextTag)}66`, background: `${tagColor(nextTag)}14` }}>
+                      &lt;{nextTag}&gt;
+                    </span>
+                    <span className="text-[var(--faint)]">… cari bloknya di bank bawah</span>
+                  </p>
+                )}
+                <div className="tower-shaft" aria-live="polite">
+                  {placed.length === 0 && (
+                    <p className="text-center text-xs text-[var(--faint)] font-semibold py-6">
+                      Menaramu masih rata dengan laut… ketuk blok pertama di bawah!
+                    </p>
+                  )}
+                  {[...placed].reverse().map((txt, ri) => {
+                    const idx = placed.length - 1 - ri;
+                    const tag = extractTag(txt);
+                    const tc = tagColor(tag);
+                    return (
+                      <div key={`${idx}-${txt.slice(0, 16)}-${ri}`} className="tower-floor anim-pop"
+                        style={{ width: `${floorWidth(idx, blocks.length)}%`, borderColor: `${tc}88` }}>
+                        <span className="tower-floor-no">{idx + 1}</span>
+                        <span className="tag-chip" style={{ color: tc, borderColor: `${tc}66`, background: `${tc}14` }}>{tag}</span>
+                        <code className="tower-floor-code">{txt.trim() === "" ? "…" : txt}</code>
+                        {ri === 0 && <span className="tower-crane" aria-hidden="true">🏗️</span>}
+                      </div>
+                    );
+                  })}
+                  <div className="tower-base">
+                    <Diver />
+                    <span className="text-[9px] font-extrabold tracking-[0.2em] uppercase text-[var(--faint)]">Fondasi • Tahap {stageIdx + 1}/{stages.length}</span>
                   </div>
-                );
-              })}
-              <div className="tower-base">
-                <Diver />
-                <span className="text-[9px] font-extrabold tracking-[0.2em] uppercase text-[var(--faint)]">Fondasi</span>
+                </div>
+              </>
+            ) : (
+              <div className="phone-frame">
+                <div className="phone-bar">
+                  <span className="flex gap-1.5">
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#ff6b57] inline-block" />
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#ffc247] inline-block" />
+                    <i className="w-2.5 h-2.5 rounded-full bg-[#2ee6c8] inline-block" />
+                  </span>
+                  <span className="phone-url">halamanmu.html • {placed.length}/{blocks.length} blok</span>
+                </div>
+                {placed.length === 0 ? (
+                  <p className="text-center text-xs text-[var(--faint)] font-semibold py-10 px-6">
+                    Belum ada blok terpasang — halaman masih kosong. Kembali ke tab Menara dan susun lantai pertamamu! 🧱
+                  </p>
+                ) : (
+                  <iframe title="Hasil halaman" srcDoc={mod.preview(assembled)} sandbox="allow-scripts" className="w-full h-[300px] md:h-[360px] bg-white block rounded-b-[14px]" />
+                )}
+                <p className="phone-cap">Setiap lantai yang benar langsung mengubah halaman ini — menara &amp; halaman berpasangan.</p>
               </div>
-            </div>
+            )}
 
             {flash > 0 && <div key={flash} className="flash-red absolute inset-0 bg-[var(--coral)] pointer-events-none rounded-2xl" />}
           </div>
         </div>
 
         {/* laut + hiu */}
-        <div className="panel relative h-24 md:h-28 overflow-hidden">
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,42,68,0.35), rgba(4,17,30,0.85))" }} />
+        <div className="panel tower-sea relative h-24 md:h-28 overflow-hidden">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #e0f2fe 0%, #bae6fd 55%, #fef3c7 130%)" }} />
           <div className="absolute left-4 md:left-8 bottom-2 flex flex-col items-center gap-1">
             <Diver />
             <span className="text-[9px] font-extrabold tracking-[0.2em] uppercase text-[var(--faint)]">Pangkalan</span>
@@ -371,18 +500,18 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
 
         {/* bank blok */}
         <section aria-label="Bank blok kode">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
             <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--dim)]">
-              Bank blok • sisa {bank.length}
+              Bank blok • sisa {bank.length}{decoysHere > 0 && <span className="text-[var(--coral)]"> • ada {decoysHere} pengecoh!</span>}
             </p>
             <button
               className="text-[11px] font-bold text-[var(--cyan)] underline underline-offset-2"
-              onClick={() => { sfx.click(); setShowPreview((v) => !v); }}
+              onClick={() => { sfx.click(); setShowAnswer((v) => !v); }}
             >
-              {showPreview ? "Sembunyikan bocoran" : "Intip susunan benar"}
+              {showAnswer ? "Sembunyikan bocoran" : "Intip susunan benar"}
             </button>
           </div>
-          {showPreview && (
+          {showAnswer && (
             <div className="panel-flat p-3 mb-2 font-code text-[12px] leading-relaxed whitespace-pre-wrap break-words text-[var(--dim)]">
               {blocks.map((b, i) => (
                 <p key={i} style={{ color: i < placed.length ? "var(--teal)" : i === placed.length ? "var(--amber)" : undefined }}>
@@ -395,6 +524,8 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
             {bank.map((item) => {
               const isWrong = wrongId === item.id;
               const isHint = hintId === item.id;
+              const tag = extractTag(item.text);
+              const tc = tagColor(tag);
               return (
                 <button
                   key={item.id}
@@ -402,6 +533,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
                   disabled={status !== "play"}
                   className={`puzzle-block ${isWrong ? "puzzle-wrong" : ""} ${isHint ? "puzzle-hint" : ""}`}
                 >
+                  <span className="tag-chip shrink-0" style={{ color: tc, borderColor: `${tc}66`, background: `${tc}14` }}>{tag}</span>
                   <code className="puzzle-code">{tokenizeLine(item.text || " ", mod.lang).map((t, j) => (
                     <span key={j} className={t.cls}>{t.ch === " " ? " " : t.ch}</span>
                   ))}</code>
@@ -417,20 +549,54 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
             )}
           </div>
           <p className="text-center text-xs text-[var(--faint)] font-semibold mt-3">
-            Ketuk blok paling atas dari susunan benar • tombol besar, aman untuk jempol
+            Cocokkan bentuk tag lantai berikutnya • awas blok pengecoh yang mirip!
           </p>
         </section>
       </main>
 
-      {/* overlays */}
+      {/* briefing level */}
+      {status === "brief" && (
+        <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.82)] backdrop-blur-sm screen-in">
+          <div className="panel w-full max-w-md p-6 md:p-7 anim-pop">
+            <p className="text-[11px] font-extrabold tracking-[0.24em] uppercase" style={{ color: mod.color }}>
+              {mod.tag}
+            </p>
+            <h2 className="font-display font-extrabold text-2xl md:text-3xl mt-1">
+              Tower Lv{level.level} — {level.title}
+            </h2>
+            <p className="text-sm text-[var(--dim)] mt-1.5 leading-relaxed">{level.mechanic}</p>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="chip">🧱 {blocks.length} lantai</span>
+              <span className="chip">📦 {stages.length} tahap</span>
+              {level.decoyCount > 0
+                ? <span className="chip !text-[var(--coral)]">😈 {level.decoyCount} pengecoh</span>
+                : <span className="chip !text-[var(--teal)]">Tanpa pengecoh</span>}
+              <span className="chip">💡 {level.hintLimit >= 99 ? "Petunjuk ∞" : `${level.hintLimit} petunjuk`}</span>
+            </div>
+            <div className="panel-flat p-3.5 mt-3.5">
+              <p className="text-[10px] uppercase tracking-[0.18em] font-extrabold text-[var(--amber)]">Tips level</p>
+              <p className="text-[13px] text-[#334155] mt-1 leading-relaxed">{level.tip}</p>
+            </div>
+            {isHtml && (
+              <p className="text-[12px] text-[var(--dim)] mt-3 leading-relaxed">
+                🧱 + 🌐 berpasangan: tiap lantai juga membangun <strong className="text-[#0f172a]">halaman HTML-mu</strong> di tab Hasil.
+              </p>
+            )}
+            <button className="btn btn-primary w-full py-3.5 mt-5 justify-center" onClick={startFromBrief}>
+              Mulai Membangun <IconArrowR size={17} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {(status === "count" || showGo) && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[rgba(2,9,17,0.72)] backdrop-blur-sm">
           <div className="text-center px-6">
-            <p className="text-sm font-extrabold tracking-[0.3em] uppercase text-[var(--dim)] mb-3">Mode Susun Menara</p>
+            <p className="text-sm font-extrabold tracking-[0.3em] uppercase text-[var(--dim)] mb-3">Tower Lv{level.level} • Tahap 1</p>
             <div key={showGo ? "go" : count} className={`font-display font-extrabold ${showGo ? "text-6xl md:text-7xl text-[var(--teal)]" : "text-8xl md:text-9xl"} count-pop`} style={{ color: showGo ? undefined : cfg.accent }}>
               {showGo ? "SUSUN!" : count}
             </div>
-            <p className="text-xs text-[var(--dim)] font-semibold mt-3">Susun {blocks.length} blok menjadi menara {mod.lang.toUpperCase()}</p>
+            <p className="text-xs text-[var(--dim)] font-semibold mt-3">Susun {blocks.length} blok dalam {stages.length} tahap</p>
           </div>
         </div>
       )}
@@ -458,7 +624,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
             <div className="w-20 mx-auto opacity-90 grayscale-[0.3]"><SharkMascot className="w-full" /></div>
             <h2 className="font-display font-extrabold text-3xl mt-3 text-[var(--coral)]">HIU MENYERANG!</h2>
             <p className="text-sm text-[var(--dim)] mt-2">
-              Menaramu roboh di lantai {placed.length + 1}. Ketukan salah menaikkan ancaman — perhatikan urutan blok!
+              Menaramu roboh di lantai {placed.length + 1} (tahap {stageIdx + 1}). Waspadai blok pengecoh yang mirip!
             </p>
             <div className="flex justify-center gap-2.5 mt-4 flex-wrap">
               <span className="chip">Skor {score}</span>
@@ -477,7 +643,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
         <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.78)] backdrop-blur-sm">
           <div className="text-center anim-pop">
             <div className="w-32 mx-auto anim-bob"><SharkMascot className="w-full" /></div>
-            <h2 className="font-display font-extrabold text-4xl md:text-5xl mt-4 text-[var(--teal)]" style={{ textShadow: "0 6px 30px rgba(46,230,200,0.4)" }}>
+            <h2 className="font-display font-extrabold text-4xl md:text-5xl mt-4" style={{ color: "#5eead4", textShadow: "0 6px 30px rgba(45,212,191,0.45)" }}>
               MENARA BERDIRI!
             </h2>
             <p className="text-[var(--dim)] font-bold mt-2 flex items-center justify-center gap-2">

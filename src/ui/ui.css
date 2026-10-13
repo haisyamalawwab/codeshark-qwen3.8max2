@@ -892,6 +892,236 @@
   color: #fff;
 }
 
+/* ===== CODING TOWER LIGHT THEME: dominan putih, aksen orange + indigo =====
+   Seluruh layar TowerPuzzle dibungkus .tower-light sehingga tema gelap
+   CodeShark (Typer) tidak ikut berubah. */
+.tower-light {
+  --ink: #0f172a;
+  --dim: #475569;
+  --faint: #94a3b8;
+  --accent: #f97316;
+  --accent-deep: #c2410c;
+  --amber: #d97706;
+  --amber-deep: #92400e;
+  --teal: #0d9488;
+  --teal-deep: #0f766e;
+  --cyan: #0284c7;
+  --coral: #dc2626;
+  --coral-deep: #991b1b;
+  --mint: #0f766e;
+  --line: rgba(15, 23, 42, 0.1);
+  --line-soft: rgba(15, 23, 42, 0.07);
+  background: linear-gradient(180deg, #ffffff 0%, #fff7ed 46%, #eef2ff 100%);
+  color: var(--ink);
+}
+.tower-light header.sticky {
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 6px 24px rgba(79, 70, 229, 0.08);
+}
+.tower-light .chip {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: var(--dim);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+}
+.tower-light .panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.tower-light .panel-flat {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+.tower-light .btn-primary {
+  background: linear-gradient(180deg, #fb923c, #f97316);
+  color: #fff;
+  box-shadow: 0 5px 0 var(--accent-deep), 0 14px 30px rgba(249, 115, 22, 0.28);
+}
+.tower-light .btn-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  box-shadow: 0 7px 0 var(--accent-deep), 0 18px 36px rgba(249, 115, 22, 0.34);
+}
+.tower-light .btn-ghost {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+.tower-light .btn-ghost:hover:not(:disabled) { background: #f1f5f9; border-color: #818cf8; }
+.tower-light .threat-track { background: #ffedd5 !important; border-color: #fed7aa !important; }
+.tower-light .tower-progress-track { background: #e0e7ff !important; }
+
+/* tab pasangan menara / halaman */
+.tower-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+.tab-btn {
+  position: relative;
+  padding: 8px 14px;
+  min-height: 40px;
+  border-radius: 9px;
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: #64748b;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.tab-btn.on {
+  background: #ffffff;
+  color: #c2410c;
+  border-color: #fdba74;
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.22);
+}
+.tab-ping {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f97316;
+}
+
+/* indikator tahap */
+.stage-dots { display: inline-flex; align-items: center; gap: 6px; }
+.stage-dot {
+  width: 26px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  transition: background 0.2s ease;
+}
+.stage-dot.done { background: #f97316; }
+.stage-dot.now {
+  background: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.18);
+}
+
+/* chip nama tag */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 7px;
+  border: 1px solid;
+  font-family: var(--font-m);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.ghost-next {
+  margin: 0 0 10px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  background: #eef2ff;
+  border: 1px dashed #818cf8;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4338ca;
+}
+
+/* menara di atas putih */
+.tower-light .tower-shaft {
+  background: linear-gradient(180deg, #f8fafc, #eef2ff);
+  border: 1px solid #e0e7ff;
+  border-radius: 14px;
+}
+.tower-light .tower-floor {
+  background: #ffffff;
+  box-shadow: 0 2px 0 rgba(15, 23, 42, 0.08), 0 8px 20px rgba(79, 70, 229, 0.1);
+}
+.tower-light .tower-floor-no {
+  color: #fff;
+  background: linear-gradient(160deg, #fb923c, #ea580c);
+}
+.tower-light .tower-floor-code { color: #1e293b; }
+.tower-light .tower-base { border-top-color: rgba(249, 115, 22, 0.55); }
+
+/* kartu blok puzzle */
+.tower-light .puzzle-block {
+  background: #ffffff;
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.07);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.tower-light .puzzle-block:hover:not(:disabled) { border-color: #f97316; background: #fff7ed; }
+.tower-light .puzzle-block:disabled { opacity: 0.6; }
+.tower-light .puzzle-code { color: #1e293b; }
+.tower-light .puzzle-wrong { border-color: #f87171 !important; background: #fef2f2 !important; }
+.tower-light .puzzle-hint {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.3);
+}
+
+/* highlight sintaks versi terang */
+.tower-light .tok-tag { color: #c2410c; }
+.tower-light .tok-attr { color: #4f46e5; }
+.tower-light .tok-str { color: #b45309; }
+.tower-light .tok-kw { color: #7c3aed; }
+.tower-light .tok-num { color: #b45309; }
+.tower-light .tok-fn { color: #4f46e5; }
+.tower-light .tok-prop { color: #0284c7; }
+.tower-light .tok-val { color: #334155; }
+.tower-light .tok-sel { color: #4f46e5; }
+.tower-light .tok-com { color: #94a3b8; }
+.tower-light .tok-pun { color: #64748b; }
+.tower-light .tok-txt { color: #1e293b; }
+
+/* laut versi langit terang */
+.tower-light .tower-sea {
+  border: 1px solid #bae6fd;
+  box-shadow: 0 12px 32px rgba(2, 132, 199, 0.14);
+  overflow: hidden;
+}
+
+/* bingkai pratinjau halaman */
+.phone-frame {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  overflow: hidden;
+}
+.phone-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+.phone-url {
+  font-family: var(--font-m);
+  font-size: 11px;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 7px;
+  padding: 3px 10px;
+}
+.phone-cap {
+  margin: 0;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: #fff7ed;
+  border-top: 1px solid #fed7aa;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shimmer::after, .ping-dot::after, .glow-pulse,
   .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char { animation: none !important; }
