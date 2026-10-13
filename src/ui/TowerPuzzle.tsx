@@ -57,7 +57,7 @@ function DragBlock({ item, disabled, children, onTap }: { item: BankItem; disabl
   );
 }
 
-function ShaftDrop({ children }: { children: React.ReactNode }) {
+function ShaftDrop({ children }: { children: ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id: "shaft" });
   return (
     <div ref={setNodeRef} className={isOver ? "outline-2 outline-dashed outline-[var(--amber)] rounded-xl" : ""}>
