@@ -4,6 +4,7 @@
    tahap dipecah, pengecoh disisipkan, ancaman naik, jatah petunjuk menipis.
    Menghasilkan GameResult yang sama dengan TypingGame (satu pintu XP/progres). */
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { AgeCfg } from "../data/modules";
 import type { Session } from "../data/quests";
 import type { GameResult } from "./TypingGame";
@@ -42,9 +43,9 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${Str
 
 /* Blok bank yang bisa di-drag (dnd-kit) + tetap bisa di-ketuk (fallback HP/mouse).
    Drag ke menara = sama dengan ketuk: memanggil onTap bila di-drop di shaft. */
-function DragBlock({ item, disabled, children, onTap }: { item: BankItem; disabled: boolean; children: React.ReactNode; onTap: () => void }) {
+function DragBlock({ item, disabled, children, onTap }: { item: BankItem; disabled: boolean; children: ReactNode; onTap: () => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id, disabled });
-  const style: React.CSSProperties = transform
+  const style: CSSProperties = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 50, opacity: 0.92 }
     : {};
   return (
@@ -147,7 +148,9 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
     return Math.max(0, now - st.startAt - st.pauseAccum) / 1000;
   };
 
-  /* countdown */
+  /* countdown — timer sembunyi GO dipisah agar tidak ikut dibatalkan
+     saat status pindah count -> play (cleanup effect di bawah sebelumnya
+     meng-clearTimeout timer GO sehingga overlay nyangkut selamanya). */
   useEffect(() => {
     if (status !== "count") return;
     if (count === 0) {
@@ -155,14 +158,19 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
       setStatus("play");
       sfx.go();
       setShowGo(true);
-      const t = window.setTimeout(() => setShowGo(false), 850);
-      return () => window.clearTimeout(t);
+      return;
     }
     sfx.count();
     const t = window.setTimeout(() => setCount((c) => c - 1), 800);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count, status]);
+
+  useEffect(() => {
+    if (!showGo) return;
+    const t = window.setTimeout(() => setShowGo(false), 850);
+    return () => window.clearTimeout(t);
+  }, [showGo]);
 
   /* ancaman hiu */
   useEffect(() => {
@@ -332,6 +340,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
 
   const startFromBrief = () => {
     sfx.click();
+    setShowGo(false);
     setCount(3);
     setStatus("count");
   };
@@ -345,6 +354,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
     setWrongId(null); setHintId(null); setHintsUsed(0);
     setToast(null); setShowAnswer(false); setView("tower");
     state.current = { startAt: 0, pauseAt: 0, pauseAccum: 0 };
+    setShowGo(false);
     setCount(3);
     setStatus("count");
     sfx.click();

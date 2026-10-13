@@ -138,7 +138,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
     window.setTimeout(() => setParticles((p) => p.filter((q) => q.id !== id)), 760);
   };
 
-  /* ===== countdown ===== */
+  /* ===== countdown (timer GO dipisah — lihat TowerPuzzle) ===== */
   useEffect(() => {
     if (gref.current.status !== "count") return;
     if (count === 0) {
@@ -147,14 +147,19 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
       gref.current.startAt = performance.now();
       sfx.go();
       setShowGo(true);
-      const t = window.setTimeout(() => setShowGo(false), 850);
       force();
-      return () => window.clearTimeout(t);
+      return;
     }
     sfx.count();
     const t = window.setTimeout(() => setCount((c) => c - 1), 800);
     return () => window.clearTimeout(t);
   }, [count]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!showGo) return;
+    const t = window.setTimeout(() => setShowGo(false), 850);
+    return () => window.clearTimeout(t);
+  }, [showGo]);
 
   /* ===== loop ancaman hiu ===== */
   useEffect(() => {
