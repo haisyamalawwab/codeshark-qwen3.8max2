@@ -69,6 +69,17 @@ export function tokenizeLine(line: string, lang: Lang): TokChar[] {
   return out;
 }
 
+/* Cache hasil tokenisasi: kode materi tetap, render ulang sering → tanpa kerja ulang.
+   Hasil dianggap read-only oleh pemanggil. Dibatasi agar memori tidak membengkak. */
+const TOKEN_CACHE_MAX = 64;
+const tokenCache = new Map<string, TokChar[][]>();
+
 export function tokenize(code: string, lang: Lang): TokChar[][] {
-  return code.split("\n").map((l) => tokenizeLine(l, lang));
+  const key = lang + "\u0000" + code;
+  const hit = tokenCache.get(key);
+  if (hit) return hit;
+  const out = code.split("\n").map((l) => tokenizeLine(l, lang));
+  if (tokenCache.size >= TOKEN_CACHE_MAX) tokenCache.delete(tokenCache.keys().next().value as string);
+  tokenCache.set(key, out);
+  return out;
 }

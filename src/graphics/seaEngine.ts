@@ -48,6 +48,17 @@ export interface SeaTargets {
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const CORAL: [number, number, number] = [255, 107, 87];
 const FLEE_R = 110; // radius ikan menghindar dari kursor (px)
+const IDLE_FPS_GAP = 1000 / 30 - 1;    // layar lain: batas 30 fps
+
+/* Tulis gaya hanya bila nilai berubah — mencegah style recalc/paint berulang. */
+const lastStyle = new WeakMap<object, Record<string, string>>();
+function putStyle(el: HTMLElement | SVGElement, prop: "transform" | "opacity" | "filter", val: string) {
+  let c = lastStyle.get(el);
+  if (!c) lastStyle.set(el, (c = {}));
+  if (c[prop] === val) return;
+  c[prop] = val;
+  (el.style as unknown as Record<string, string>)[prop] = val;
+}
 
 /** Gradien badan ikan: punggung gelap → perut terang, mengikuti warna bahaya. */
 function schoolGradient(ctx: CanvasRenderingContext2D, sc: School, k: number): CanvasGradient {
@@ -216,6 +227,11 @@ export function startSeaEngine(t: SeaTargets): () => void {
 
   function frame(now: number) {
     if (!running) return;
+    /* layar non-game: lewati bingkai agar ≤30 fps (dt tetap benar karena `last` tak diubah) */
+    if (!scene.active && now - last < IDLE_FPS_GAP) {
+      raf = requestAnimationFrame(frame);
+      return;
+    }
     const dt = Math.min(48, now - last) / 16.67;
     last = now;
     const tt = scene.threat / 100;
@@ -234,7 +250,7 @@ export function startSeaEngine(t: SeaTargets): () => void {
         if (!el) return;
         const x = -mouse.x * depth - px * depth * 1.4;
         const y = -mouse.y * depth * 0.5;
-        el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(1.1)`;
+        putStyle(el, "transform", `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(1.1)`);
       };
       set(t.far, 8);
       set(t.mid, 20);
@@ -248,13 +264,14 @@ export function startSeaEngine(t: SeaTargets): () => void {
       const x = lerp(w * 0.82, w * 0.06, e);
       const y = h * lerp(0.26, 0.44, e) + Math.sin(now / 900) * 8 * (1 - e * 0.4);
       const s = lerp(0.4, 1.7, e);
-      shark.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(3)})`;
-      shark.style.opacity = (active * lerp(0.2, 0.92, e)).toFixed(3);
-      shark.style.filter = `blur(${lerp(1.6, 0, e).toFixed(2)}px)`;
-      if (t.eye) t.eye.style.opacity = String(Math.max(0, (threat - 0.35) / 0.65));
+      putStyle(shark, "transform", `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(3)})`);
+      putStyle(shark, "opacity", (active * lerp(0.2, 0.92, e)).toFixed(3));
+      /* blur dikuantisasi 0.1px: perubahan kecil tak memicu repaint filter */
+      putStyle(shark, "filter", `blur(${(Math.round(lerp(1.6, 0, e) * 10) / 10).toFixed(1)}px)`);
+      if (t.eye) putStyle(t.eye, "opacity", String(Math.max(0, (threat - 0.35) / 0.65)));
     }
     /* semburat merah saat ancaman tinggi */
-    if (t.tint) t.tint.style.opacity = (active * Math.max(0, (threat - 0.45) / 0.55) * 0.55).toFixed(3);
+    if (t.tint) putStyle(t.tint, "opacity", (active * Math.max(0, (threat - 0.45) / 0.55) * 0.55).toFixed(3));
 
     /* canvas: kawanan ikan + plankton */
     ctx.clearRect(0, 0, w, h);

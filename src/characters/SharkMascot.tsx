@@ -1,4 +1,4 @@
-import sharkCyber from "./shark-cyber.png";
+import sharkCyber from "./shark-cyber.webp";
 
 /* ============ MASKOT HIU ============
    Menggunakan aset PNG cybershark (latar hijau sudah dipotong transparan). */
