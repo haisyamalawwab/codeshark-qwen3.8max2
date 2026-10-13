@@ -18,6 +18,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      // registrasi manual via public/pwa-register.js (path relatif per entry:
+      // hub → ./sw.js, sub-game → ../sw.js). Auto-inject dimatikan agar tidak
+      // menunjuk ./registerSW.js yang tidak ada di sub-folder.
+      injectRegister: false,
       // satu SW di root melayani hub + kedua sub-folder (scope ./)
       manifestFilename: "manifest.webmanifest",
       manifest: false, // manifest dikelola manual di public/manifest.webmanifest
