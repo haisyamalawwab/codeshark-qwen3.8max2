@@ -23,6 +23,11 @@ export interface ModProg {
   quizXp: number;
   best?: Best;
   completions: number;
+  /** sesi (misi/quest/drill/juggling) sudah memenuhi target akurasi */
+  passed?: boolean;
+  /** XP & koin tertinggi yang pernah dihitung — hanya selisih di atasnya yang diberikan (anti-farm) */
+  xpBest?: number;
+  coinsBest?: number;
 }
 
 export interface Stats {

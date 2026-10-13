@@ -14,7 +14,7 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 |---|---|
 | ⌨️ **Game Ketik Kode** | Arena mengetik dengan HP, combo, overdrive (skor ×2), damage float, dan feedback suara WebAudio. Preview iframe menjalankan kode hasil ketikan (`sandbox="allow-scripts"`). |
 | 📚 **Materi HTML berbasis `.md`** | Enam dokumen markdown per pertemuan (`content/html/*.md`) dirender dengan parser markdown ringan buatan sendiri — heading, list, tabel pipe, blok kode, dan callout bergaya HUD. |
-| 🗺️ **Peta Pertemuan 16×** | Modal silabus lengkap (`src/ui/Pertemuan.tsx`): tujuan pembelajaran, slide konsep, kuis, dan potongan kode latihan per pertemuan. |
+| 🗺️ **Peta Pertemuan 16×** | Silabus 16 pertemuan (`src/ui/Pertemuan.tsx`): materi slide + kuis interaktif, lalu tiga sesi per pertemuan — **Quest** (kode utuh), **Drill** (sintaks inti), **Juggling** (anyam dua materi). Status Perunggu/Perak/Emas dan gating dibahas di bawah. |
 | 🧠 **Ruang Materi interaktif** | Slide teori + kuis per modul HTML/CSS/JS (`src/data/modules.ts`). |
 | 👤 **Profil adaptif usia** | 4 kelompok usia — Kadet Samudra (10–13), Ranger Laut (13–15), Senior Diver, Academy — mengatur tempo ancaman, penalti salah ketik, petunjuk karakter, dan aksen warna. |
 | 🏆 **Gamifikasi penuh** | XP, koin, level (kurva 150·n), rank S/A/B/C, bintang, statistik keystroke, dan anti-farm (hanya delta skor terbaik yang dihitung). |
@@ -50,10 +50,13 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 │   │   ├── Dashboard.tsx    # Home HUD + kartu akses cepat P1–P6 + CodePanel
 │   │   ├── MateriHtml.tsx   # Penampil materi HTML .md + navigasi antar dokumen
 │   │   ├── Materi.tsx       # Ruang materi slide + kuis per modul
-│   │   ├── Pertemuan.tsx    # Peta pertemuan 16× (modal silabus)
+│   │   ├── Pertemuan.tsx    # Peta pertemuan 16× + sesi Quest/Drill/Juggling
 │   │   ├── TypingGame.tsx   # Arena ketik inti
 │   │   ├── Results.tsx      # Layar hasil, rank, XP, koin
 │   │   └── Onboarding.tsx   # Pembuatan profil & pemilihan usia
+│   │   # lib/progress.ts   — aturan lulus, level pertemuan, gating, anti-farm XP
+│   │   # lib/typing.ts     — helper mesin ketik (lewati baris kosong, abaikan pintasan)
+│   │   # data/quests.ts    — sesi Quest/Drill/Juggling per pertemuan (drill: DRILLS)
 │   └── styles/theme.css     # Token warna, font, reset global
 ├── netlify.toml / vercel.json  # Config deploy SPA (fallback routing + cache header)
 └── vite.config.ts           # Pemisahan chunk vendor/asset js/css/img
@@ -94,11 +97,24 @@ Setiap pertemuan = baca materi konsep → kerjakan kuis → **gladi ketik kode**
 
 ## 🎮 Sistem Skor (ringkas)
 
-- Skor/karakter: `10 × (1 + 0.5 × min(4, ⌊combo/12⌋))` → pengali x1–x3
+- Skor/karakter: `10 × (1 + 0.02 × min(combo, 100))` (pengali ×1–×3) + 3 bila WPM live ≥ 40; setiap baris selesai +40
 - Milestone combo 25/50/75/100/150 → bonus bertingkat; baris sempurna +80 & +2 HP
 - Overdrive penuh → skor ×2 selama 8 detik
-- Rank: **S** (akurasi ≥97% & HP ≥70) · A ≥92% · B ≥84% · C sisanya
-- XP akhir: skor sesi dikonversi dengan pengali rank; hanya delta terhadap skor terbaik yang masuk ke progres (anti-farm). Tingkat kesulitan mengikuti kelompok usia pemain (Kadet–Academy)
+- Bintang misi: akurasi ≥95% = ★★★ · ≥85% = ★★ · lainnya ★ (hanya bila kode selesai)
+- Pangkat XP (`RANKS`): Plankton → Ikan Kecil (120) → Kuda Laut (280) → Lumba-Lumba (500) → Hiu Muda (800) → Megalodon (1200) → Legenda Samudra (1700)
+- XP sesi menang: `50 + 25×bintang + akurasi/5`; sesi kalah: `skor/25`. Hanya **selisih di atas XP terbaik sesi** yang masuk ke profil (anti-farm; berlaku juga untuk koin). Tingkat kesulitan mengikuti kelompok usia pemain (Kadet–Academy)
+
+## 🧭 Quest · Drill · Juggling (per pertemuan)
+
+| Sesi | Isi | Target lulus | Level |
+|---|---|---|---|
+| **Quest** | Kode utuh pertemuan | akurasi ≥ 90% | Perunggu |
+| **Drill** | Baris pendek sintaks inti (ancaman hiu lebih lambat) | akurasi ≥ 90% | Perak |
+| **Juggling** | Drill pertemuan dianyam dengan drill pertemuan sebelumnya sebahasa (ancaman lebih cepat) | akurasi ≥ 85% | Emas |
+
+- Pertemuan *n+1* terbuka setelah pertemuan *n* mencapai **Perak**.
+- Lulus = menyelesaikan kode **dan** akurasi memenuhi target sesi.
+- Daftar drill dan tugas tiap pertemuan: [`KURIKULUM-QUEST-16-PERTEMUAN.md`](./KURIKULUM-QUEST-16-PERTEMUAN.md). Analisis dan perubahan v0.4: [`ANALISIS-v0.4.md`](./ANALISIS-v0.4.md).
 
 ## ☁️ Deploy
 

@@ -12,6 +12,11 @@ export default defineConfig({
   // path relatif agar dist/ bisa ditaruh di sub-folder (mis. Laragon: /CODESHARK/qwen3.8max2/dist/)
   base: "./",
   plugins: [react(), tailwindcss()],
+  // dev server di belakang preview proxy (host *.e2b.app) harus diizinkan; tidak memengaruhi build
+  server: {
+    host: "0.0.0.0",
+    allowedHosts: [".e2b.app"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

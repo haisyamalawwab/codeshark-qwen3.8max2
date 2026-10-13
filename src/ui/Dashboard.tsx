@@ -21,6 +21,8 @@ interface Props {
   onPractice: (id: string) => void;
   /** buka Materi HTML berbasis dokumen .md per pertemuan */
   onMateriHtml?: () => void;
+  /** buka Peta Pertemuan 16× (quest · drill · juggling) */
+  onPeta?: () => void;
   onToggleSound: () => void;
   onResetProfile: () => void;
 }
@@ -52,7 +54,7 @@ function useReveal() {
   return ref;
 }
 
-export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtml, onToggleSound, onResetProfile }: Props) {
+export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtml, onPeta, onToggleSound, onResetProfile }: Props) {
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -179,7 +181,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <div className="flex items-center justify-between text-[var(--teal)]">
                   <IconTarget size={19} />
                   <span className="font-display font-extrabold text-2xl text-[var(--teal)] leading-none">
-                    {avgAcc === null ? "100%" : `${avgAcc}%`}
+                    {avgAcc === null ? "—" : `${avgAcc}%`}
                   </span>
                 </div>
                 <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
@@ -191,9 +193,9 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
               <div className="hud-stat-box p-3.5 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <span className="font-display font-extrabold text-2xl text-white leading-none">
-                    {save.stats.bestWpm || 20}
+                    {save.stats.bestWpm || "—"}
                   </span>
-                  <MiniSpeedometer val={save.stats.bestWpm || 20} max={100} />
+                  <MiniSpeedometer val={save.stats.bestWpm || 0} max={100} />
                 </div>
                 <div className="flex items-center gap-1.5 mt-2">
                   <IconTimer size={13} className="text-[var(--cyan)]" />
@@ -208,7 +210,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <div className="flex items-center justify-between text-[var(--amber)]">
                   <IconBolt size={20} />
                   <span className="font-display font-extrabold text-2xl text-[var(--amber)] leading-none">
-                    {save.stats.bestCombo || 40}
+                    {save.stats.bestCombo || "—"}
                   </span>
                 </div>
                 <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
@@ -238,6 +240,29 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             </div>
           </div>
         </section>
+
+        {/* ============ PETA PERTEMUAN 16× ============ */}
+        {onPeta && (
+          <section className="mt-10 reveal">
+            <button
+              type="button"
+              onClick={() => { sfx.click(); onPeta(); }}
+              className="w-full text-left hud-panel p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-4 transition-transform hover:-translate-y-0.5"
+            >
+              <span className="w-14 h-14 shrink-0 rounded-2xl grid place-items-center bg-[rgba(255,194,71,0.12)] border border-[rgba(255,194,71,0.5)] text-[var(--amber)]">
+                <IconKeyboard size={26} />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--amber)]">Kurikulum • 16 pertemuan</p>
+                <h2 className="font-display font-extrabold text-xl md:text-2xl text-white">Peta Pertemuan 16×</h2>
+                <p className="text-xs md:text-sm text-[var(--dim)] mt-0.5">
+                  Tiap pertemuan: materi → <strong>Quest</strong> (kode utuh) → <strong>Drill</strong> (sintaks inti) → <strong>Juggling</strong> (anyam dua materi).
+                </p>
+              </div>
+              <span className="btn btn-primary !py-2.5 !px-5 shrink-0 justify-center">Buka Peta <IconArrowR size={15} /></span>
+            </button>
+          </section>
+        )}
 
         {/* ============ PETA MISI SAMUDRA ============ */}
         <section className="mt-12">
@@ -345,7 +370,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                                 <>
                                   <span className="hud-chip !text-[var(--amber)]" title="Bintang Misi">
                                     {Array.from({ length: 3 }, (_, i) =>
-                                      i < (prog.best?.stars ?? 3) ? (
+                                      i < (prog.best?.stars ?? 0) ? (
                                         <IconStar key={i} size={13} />
                                       ) : (
                                         <IconStarLine key={i} size={13} className="opacity-40" />
@@ -353,10 +378,10 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                                     )}
                                   </span>
                                   <span className="hud-chip text-white font-semibold">
-                                    {prog.best?.score ?? 4453} poin
+                                    {prog.best?.score ?? 0} poin
                                   </span>
                                   <span className="hud-chip !text-[var(--teal)] font-bold">
-                                    {prog.best?.wpm ?? 20} WPM
+                                    {prog.best?.wpm ?? 0} WPM
                                   </span>
                                 </>
                               )}
