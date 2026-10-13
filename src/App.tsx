@@ -18,6 +18,7 @@ import Results from "./ui/Results";
 
 type Screen =
   | { s: "dash" }
+  | { s: "peta"; no: number }
   | { s: "materi"; id: string }
   | { s: "materi-html"; no?: number }
   | { s: "game"; id: string; k: number }
@@ -28,8 +29,6 @@ export default function App() {
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
   const [screen, setScreen] = useState<Screen>({ s: "dash" });
   const [gameKey, setGameKey] = useState(0);
-  /** peta 16 pertemuan (modal) — null = tertutup, angka = pertemuan yang dibuka */
-  const [peta, setPeta] = useState<number | null>(null);
 
   useEffect(() => persist(save), [save]);
   useEffect(() => {
@@ -138,9 +137,18 @@ export default function App() {
           }
           onPractice={enterPractice}
           onMateriHtml={() => setScreen({ s: "materi-html" })}
-          onPeta={() => setPeta(nextMeeting(save))}
+          onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
           onToggleSound={toggleSound}
           onResetProfile={resetProfile}
+        />
+      ) : screen.s === "peta" ? (
+        <Pertemuan
+          key={screen.no}
+          save={save}
+          startNo={screen.no}
+          onExit={() => setScreen({ s: "dash" })}
+          onMateri={(no) => setScreen({ s: "materi-html", no })}
+          onPlay={(no, kind) => playQuest(no, kind)}
         />
       ) : screen.s === "materi-html" ? (
         <MateriHtml
@@ -177,23 +185,7 @@ export default function App() {
           coinsGained={screen.coins}
           rankUp={screen.rankUp}
           onRetry={() => enterPractice(screen.id)}
-          onMap={() => setScreen({ s: "dash" })}
-        />
-      )}
-
-      {peta !== null && profile && (
-        <Pertemuan
-          save={save}
-          startNo={peta}
-          onClose={() => setPeta(null)}
-          onMateri={(no) => {
-            setPeta(null);
-            setScreen({ s: "materi-html", no });
-          }}
-          onPlay={(no, kind) => {
-            setPeta(null);
-            playQuest(no, kind);
-          }}
+          onMap={() => setScreen(meetingScreenOf(screen.id))}
         />
       )}
     </div>
@@ -203,6 +195,13 @@ export default function App() {
 /* sesi aktif — id bisa berupa modul lama (html/css/js) atau sesi pertemuan (q:<no>:<kind>) */
 function sessionOf(id: string): Session {
   return getSession(id) ?? (getSession("html") as Session);
+}
+
+/** kembali ke halaman peta bila sesi berasal dari pertemuan (q:<no>:<kind>), selain itu ke dashboard */
+function meetingScreenOf(id: string): Screen {
+  const m = /^q:(\d+):/.exec(id);
+  if (m) return { s: "peta", no: Math.min(16, Math.max(1, Number(m[1]))) };
+  return { s: "dash" };
 }
 
 /** pertemuan pertama yang belum PERAK (untuk tombol "lanjut") */

@@ -1,6 +1,6 @@
 /* Peta Pertemuan 16× — silabus + tiga sesi ketik per pertemuan (Quest · Drill · Juggling).
    Status & gating berasal dari lib/progress.ts (satu sumber aturan). */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CURRICULUM, PHASE_COLOR, getLesson } from "../data/curriculum";
 import type { Lesson } from "../data/curriculum";
 import type { Block, Slide } from "../data/modules";
@@ -10,12 +10,12 @@ import type { SaveData } from "../lib/storage";
 import { meetingLevel, meetingUnlocked, sessionPassed, LEVEL_NAME, totalMeetings } from "../lib/progress";
 import { sfx } from "../lib/audio";
 import { tokenize } from "../lib/highlight";
-import { IconX, IconBook, IconKeyboard, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
+import { IconBook, IconKeyboard, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
 
 interface Props {
   save: SaveData;
   startNo: number;
-  onClose: () => void;
+  onExit: () => void;
   /** buka materi .md (hanya pertemuan HTML) */
   onMateri: (no: number) => void;
   onPlay: (no: number, kind: Exclude<SessionKind, "misi">) => void;
@@ -153,7 +153,7 @@ function SessionCard({
   );
 }
 
-export function Pertemuan({ save, startNo, onClose, onMateri, onPlay }: Props) {
+export function Pertemuan({ save, startNo, onExit, onMateri, onPlay }: Props) {
   const [no, setNo] = useState(startNo);
   const [openSlide, setOpenSlide] = useState<number | null>(0);
   const l: Lesson = getLesson(no);
@@ -162,29 +162,37 @@ export function Pertemuan({ save, startNo, onClose, onMateri, onPlay }: Props) {
   const unlocked = meetingUnlocked(save, no);
   const passedMeetings = CURRICULUM.filter((x) => meetingLevel(save, x.no) >= 2).length;
 
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
+
   const go = (n: number) => {
     sfx.click();
     setNo(Math.min(totalMeetings(), Math.max(1, n)));
     setOpenSlide(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-8">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto code-scroll rounded-[2rem] border border-[rgba(126,196,236,0.2)] bg-[#0a2c44] shadow-[0_30px_90px_rgba(0,0,0,0.7)]">
-        {/* header */}
-        <div className="sticky top-0 z-10 px-5 sm:px-7 py-4 border-b border-[rgba(126,196,236,0.14)] bg-[rgba(10,44,68,0.94)] backdrop-blur-lg flex items-center gap-3">
-          <span className="chip shrink-0 !bg-[rgba(255,194,71,0.12)] !text-[#ffc247] !border-[rgba(255,194,71,0.35)]">Peta</span>
-          <h2 className="font-display text-lg sm:text-xl font-extrabold tracking-wide flex-1 min-w-0 truncate">
-            Peta Pertemuan <span className="text-[var(--dim)] text-base">{passedMeetings}/{totalMeetings()} tuntas (Perak+)</span>
-          </h2>
-          <button className="w-9 h-9 rounded-full grid place-items-center text-[var(--dim)] hover:text-white hover:bg-white/10 transition-colors shrink-0"
-            onClick={() => { sfx.back(); onClose(); }} aria-label="Tutup">
-            <IconX size={18} />
+    <div className="relative z-10 min-h-screen flex flex-col">
+      {/* topbar halaman khusus — bukan modal */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-[rgba(4,15,26,0.85)] border-b border-[var(--line-soft)]">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button className="btn btn-ghost !px-3 !py-2" onClick={() => { sfx.back(); onExit(); }} aria-label="Kembali ke beranda">
+            <IconArrowL size={17} />
           </button>
+          <div className="leading-tight mr-auto min-w-0">
+            <p className="text-[10px] font-extrabold tracking-[0.22em] uppercase text-[var(--amber)]">
+              Peta • {passedMeetings}/{totalMeetings()} tuntas (Perak+)
+            </p>
+            <p className="font-display font-bold truncate">Peta Pertemuan 16×</p>
+          </div>
+          <span className="chip shrink-0">P{no}/{totalMeetings()}</span>
         </div>
+      </header>
 
-        <div className="px-5 sm:px-7 py-5 space-y-5">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-6">
+        <div className="space-y-5 screen-in">
           {/* pemilih pertemuan + status */}
           <div className="flex flex-wrap gap-1.5">
             {CURRICULUM.map((x) => {
@@ -323,7 +331,7 @@ export function Pertemuan({ save, startNo, onClose, onMateri, onPlay }: Props) {
             </ol>
           </details>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
