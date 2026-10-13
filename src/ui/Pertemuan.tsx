@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CURRICULUM, PHASE_COLOR, getLesson } from "../data/curriculum";
 import type { Lesson } from "../data/curriculum";
 import type { Block, Slide } from "../data/modules";
-import { getSession, questId, juggleSource, LESSON_LANG } from "../data/quests";
+import { getSession, questId, juggleSource, LESSON_LANG, TUGAS_PERTEMUAN } from "../data/quests";
 import type { SessionKind } from "../data/quests";
 import type { SaveData } from "../lib/storage";
 import { meetingLevel, meetingUnlocked, sessionPassed, LEVEL_NAME, totalMeetings } from "../lib/progress";
@@ -271,6 +271,15 @@ export function Pertemuan({ save, startNo, onClose, onMateri, onPlay }: Props) {
                   Urutan yang disarankan: Quest → Drill (lulus = Perak) → Juggling (Emas). Mesin ketik: {LESSON_LANG[no] ?? "html"}.
                 </p>
               </div>
+
+              {/* tugas mandiri (produk) */}
+              {TUGAS_PERTEMUAN[no] && (
+                <div className="rounded-xl px-4 py-3 border" style={{ borderColor: `${c}55`, background: `${c}0d` }}>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.2em]" style={{ color: c }}>Tugas mandiri (produk)</p>
+                  <p className="text-sm text-[#bfe0f5] mt-1 leading-relaxed">{TUGAS_PERTEMUAN[no].tugas}</p>
+                  <p className="text-[11px] text-[var(--faint)] mt-1">Quest: {TUGAS_PERTEMUAN[no].quest}</p>
+                </div>
+              )}
 
               {/* materi .md — hanya tersedia untuk tahap HTML */}
               {l.phase === "HTML" && (

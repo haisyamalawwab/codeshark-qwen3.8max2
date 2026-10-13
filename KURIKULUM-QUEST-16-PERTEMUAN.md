@@ -40,7 +40,7 @@ Aturan tambahan: pertemuan *n+1* terbuka setelah *n* minimal **Perak**. XP & koi
 **Tahap:** HTML · **Tujuan:** Memahami peran HTML di dunia web dan menyiapkan berkas halaman pertama.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (170 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Kerangka halaman pertama** — ketik kode latihan pertemuan (170 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -58,9 +58,8 @@ Ketik kode latihan pertemuan (170 karakter) di aplikasi — sumber: `curriculum.
 Tidak ada pertemuan sebahasa sebelumnya: drill P1 dianyam dengan urutan terbalik dirinya sendiri (baris terakhir ke pertama). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Buat folder `latihan-html/` berisi `index.html` dengan satu `<h1>` dan dua `<p>`. Buka lewat klik-dua-kali, ubah teks, lalu reload (F5).
-- **Kriteria:** Berkas tersimpan sebagai `index.html`; perubahan terlihat setelah reload.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** index.html dengan h1 dan dua paragraf
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -69,7 +68,7 @@ Tidak ada pertemuan sebahasa sebelumnya: drill P1 dianyam dengan urutan terbalik
 **Tahap:** HTML · **Tujuan:** Menguasai kerangka wajib dokumen HTML dan fungsi head vs body.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (216 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Kerangka + head/body** — ketik kode latihan pertemuan (216 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -89,9 +88,8 @@ Ketik kode latihan pertemuan (216 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P2 dengan drill P1: baris P2 dan P1 diketik bergantian (baris 1 P2, baris 1 P1, baris 2 P2, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Tulis kerangka lengkap (`<!DOCTYPE html>`, `<html lang="id">`, `<meta charset>`, `<title>`, `<body>`) berisi `<h1>` dan satu paragraf.
-- **Kriteria:** Tidak ada error di validator.w3.org; pasangan tag lengkap.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Kerangka lengkap, valid di validator W3C
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -100,7 +98,7 @@ Anyam drill P2 dengan drill P1: baris P2 dan P1 diketik bergantian (baris 1 P2, 
 **Tahap:** HTML · **Tujuan:** Menyusun konten teks bertingkat: heading, paragraf, penekanan, dan daftar.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (235 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Profil Kadet** — ketik kode latihan pertemuan (235 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -121,9 +119,8 @@ Ketik kode latihan pertemuan (235 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P3 dengan drill P2: baris P3 dan P2 diketik bergantian (baris 1 P3, baris 1 P2, baris 2 P3, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Halaman “Profil Kadet”: satu `<h1>`, dua `<h2>`, satu `<ul>` (3 hobi), satu `<ol>` (3 target minggu ini), dan kata penting dengan `<strong>`/`<em>`.
-- **Kriteria:** Heading tidak melompat; daftar memakai `<ul>`/`<ol>`, bukan `•` manual.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Halaman dengan <ul>, <ol>, <strong>, <em>
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -132,7 +129,7 @@ Anyam drill P3 dengan drill P2: baris P3 dan P2 diketik bergantian (baris 1 P3, 
 **Tahap:** HTML · **Tujuan:** Menampilkan gambar dan membuat link antar halaman.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (262 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Blog + gambar + link** — ketik kode latihan pertemuan (262 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -149,9 +146,8 @@ Ketik kode latihan pertemuan (262 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P4 dengan drill P3: baris P4 dan P3 diketik bergantian (baris 1 P4, baris 1 P3, baris 2 P4, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Dua halaman `index.html` + `about.html` dengan `<nav>` berisi tautan keduanya; satu `<img>` berisi `alt` deskriptif; satu anchor `#kontak` ke `<h2 id="kontak">`.
-- **Kriteria:** Tidak ada `href="#"`; setiap `<img>` punya `alt` yang menjelaskan isi gambar.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Dua halaman dengan nav, alt wajib, anchor
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -160,7 +156,7 @@ Anyam drill P4 dengan drill P3: baris P4 dan P3 diketik bergantian (baris 1 P4, 
 **Tahap:** HTML · **Tujuan:** Membangun formulir yang aksesibel dan mengganti div generik dengan tag semantik.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (302 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Formulir daftar** — ketik kode latihan pertemuan (302 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -180,9 +176,8 @@ Ketik kode latihan pertemuan (302 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P5 dengan drill P4: baris P5 dan P4 diketik bergantian (baris 1 P5, baris 1 P4, baris 2 P5, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Formulir pendaftaran: `text`, `email`, `password` (minlength 8), grup `radio` (name sama), `checkbox`, `<select>`, `<textarea>`, dan `<button>`. Bungkus kerangka dengan `<header>`, `<main>`, `<footer>`.
-- **Kriteria:** Setiap input punya `<label for>` dengan id yang cocok; `required` di kolom wajib.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Form dengan label, radio, checkbox, select, textarea
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -191,7 +186,7 @@ Anyam drill P5 dengan drill P4: baris P5 dan P4 diketik bergantian (baris 1 P5, 
 **Tahap:** HTML · **Tujuan:** Menggabungkan semua materi HTML menjadi satu proyek utuh sebagai bekal UTS.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (833 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Profil utuh** — ketik kode latihan pertemuan (833 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -210,9 +205,8 @@ Ketik kode latihan pertemuan (833 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P6 dengan drill P5: baris P6 dan P5 diketik bergantian (baris 1 P6, baris 1 P5, baris 2 P6, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Mini project profil utuh yang memadukan P1–P5 (kerangka, teks, daftar, gambar, link, formulir, semantik). Lengkapi checklist pra-UTS di materi P6.
-- **Kriteria:** Checklist pra-UTS terpenuhi; halaman terbaca di mode HP (DevTools).
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Halaman gabungan P1–P5, lolos checklist pra-UTS
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -221,7 +215,7 @@ Anyam drill P6 dengan drill P5: baris P6 dan P5 diketik bergantian (baris 1 P6, 
 **Tahap:** UTS · **Tujuan:** Strategi mengerjakan UTS: lingkup, format, dan checklist pengerjaan.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (917 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Halaman HTML + CSS** — ketik kode latihan pertemuan (917 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -242,9 +236,8 @@ Ketik kode latihan pertemuan (917 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P7 dengan drill P6: baris P7 dan P6 diketik bergantian (baris 1 P7, baris 1 P6, baris 2 P7, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** UTS praktik (40 menit): satu halaman HTML + berkas `gaya.css` eksternal (`<link>` di head) dengan selector elemen dan kelas. Soal konsep 10 menit.
-- **Kriteria:** Lulus checklist UTS; tidak ada error di Console; CSS tanpa titik koma yang hilang.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Ujian praktik 40 menit dengan gaya.css eksternal
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -253,7 +246,7 @@ Anyam drill P7 dengan drill P6: baris P7 dan P6 diketik bergantian (baris 1 P7, 
 **Tahap:** CSS · **Tujuan:** Memahami cascade, tiga cara memasang CSS, dan selektor elemen.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (139 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Gaya dasar** — ketik kode latihan pertemuan (139 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```css
@@ -275,9 +268,8 @@ border-radius: 10px;
 Tidak ada pertemuan sebahasa sebelumnya: drill P8 dianyam dengan urutan terbalik dirinya sendiri (baris terakhir ke pertama). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Buat `gaya.css` dengan selector `body`, grup `h1, h2, h3`, `p`, dan `button`. Pasang lewat `<link>`, bukan `style=""` inline.
-- **Kriteria:** Semua deklarasi berakhiran `;`; tidak ada inline style.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** gaya.css dengan selector elemen, tanpa inline style
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -286,7 +278,7 @@ Tidak ada pertemuan sebahasa sebelumnya: drill P8 dianyam dengan urutan terbalik
 **Tahap:** CSS · **Tujuan:** Membedakan class vs id, membaca kode warna, dan mengatur huruf.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (190 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Kartu dengan class/id** — ketik kode latihan pertemuan (190 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```css
@@ -310,9 +302,8 @@ font-weight: 700;
 Anyam drill P9 dengan drill P8: baris P9 dan P8 diketik bergantian (baris 1 P9, baris 1 P8, baris 2 P9, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Buat tiga class (`.kartu`, `.judul`, `.catatan`) dan satu id (`#hero`). Gunakan warna HEX dan `font-size` dalam `rem`.
-- **Kriteria:** Penamaan kebab-case konsisten; id dipakai sekali saja.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Tiga class, satu id, HEX, rem
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -321,7 +312,7 @@ Anyam drill P9 dengan drill P8: baris P9 dan P8 diketik bergantian (baris 1 P9, 
 **Tahap:** CSS · **Tujuan:** Memahami margin, border, padding, dan ukuran kotak elemen.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (198 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Kartu berpadding** — ketik kode latihan pertemuan (198 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```css
@@ -343,9 +334,8 @@ border-radius: 14px;
 Anyam drill P10 dengan drill P9: baris P10 dan P9 diketik bergantian (baris 1 P10, baris 1 P9, baris 2 P10, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Kartu dengan `padding`, `margin: 16px auto`, `border`, dan `border-radius`. Tambahkan `* { box-sizing: border-box; }` dan `body { margin: 0; }`.
-- **Kriteria:** Kartu tidak melebar melewati layar; dapat dijelaskan urutan lapisan box model.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** box-sizing, margin: auto, border
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -354,7 +344,7 @@ Anyam drill P10 dengan drill P9: baris P10 dan P9 diketik bergantian (baris 1 P1
 **Tahap:** CSS · **Tujuan:** Menyusun posisi elemen dengan display:flex dan menyesuaikan layout di HP.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (264 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Navbar flex** — ketik kode latihan pertemuan (264 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```css
@@ -375,9 +365,8 @@ flex-direction: column;
 Anyam drill P11 dengan drill P10: baris P11 dan P10 diketik bergantian (baris 1 P11, baris 1 P10, baris 2 P11, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Navbar `display: flex` dengan `justify-content: space-between`, `align-items: center`, dan `gap`. Tambahkan `@media (max-width: 600px)` yang menumpuk item ke kolom, plus `<meta name="viewport">`.
-- **Kriteria:** Di lebar 375px menu menumpuk; di desktop sejajar.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Flex + @media, menumpuk di layar 375px
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -386,7 +375,7 @@ Anyam drill P11 dengan drill P10: baris P11 dan P10 diketik bergantian (baris 1 
 **Tahap:** JS · **Tujuan:** Review CSS melalui latihan ketik gabungan, lalu kenalan dengan cara JS menyentuh halaman.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (323 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**HTML + CSS gabungan** — ketik kode latihan pertemuan (323 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```html
@@ -402,9 +391,8 @@ Ketik kode latihan pertemuan (323 karakter) di aplikasi — sumber: `curriculum.
 Anyam drill P12 dengan drill P7: baris P12 dan P7 diketik bergantian (baris 1 P12, baris 1 P7, baris 2 P12, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Gabungan HTML + CSS: halaman dengan `<style>` internal, class, satu tombol bergaya, dan satu blok komentar `/* */` di CSS.
-- **Kriteria:** Dapat menjelaskan perpindahan dari HTML ke CSS dalam satu berkas.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Halaman dengan <style>, class, tombol
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -413,7 +401,7 @@ Anyam drill P12 dengan drill P7: baris P12 dan P7 diketik bergantian (baris 1 P1
 **Tahap:** JS · **Tujuan:** Menyimpan data dengan const/let dan mengenal tipe serta operator.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (135 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Operator & variabel** — ketik kode latihan pertemuan (135 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```js
@@ -431,9 +419,8 @@ console.log(total);
 Tidak ada pertemuan sebahasa sebelumnya: drill P13 dianyam dengan urutan terbalik dirinya sendiri (baris terakhir ke pertama). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Buat berkas `js-dasar.js` (atau `<script>` di HTML) dengan `const`, `let`, operasi `+ - * /`, dan `console.log` untuk 3 nilai. Cek tipe dengan `typeof`.
-- **Kriteria:** Tidak ada variabel yang diisi ulang jika seharusnya `const`.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** const/let, typeof, console.log
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -442,7 +429,7 @@ Tidak ada pertemuan sebahasa sebelumnya: drill P13 dianyam dengan urutan terbali
 **Tahap:** JS · **Tujuan:** Membuat keputusan dengan if/else, else if, dan operator logika.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (209 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**if/else, &&, ternary** — ketik kode latihan pertemuan (209 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```js
@@ -462,9 +449,8 @@ console.log(status);
 Anyam drill P14 dengan drill P13: baris P14 dan P13 diketik bergantian (baris 1 P14, baris 1 P13, baris 2 P14, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Fungsi `cekNilai(n)` yang mengembalikan “Lulus”/“Remedial” dengan `if/else`, plus satu contoh `&&` dan satu ternary.
-- **Kriteria:** Menguji minimal 3 kasus (batas 60, di atas, di bawah).
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** cekNilai(n) dengan minimal 3 kasus uji
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -473,7 +459,7 @@ Anyam drill P14 dengan drill P13: baris P14 dan P13 diketik bergantian (baris 1 
 **Tahap:** JS · **Tujuan:** Mengulang tugas dengan loop dan membereskan logika dengan fungsi.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (200 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**for, while, function** — ketik kode latihan pertemuan (200 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```js
@@ -494,9 +480,8 @@ const jumlah = (a, b) => a + b;
 Anyam drill P15 dengan drill P14: baris P15 dan P14 diketik bergantian (baris 1 P15, baris 1 P14, baris 2 P15, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Cetak angka 1–10 dengan `for`, hitung jumlah dengan `while`, dan satu `function hitungRataRata(a, b, c)` yang `return` hasilnya.
-- **Kriteria:** Tidak ada loop tak berujung; fungsi dipanggil minimal 3 kali.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Angka 1–10, rata-rata, fungsi dipanggil 3×
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---
 
@@ -505,7 +490,7 @@ Anyam drill P15 dengan drill P14: baris P15 dan P14 diketik bergantian (baris 1 
 **Tahap:** UAS · **Tujuan:** Membangun mini app interaktif dari HTML + CSS + JS: memilih elemen, merespons event, dan menguji kasus tepi.
 
 ### Quest (Perunggu)
-Ketik kode latihan pertemuan (283 karakter) di aplikasi — sumber: `curriculum.ts`, akurasi ≥ 90%.
+**Counter klik** — ketik kode latihan pertemuan (283 karakter), akurasi ≥ 90%.
 
 ### Drill (Perak)
 ```js
@@ -523,7 +508,6 @@ pesan.classList.toggle("aktif");
 Anyam drill P16 dengan drill P15: baris P16 dan P15 diketik bergantian (baris 1 P16, baris 1 P15, baris 2 P16, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
-- **Kerjakan:** Mini app satu berkas (UAS): form berisi input angka, tombol “Hitung”, dan `<p id="hasil">`. Gunakan `querySelector`, `addEventListener('click')`, `if`, dan fungsi. Tambahkan CSS flex.
-- **Kriteria:** Kasus tepi diuji: input kosong, nilai negatif, dan klik berulang tidak merusak tampilan.
-- **Kumpulkan:** berkas hasil + tangkapan layar hasil Quest/Drill/Juggling (level saat ini di Peta Pertemuan).
+- **Produk:** Mini app satu berkas: input, tombol, event, uji kasus tepi
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 

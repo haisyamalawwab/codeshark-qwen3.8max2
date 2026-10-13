@@ -248,6 +248,27 @@ export const DRILLS: Record<number, string[]> = {
   ],
 };
 
+
+/** nama Quest & tugas mandiri (produk) per pertemuan — sesuai tabel kurikulum */
+export const TUGAS_PERTEMUAN: Record<number, { quest: string; tugas: string }> = {
+  1: { quest: "Kerangka halaman pertama", tugas: "index.html dengan h1 dan dua paragraf" },
+  2: { quest: "Kerangka + head/body", tugas: "Kerangka lengkap, valid di validator W3C" },
+  3: { quest: "Profil Kadet", tugas: "Halaman dengan <ul>, <ol>, <strong>, <em>" },
+  4: { quest: "Blog + gambar + link", tugas: "Dua halaman dengan nav, alt wajib, anchor" },
+  5: { quest: "Formulir daftar", tugas: "Form dengan label, radio, checkbox, select, textarea" },
+  6: { quest: "Profil utuh", tugas: "Halaman gabungan P1–P5, lolos checklist pra-UTS" },
+  7: { quest: "Halaman HTML + CSS", tugas: "Ujian praktik 40 menit dengan gaya.css eksternal" },
+  8: { quest: "Gaya dasar", tugas: "gaya.css dengan selector elemen, tanpa inline style" },
+  9: { quest: "Kartu dengan class/id", tugas: "Tiga class, satu id, HEX, rem" },
+  10: { quest: "Kartu berpadding", tugas: "box-sizing, margin: auto, border" },
+  11: { quest: "Navbar flex", tugas: "Flex + @media, menumpuk di layar 375px" },
+  12: { quest: "HTML + CSS gabungan", tugas: "Halaman dengan <style>, class, tombol" },
+  13: { quest: "Operator & variabel", tugas: "const/let, typeof, console.log" },
+  14: { quest: "if/else, &&, ternary", tugas: "cekNilai(n) dengan minimal 3 kasus uji" },
+  15: { quest: "for, while, function", tugas: "Angka 1–10, rata-rata, fungsi dipanggil 3×" },
+  16: { quest: "Counter klik", tugas: "Mini app satu berkas: input, tombol, event, uji kasus tepi" },
+};
+
 /** pertemuan pembanding untuk juggling: sebelumnya dan sebahasa; bila tak ada → drill sendiri (dibalik) */
 export function juggleSource(no: number): number | null {
   for (let n = no - 1; n >= 1; n--) if (LESSON_LANG[n] === LESSON_LANG[no]) return n;
@@ -294,7 +315,7 @@ export function getSession(id: string): Session | null {
   if (k === "quest") {
     if (!lesson.practice) return null;
     code = lesson.practice.code;
-    title = lesson.title;
+    title = TUGAS_PERTEMUAN[no]?.quest ?? lesson.title;
     intro = lesson.practice.intro;
   } else if (k === "drill") {
     const items = DRILLS[no];
