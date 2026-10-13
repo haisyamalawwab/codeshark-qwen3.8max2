@@ -3,14 +3,13 @@ import type { SaveData } from "../lib/storage";
 import { rankOf } from "../lib/storage";
 import type { AgeCfg, ModuleDef } from "../data/modules";
 import { MODULES } from "../data/modules";
-import { HTML_DOCS } from "../data/materiHtml";
+import { CURRICULUM } from "../data/curriculum";
 import { sfx } from "../lib/audio";
 import {
   IconFin, IconBolt, IconCoin, IconBook, IconKeyboard, IconStar, IconStarLine,
   IconLock, IconCheck, IconArrowR, IconEye, IconRetry, IconSound, IconMute,
    IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
 } from "./icons";
-import { tokenize } from "../lib/highlight";
 import { CaptainAvatar } from "../characters";
 import MiniSpeedometer from "./MiniSpeedometer";
 
@@ -223,7 +222,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <button
                   type="button"
                   onClick={() => { sfx.click(); onMateriHtml(); }}
-                  title={`Materi HTML: ${HTML_DOCS.map((d) => `P${d.no}`).join(" · ")}`}
+                  title={`Materi HTML: ${CURRICULUM.filter((l) => l.phase === "HTML").map((l) => `P${l.no}`).join(" · ")}`}
                   className="hud-stat-box hud-stat-box-html p-3.5 flex flex-col justify-between text-left cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <div className="flex items-center justify-between" style={{ color: "#7ee4ff" }}>
@@ -511,38 +510,5 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
         </div>
       )}
     </div>
-  );
-}
-
-/* Panel kode dengan penomoran baris — dipakai juga oleh layar hasil. */
-export function CodePanel({ code, lang, caption }: { code: string; lang: "html" | "css" | "js"; caption?: string }) {
-  const lines = tokenize(code, lang);
-  return (
-    <figure className="my-4 rounded-xl overflow-hidden border border-[var(--line)] bg-[rgba(4,17,30,0.85)]">
-      <figcaption className="flex items-center gap-2 px-4 py-2 border-b border-[var(--line-soft)] bg-[rgba(10,38,62,0.5)]">
-        <span className="flex gap-1.5">
-          <i className="w-2.5 h-2.5 rounded-full bg-[#ff6b57] inline-block" />
-          <i className="w-2.5 h-2.5 rounded-full bg-[#ffc247] inline-block" />
-          <i className="w-2.5 h-2.5 rounded-full bg-[#2ee6c8] inline-block" />
-        </span>
-        <span className="font-code text-[11px] uppercase tracking-widest text-[var(--faint)]">{lang}</span>
-        {caption && <span className="text-xs text-[var(--dim)] ml-auto hidden sm:block">{caption}</span>}
-      </figcaption>
-      <div className="overflow-x-auto code-scroll py-3">
-        <pre className="font-code text-sm leading-[1.75] min-w-max">
-          {lines.map((toks, i) => (
-            <div key={i} className="flex px-4 hover:bg-[rgba(69,198,255,0.05)]">
-              <span className="w-7 shrink-0 text-right mr-4 text-[var(--faint)] select-none">{i + 1}</span>
-              <code>
-                {toks.length === 0 ? "\u00A0" : toks.map((t, j) => (
-                  <span key={j} className={t.cls}>{t.ch}</span>
-                ))}
-              </code>
-            </div>
-          ))}
-        </pre>
-      </div>
-      {caption && <p className="px-4 pb-3 text-xs text-[var(--dim)] sm:hidden">{caption}</p>}
-    </figure>
   );
 }

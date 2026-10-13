@@ -3,7 +3,7 @@ import type { AgeCfg } from "../data/modules";
 import type { Session } from "../data/quests";
 import type { GameResult } from "./TypingGame";
 import { sfx } from "../lib/audio";
-import { CodePanel } from "./Dashboard";
+import { CodePanel } from "./CodePanel";
 import {
   IconBolt, IconCoin, IconRetry, IconMap, IconStar, IconStarLine, IconTarget,
   IconTimer, IconBolt as IconCombo, IconCheck, IconX, IconConsole, IconEye, IconKeyboard, IconTrophy,

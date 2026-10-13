@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from "react";
-import sharkCaptain from "./shark-captain.png";
+import sharkCaptain from "./shark-captain.webp";
 
 /* Avatar Hiu Kapten Samudra (Topi Kapten + Headset Cyber + Seragam Navy)
    Menggunakan aset PNG captainshark (latar hijau sudah dipotong transparan),

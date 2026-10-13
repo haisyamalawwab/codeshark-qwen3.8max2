@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import type { AgeId, SaveData } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, persist, rankOf } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
 import type { Session } from "./data/quests";
 import { applyAttempt, meetingLevel, meetingUnlocked } from "./lib/progress";
-import Pertemuan from "./ui/Pertemuan";
 import { sfx } from "./lib/audio";
 import Ambient from "./graphics/Ambient";
 import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
-import Materi from "./ui/Materi";
-import MateriHtml from "./ui/MateriHtml";
-import TypingGame from "./ui/TypingGame";
 import type { GameResult } from "./ui/TypingGame";
-import Results from "./ui/Results";
+
+/* layar berat dimuat saat dibutuhkan (code-splitting) — dashboard tetap di bundle utama */
+const Pertemuan = lazy(() => import("./ui/Pertemuan"));
+const Materi = lazy(() => import("./ui/Materi"));
+const MateriHtml = lazy(() => import("./ui/MateriHtml"));
+const TypingGame = lazy(() => import("./ui/TypingGame"));
+const Results = lazy(() => import("./ui/Results"));
 
 type Screen =
   | { s: "dash" }
@@ -126,6 +128,8 @@ export default function App() {
     <div className={`age-${cfg.id}`} style={{ "--accent": cfg.accent, "--accent-deep": shade(cfg.accent) } as React.CSSProperties}>
       <Ambient fish={!profile || screen.s === "dash"} />
 
+      <Suspense fallback={null}>
+
       {!profile ? (
         <Onboarding soundOn={sound} onToggleSound={toggleSound} onCreate={createProfile} />
       ) : screen.s === "dash" ? (
@@ -196,6 +200,7 @@ export default function App() {
           }}
         />
       )}
+      </Suspense>
     </div>
   );
 }

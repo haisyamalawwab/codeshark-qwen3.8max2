@@ -16,7 +16,7 @@ import type { MdBlock } from "../lib/markdown";
 import { getFigure } from "../lib/figures";
 import type { Lang } from "../lib/highlight";
 import { sfx } from "../lib/audio";
-import { CodePanel } from "./Dashboard";
+import { CodePanel } from "./CodePanel";
 import {
   IconBook, IconCheck, IconKeyboard, IconStar, IconX, IconArrowL, IconArrowR, IconInfo,
 } from "./icons";

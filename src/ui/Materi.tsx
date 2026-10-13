@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { AgeCfg, Block, ModuleDef } from "../data/modules";
 import { sfx } from "../lib/audio";
-import { CodePanel } from "./Dashboard";
+import { CodePanel } from "./CodePanel";
 import {
   IconArrowL, IconArrowR, IconCheck, IconFin, IconInfo, IconKeyboard, IconStar, IconX,
 } from "./icons";

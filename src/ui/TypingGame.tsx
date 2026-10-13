@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { AgeCfg } from "../data/modules";
 import type { Session } from "../data/quests";
-import { tokenize } from "../lib/highlight";
+import { tokenize, type TokChar } from "../lib/highlight";
 import { isShortcut, skipBlank } from "../lib/typing";
 import { sfx } from "../lib/audio";
 import { scene } from "../graphics/scene";
@@ -59,6 +59,19 @@ const fresh = (): G => ({
 
 /* ambang WPM untuk bonus kecepatan (skor tidak lagi buta terhadap kecepatan) */
 const SPEED_BONUS_WPM = 40;
+
+/* Baris mendatang: referensi token stabil (dari useMemo `lines`), jadi memo mencegah
+   render ulang tiap tik ancaman 100 ms yang memanggil force(). */
+const UpcomingLine = memo(function UpcomingLine({ num, toks }: { num: number; toks: TokChar[] }) {
+  return (
+    <div className="min-w-max opacity-[0.28]">
+      <span className="text-[var(--faint)] mr-4 select-none">{String(num).padStart(2, "0")}</span>
+      {toks.map((tok, i) => (
+        <span key={i} className={tok.cls}>{tok.ch === " " ? "\u00A0" : tok.ch}</span>
+      ))}
+    </div>
+  );
+});
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -408,12 +421,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
                 </div>
                 {/* baris mendatang */}
                 {upcoming.map((ln, li) => (
-                  <div key={li} className="min-w-max opacity-[0.28]">
-                    <span className="text-[var(--faint)] mr-4 select-none">{String(g.lineIdx + 2 + li).padStart(2, "0")}</span>
-                    {ln.map((tok, i) => (
-                      <span key={i} className={tok.cls}>{tok.ch === " " ? "\u00A0" : tok.ch}</span>
-                    ))}
-                  </div>
+                  <UpcomingLine key={g.lineIdx + 2 + li} num={g.lineIdx + 2 + li} toks={ln} />
                 ))}
               </div>
             </div>

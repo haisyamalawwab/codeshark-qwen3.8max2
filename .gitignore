@@ -1,1 +1,4 @@
 dist/
+
+# dependensi (dipasang dengan npm ci)
+node_modules/
