@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import type { AgeId, SaveData } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, persist, rankOf } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
@@ -12,13 +12,26 @@ import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
 import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
-import TypingGame from "./ui/TypingGame";
 import type { GameResult } from "./ui/TypingGame";
-import TowerPuzzle from "./ui/TowerPuzzle";
 import { isTouchDevice } from "./lib/device";
 import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
 import type { SubGameId } from "./data/subgames";
 import Results from "./ui/Results";
+
+/* Heavy arena di-lazy agar hub & first-paint HP tetap cepat (code-split per sub-game). */
+const TypingGame = lazy(() => import("./ui/TypingGame"));
+const TowerPuzzle = lazy(() => import("./ui/TowerPuzzle"));
+
+interface AppProps {
+  /** bila diisi, entry ini dikunci ke satu sub-game (dipakai entry /codingshark & /codingtower).
+      null/undefined = mode agregat lama (bisa ganti arena, dipakai dev & fallback). */
+  lockedSubGame?: SubGameId | null;
+  /** tampilkan tautan kembali ke hub agregat latihan.my.id */
+  hubHref?: string;
+  /** tautan ke arena saudara (mis. dari shark → tower) */
+  siblingHref?: string;
+  siblingLabel?: string;
+}
 
 type Screen =
   | { s: "dash" }
@@ -28,19 +41,20 @@ type Screen =
   | { s: "game"; id: string; k: number }
   | { s: "result"; id: string; r: GameResult; xp: number; coins: number; rankUp: string | null; passed: boolean };
 
-export default function App() {
+export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
   const [save, setSave] = useState<SaveData>(() => loadSave());
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
   const [screen, setScreen] = useState<Screen>({ s: "dash" });
   const [gameKey, setGameKey] = useState(0);
   /* SUB-GAME aktif — dipilih di hub Dashboard, tersimpan antar sesi.
-     Default: HP → Coding Tower, PC → CodeShark. Bisa diganti kapan saja. */
+     Bila entry dikunci (/codingshark, /codingtower) pilihan dikunci juga. */
   const [touch] = useState(() => isTouchDevice());
   const [subGame, setSubGame] = useState<SubGameId>(() =>
-    loadSubGame(isTouchDevice() ? "tower" : "shark")
+    lockedSubGame ?? loadSubGame(isTouchDevice() ? "tower" : "shark")
   );
 
   const selectSubGame = (id: SubGameId) => {
+    if (lockedSubGame) return;
     setSubGame(id);
     saveSubGame(id);
   };
@@ -143,22 +157,41 @@ export default function App() {
       {!profile ? (
         <Onboarding soundOn={sound} onToggleSound={toggleSound} onCreate={createProfile} />
       ) : screen.s === "dash" ? (
-        <Dashboard
-          save={save}
-          cfg={cfg}
-          onMateri={(id) =>
-            /* modul HTML memakai dokumen .md per pertemuan sebagai materi utama */
-            id === "html" ? setScreen({ s: "materi-html" }) : setScreen({ s: "materi", id })
-          }
-          onPractice={enterPractice}
-          onMateriHtml={() => setScreen({ s: "materi-html" })}
-          onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
-          subGame={subGame}
-          isTouch={touch}
-          onSelectSubGame={selectSubGame}
-          onToggleSound={toggleSound}
-          onResetProfile={resetProfile}
-        />
+        <>
+          {lockedSubGame && (hubHref || siblingHref) && (
+            <div className="relative z-40 max-w-6xl mx-auto px-4 pt-3 flex items-center gap-2 text-[12px] font-bold">
+              {hubHref && (
+                <a href={hubHref} className="chip hover:brightness-125">
+                  ⌂ Hub latihan.my.id
+                </a>
+              )}
+              <span className="chip !text-[var(--teal)]">
+                {lockedSubGame === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"} • mode sub-game mandiri
+              </span>
+              {siblingHref && (
+                <a href={siblingHref} className="chip hover:brightness-125 ml-auto">
+                  {siblingLabel ?? "Arena lain →"}
+                </a>
+              )}
+            </div>
+          )}
+          <Dashboard
+            save={save}
+            cfg={cfg}
+            onMateri={(id) =>
+              /* modul HTML memakai dokumen .md per pertemuan sebagai materi utama */
+              id === "html" ? setScreen({ s: "materi-html" }) : setScreen({ s: "materi", id })
+            }
+            onPractice={enterPractice}
+            onMateriHtml={() => setScreen({ s: "materi-html" })}
+            onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
+            subGame={subGame}
+            isTouch={touch}
+            onSelectSubGame={lockedSubGame ? undefined : selectSubGame}
+            onToggleSound={toggleSound}
+            onResetProfile={resetProfile}
+          />
+        </>
       ) : screen.s === "peta" ? (
         <Pertemuan
           key={screen.no}
@@ -190,24 +223,43 @@ export default function App() {
         <div key={`${screen.id}-${screen.k}`}>
           {/* banner arena aktif — ganti sub-game tanpa kembali ke hub */}
           <div className="relative z-40 max-w-5xl mx-auto px-4 pt-3">
-            <div className="mode-switch" role="tablist" aria-label="Sub-game aktif">
-              {(["tower", "shark"] as SubGameId[]).map((id) => (
-                <button
-                  key={id}
-                  role="tab"
-                  aria-selected={subGame === id}
-                  className={`mode-btn ${subGame === id ? "on" : ""}`}
-                  onClick={() => { selectSubGame(id); setGameKey((k) => k + 1); sfx.click(); }}
-                >
-                  {id === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"}
-                </button>
-              ))}
-            </div>
+            {lockedSubGame ? (
+              <div className="mode-switch" role="note" aria-label="Sub-game aktif (dikunci)">
+                <span className="mode-btn on" aria-current="true">
+                  {lockedSubGame === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"}
+                </span>
+                {siblingHref && (
+                  <a className="mode-btn" href={siblingHref}>
+                    {siblingLabel ?? "Coba arena lain →"}
+                  </a>
+                )}
+                {hubHref && (
+                  <a className="mode-btn" href={hubHref}>
+                    ⌂ Hub latihan.my.id
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="mode-switch" role="tablist" aria-label="Sub-game aktif">
+                {(["tower", "shark"] as SubGameId[]).map((id) => (
+                  <button
+                    key={id}
+                    role="tab"
+                    aria-selected={subGame === id}
+                    className={`mode-btn ${subGame === id ? "on" : ""}`}
+                    onClick={() => { selectSubGame(id); setGameKey((k) => k + 1); sfx.click(); }}
+                  >
+                    {id === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"}
+                  </button>
+                ))}
+              </div>
+            )}
             <p className="text-center text-[11px] text-[var(--faint)] font-semibold mt-1.5">
               Arena: <strong className="text-[var(--teal)]">{SUBGAMES[subGame].name}</strong> — {SUBGAMES[subGame].tagline}
               {touch && subGame === "shark" && " • keyboard HP menyulitkan simbol < > {} ;"}
             </p>
           </div>
+          <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat arena…</div>}>
           {subGame === "tower" ? (
             <TowerPuzzle
               key={`susun-${screen.id}-${screen.k}-${gameKey}`}
@@ -225,6 +277,7 @@ export default function App() {
               onExit={() => setScreen({ s: "dash" })}
             />
           )}
+          </Suspense>
         </div>
       ) : (
         <Results

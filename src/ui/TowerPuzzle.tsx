@@ -3,7 +3,7 @@
    Level per pertemuan diatur di data/towerLevels.ts — makin jauh makin sulit:
    tahap dipecah, pengecoh disisipkan, ancaman naik, jatah petunjuk menipis.
    Menghasilkan GameResult yang sama dengan TypingGame (satu pintu XP/progres). */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type { AgeCfg } from "../data/modules";
 import type { Session } from "../data/quests";
@@ -18,6 +18,9 @@ import { scene } from "../graphics/scene";
 import { DndContext, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import TowerPhysicsCanvas from "../games/tower/TowerPhysicsCanvas";
+/* FX serius (lazy agar first-paint HP tetap cepat): Pixi confetti + p5 playground */
+const TowerPixiStage = lazy(() => import("../games/tower/TowerPixiStage"));
+const TowerCreativeP5 = lazy(() => import("../games/tower/TowerCreativeP5"));
 import {
   IconX, IconHeart, IconBolt, IconTimer, IconPause, IconPlay, IconRetry,
   IconMap, IconFin, IconTarget, IconCheck, IconEye, IconArrowR,
@@ -484,6 +487,14 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
                     <span className="text-[var(--faint)]">… cari bloknya di bank bawah</span>
                   </p>
                 )}
+                {/* fisika Matter.js + confetti Pixi (visual saja, kebenaran tetap state placed) */}
+                <Suspense fallback={null}>
+                  <TowerPhysicsCanvas floors={placed.length} threat={threat} />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <TowerPixiStage burst={placed.length} />
+                </Suspense>
+                <ShaftDrop>
                 <div className="tower-shaft" aria-live="polite">
                   {placed.length === 0 && (
                     <p className="text-center text-xs text-[var(--faint)] font-semibold py-6">
