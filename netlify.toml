@@ -1,10 +1,22 @@
-# Konfigurasi Deployment Netlify untuk CodeShark Academy (Vite + React SPA)
+# Konfigurasi Deployment Netlify untuk latihan.my.id (hub agregat + 2 sub-game)
+# Struktur dist/: index.html (hub) + codingshark/index.html + codingtower/index.html
 
 [build]
   command = "npm run build"
   publish = "dist"
 
-# SPA Fallback Routing (agar refresh halaman tetap mengarah ke index.html)
+# Sub-game punya fallback SPA masing-masing (refresh di /codingshark/* tetap ke index sub-game)
+[[redirects]]
+  from = "/codingshark/*"
+  to = "/codingshark/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/codingtower/*"
+  to = "/codingtower/index.html"
+  status = 200
+
+# SPA Fallback Routing hub (agar refresh halaman tetap mengarah ke index.html)
 [[redirects]]
   from = "/*"
   to = "/index.html"

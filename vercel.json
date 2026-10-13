@@ -5,6 +5,14 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/codingshark/(.*)",
+      "destination": "/codingshark/index.html"
+    },
+    {
+      "source": "/codingtower/(.*)",
+      "destination": "/codingtower/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

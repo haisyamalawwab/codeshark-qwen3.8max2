@@ -520,6 +520,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
                     <span className="text-[9px] font-extrabold tracking-[0.2em] uppercase text-[var(--faint)]">Fondasi • Tahap {stageIdx + 1}/{stages.length}</span>
                   </div>
                 </div>
+                </ShaftDrop>
               </>
             ) : (
               <div className="phone-frame">
@@ -582,6 +583,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
               ))}
             </div>
           )}
+          <DndContext sensors={sensors} onDragEnd={onDragEnd}>
           <div className="grid gap-2">
             {bank.map((item) => {
               const isWrong = wrongId === item.id;
@@ -589,19 +591,16 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
               const tag = extractTag(item.text);
               const tc = tagColor(tag);
               return (
-                <button
-                  key={item.id}
-                  onClick={() => tap(item)}
-                  disabled={status !== "play"}
-                  className={`puzzle-block ${isWrong ? "puzzle-wrong" : ""} ${isHint ? "puzzle-hint" : ""}`}
-                >
-                  <span className="tag-chip shrink-0" style={{ color: tc, borderColor: `${tc}66`, background: `${tc}14` }}>{tag}</span>
-                  <code className="puzzle-code">{tokenizeLine(item.text || " ", mod.lang).map((t, j) => (
-                    <span key={j} className={t.cls}>{t.ch === " " ? " " : t.ch}</span>
-                  ))}</code>
-                  {isWrong && <span className="puzzle-badge">✕</span>}
-                  {isHint && <span className="puzzle-badge !bg-[var(--amber)] !text-[#2b1a02]">➜</span>}
-                </button>
+                <DragBlock key={item.id} item={item} disabled={status !== "play"} onTap={() => tap(item)}>
+                  <span className={`puzzle-block ${isWrong ? "puzzle-wrong" : ""} ${isHint ? "puzzle-hint" : ""}`}>
+                    <span className="tag-chip shrink-0" style={{ color: tc, borderColor: `${tc}66`, background: `${tc}14` }}>{tag}</span>
+                    <code className="puzzle-code">{tokenizeLine(item.text || " ", mod.lang).map((t, j) => (
+                      <span key={j} className={t.cls}>{t.ch === " " ? " " : t.ch}</span>
+                    ))}</code>
+                    {isWrong && <span className="puzzle-badge">✕</span>}
+                    {isHint && <span className="puzzle-badge !bg-[var(--amber)] !text-[#2b1a02]">➜</span>}
+                  </span>
+                </DragBlock>
               );
             })}
             {bank.length === 0 && placed.length === blocks.length && (
@@ -610,6 +609,20 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
               </p>
             )}
           </div>
+          </DndContext>
+          {/* playground p5 — lazy, opsional, tidak memengaruhi skor */}
+          {placed.length >= 3 && (
+            <details className="mt-3 rounded-xl border border-sky-200 bg-white/60">
+              <summary className="cursor-pointer px-3 py-2.5 text-[12px] font-bold text-sky-900" style={{ minHeight: 48 }}>
+                🎨 Lihat visual kreatif (p5.js)
+              </summary>
+              <div className="p-2">
+                <Suspense fallback={<p className="text-xs text-sky-800 px-2 py-3 font-semibold">Memuat playground…</p>}>
+                  <TowerCreativeP5 floors={placed.length} threat={threat} />
+                </Suspense>
+              </div>
+            </details>
+          )}
           <p className="text-center text-xs text-[var(--faint)] font-semibold mt-3">
             Cocokkan bentuk tag lantai berikutnya • awas blok pengecoh yang mirip!
           </p>

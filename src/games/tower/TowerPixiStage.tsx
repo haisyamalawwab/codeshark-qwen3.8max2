@@ -47,18 +47,21 @@ export default function TowerPixiStage({ burst, height = 132 }: Props) {
           return;
         }
         app = appV8 as unknown as { destroy: () => void };
-        const stage = (appV8 as unknown as { stage: PIXI.Container }).stage;
-        const parts: { g: PIXI.Graphics; vx: number; vy: number; life: number }[] = [];
+        const stage = (appV8 as unknown as { stage: { addChild: (o: unknown) => void; removeChild: (o: unknown) => void } }).stage;
+        const parts: { g: { x: number; y: number; rotation: number; alpha: number; destroy: () => void }; vx: number; vy: number; life: number }[] = [];
 
         const boom = () => {
           if (disposed) return;
           const colors = [0x2ee6c8, 0x45c6ff, 0xffc247, 0xfb7185, 0xffffff];
           for (let i = 0; i < 26; i++) {
-            const g = new PIXI.Graphics();
-            g.fill({ color: colors[i % colors.length], alpha: 0.95 });
+            const g = new PIXI.Graphics() as unknown as {
+              fill: (o: unknown) => unknown;
+              rect: (x: number, y: number, w: number, h: number) => void;
+              x: number; y: number; rotation: number; alpha: number; destroy: () => void;
+            };
             const s = 3 + Math.random() * 5;
             g.rect(-s / 2, -s / 2, s, s);
-            g.fill();
+            g.fill({ color: colors[i % colors.length], alpha: 0.95 });
             g.x = W / 2 + (Math.random() - 0.5) * 60;
             g.y = H - 14;
             stage.addChild(g);
