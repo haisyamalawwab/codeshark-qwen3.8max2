@@ -7,7 +7,7 @@ import type { AgeCfg } from "../data/modules";
 import type { Session } from "../data/quests";
 import type { GameResult } from "./TypingGame";
 import { toBlocks, shuffled, floorWidth } from "../lib/puzzle";
-import { tokenize } from "../lib/highlight";
+import { tokenizeLine } from "../lib/highlight";
 import { sfx } from "../lib/audio";
 import { scene } from "../graphics/scene";
 import {
@@ -38,7 +38,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
     () => shuffled(blocks.map((text, i) => ({ id: i, text }))),
     [blocks]
   );
-  const totalChars = useMemo(() => blocks.join("\n").length, [blocks]);
+
 
   const [bank, setBank] = useState<BankItem[]>(bank0);
   const [placed, setPlaced] = useState<string[]>([]);
@@ -145,20 +145,6 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
     setCombo(0);
     setFlash((f) => f + 1);
     sfx.hurt();
-  };
-
-  const computeResult = (won: boolean): GameResult => {
-    const total = correct + errors;
-    const acc = total > 0 ? Math.round((correct / total) * 100) : 100;
-    const t = Math.max(5, elapsedSec());
-    // WPM diestimasi dari karakter blok yang berhasil disusun — sebanding dengan mode ketik
-    const placedChars = placed.join("\n").length || totalChars * (won ? 1 : correct / Math.max(1, blocks.length));
-    const wpm = Math.round(placedChars / 5 / (t / 60));
-    const stars = won ? (acc >= 95 ? 3 : acc >= 85 ? 2 : 1) : 0;
-    return {
-      won, score, accuracy: acc, wpm, maxCombo, stars,
-      timeSec: Math.round(t), correct, errors, missed: { ...missed },
-    };
   };
 
   const win = (finalPlaced: string[], finalScore: number, finalCorrect: number) => {
@@ -416,7 +402,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
                   disabled={status !== "play"}
                   className={`puzzle-block ${isWrong ? "puzzle-wrong" : ""} ${isHint ? "puzzle-hint" : ""}`}
                 >
-                  <code className="puzzle-code">{tokenize(item.text || " ", mod.lang).map((t, j) => (
+                  <code className="puzzle-code">{tokenizeLine(item.text || " ", mod.lang).map((t, j) => (
                     <span key={j} className={t.cls}>{t.ch === " " ? " " : t.ch}</span>
                   ))}</code>
                   {isWrong && <span className="puzzle-badge">✕</span>}
