@@ -2,9 +2,17 @@ import sharkCyber from "./shark-cyber.webp";
 import sharkCyberPng from "./shark-cyber.png";
 
 /* ============ MASKOT HIU ============
-   WebP utama (65KB vs 272KB PNG) + fallback PNG untuk browser lawas.
-   decoding async + eager hanya bila di atas lipatan (diatur via className pemanggil). */
-export default function SharkMascot({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+   WebP utama (~69KB) + fallback PNG (~99KB) untuk browser lawas.
+   decoding=async; loading diatur pemanggil (eager di above-the-fold). */
+export default function SharkMascot({
+  className = "",
+  style,
+  loading = "lazy",
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+  loading?: "lazy" | "eager";
+}) {
   return (
     <picture aria-hidden="true" style={{ display: "contents" }}>
       <source srcSet={sharkCyber} type="image/webp" />
@@ -13,6 +21,9 @@ export default function SharkMascot({ className = "", style }: { className?: str
         alt=""
         draggable={false}
         decoding="async"
+        loading={loading}
+        width={779}
+        height={406}
         className={className}
         style={style}
         aria-hidden="true"
