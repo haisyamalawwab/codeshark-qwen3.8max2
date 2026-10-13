@@ -29,14 +29,28 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 - Tanpa state-management eksternal — `useState` + `localStorage` namespace `codeshark:save:v1`
 - Parser markdown & syntax highlighter sendiri (tanpa dependensi) di `src/lib/`
 
-## 📁 Struktur Proyek
+## 📁 Struktur Proyek (latihan.my.id = agregat, 3 entry)
 
 ```
+├── index.html               # HUB agregat latihan.my.id → src/hub/main.tsx (HubApp)
+├── codingshark/index.html   # Sub-game CodeShark (typer, dikunci shark) → src/codingshark/main.tsx
+├── codingtower/index.html   # Sub-game Coding Tower (susun, dikunci tower) → src/codingtower/main.tsx
+├── public/
+│   ├── manifest.webmanifest # PWA agregat (ikon SVG, scope ./)
+│   ├── pwa-register.js      # Registrasi SW sadar sub-folder (hub ./sw.js, sub-game ../sw.js)
+│   └── icons/               # icon.svg + icon-maskable.svg (TODO: generate PNG 192/512 agar install prompt penuh)
 ├── content/html/            # 6 dokumen materi HTML (.md) per pertemuan P1–P6
 ├── src/
-│   ├── App.tsx              # Router layar: dash → materi → materi-html → game → result
+│   ├── App.tsx              # Router layar + prop lockedSubGame (null = agregat lama, "shark"/"tower" = entry mandiri)
+│   ├── hub/HubApp.tsx       # Halaman induk: kartu 2 sub-game live + 2 slot "segera hadir"
+│   ├── codingshark/main.tsx # Entry shark → <App lockedSubGame="shark">
+│   ├── codingtower/main.tsx # Entry tower → <App lockedSubGame="tower">
 │   ├── characters/          # Maskot hiu kapten, divers, avatar (SVG/CSS anim)
 │   ├── graphics/            # Mesin latar laut: seaEngine, Ambient, layer parallax SVG
+│   ├── games/tower/
+│   │   ├── TowerPhysicsCanvas.tsx  # Matter.js + Canvas2D native (visual, bukan logika)
+│   │   ├── TowerPixiStage.tsx      # Confetti PixiJS WebGL — lazy, skip di low-end/reduced-motion
+│   │   └── TowerCreativeP5.tsx     # Playground p5.js — lazy di balik <details>, opsional
 │   ├── data/
 │   │   ├── modules.ts       # Definisi modul HTML/CSS/JS + konfigurasi kelompok usia
 │   │   ├── curriculum.ts    # Silabus Lesson 16 pertemuan (tipe Lesson, PHASE_COLOR)
@@ -45,22 +59,27 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 │   │   ├── markdown.ts      # Parser markdown ringan (heading/list/tabel/quote/kode)
 │   │   ├── highlight.ts     # Tokenizer sintaks html/css/js
 │   │   ├── audio.ts         # Synth SFX WebAudio
-│   │   └── storage.ts       # Save/load profil, XP, progres modul, statistik
+│   │   ├── storage.ts       # Save/load profil, XP, progres modul, statistik
+│   │   ├── perf.ts          # cappedDPR / isLowEnd / reduced-motion / visibility-pause (mobile)
+│   │   └── anims.ts         # Helper animejs lazy (popIn/shakeX/floatUp)
 │   ├── ui/
 │   │   ├── Dashboard.tsx    # Home HUD + kartu akses cepat P1–P6 + CodePanel
 │   │   ├── MateriHtml.tsx   # Penampil materi HTML .md + navigasi antar dokumen
 │   │   ├── Materi.tsx       # Ruang materi slide + kuis per modul
 │   │   ├── Pertemuan.tsx    # Peta pertemuan 16× + sesi Quest/Drill/Juggling
-│   │   ├── TypingGame.tsx   # Arena ketik inti
+│   │   ├── TypingGame.tsx   # Arena ketik inti (lazy chunk)
+│   │   ├── TowerPuzzle.tsx  # Arena susun: dnd-kit bank→shaft + physics + pixi + p5 (lazy chunk)
 │   │   ├── Results.tsx      # Layar hasil, rank, XP, koin
 │   │   └── Onboarding.tsx   # Pembuatan profil & pemilihan usia
-│   │   # lib/progress.ts   — aturan lulus, level pertemuan, gating, anti-farm XP
+│   │   # lib/progress.ts   — aturan lulus, level pertemuan, gating, anti-farm XP (SATU PINTU)
 │   │   # lib/typing.ts     — helper mesin ketik (lewati baris kosong, abaikan pintasan)
 │   │   # data/quests.ts    — sesi Quest/Drill/Juggling per pertemuan (drill: DRILLS)
 │   └── styles/theme.css     # Token warna, font, reset global
-├── netlify.toml / vercel.json  # Config deploy SPA (fallback routing + cache header)
-└── vite.config.ts           # Pemisahan chunk vendor/asset js/css/img
+├── netlify.toml / vercel.json  # Redirect per sub-game (/codingshark/*, /codingtower/*) + cache header
+└── vite.config.ts           # 3 entry hub/shark/tower + chunk game-pixi/p5/matter/dnd/anime + VitePWA
 ```
+
+> Keputusan framework: **PixiJS saja (bukan Konva)** untuk FX tower — WebGL batch 60fps di HP; Konva (scene-graph Canvas2D) lebih berat untuk partikel. **p5.js hanya lazy** di playground kreatif agar bundle inti tetap kecil (game-p5 688KB & game-pixi 822KB tidak ikut first-paint; hub cuma ~8KB + react). **animejs** dipakai via helper lazy `lib/anims.ts`.
 
 ## 🚀 Menjalankan
 
@@ -70,13 +89,14 @@ Prasyarat: **Node.js ≥ 20**.
 # 1. Instal dependensi
 npm install
 
-# 2. Mode pengembangan (http://localhost:5173)
+# 2. Mode pengembangan — hub agregat di http://localhost:5173
 npm run dev
+#    Sub-game: buka http://localhost:5173/codingshark/ atau /codingtower/
 
-# 3. Build produksi → folder dist/
+# 3. Build produksi → dist/ (hub + 2 sub-folder + SW PWA)
 npm run build
 
-# 4. Pratinjau hasil build
+# 4. Pratinjau hasil build (cek /, /codingshark/, /codingtower/, /sw.js)
 npm run preview
 ```
 
