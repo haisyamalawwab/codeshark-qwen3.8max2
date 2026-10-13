@@ -1,4 +1,5 @@
 import { scene } from "./scene";
+import { cappedDPR, isLowEnd, prefersReducedMotion } from "../lib/perf";
 
 /* ============ ENGINE LATAR LAUT (JS grafis) ============
    Satu loop requestAnimationFrame untuk: parallax 3 lapisan (mouse + progres
@@ -105,8 +106,11 @@ function makeSchools(w: number, h: number, dense: boolean): School[] {
 /** Mulai engine; mengembalikan fungsi dispose. */
 export function startSeaEngine(t: SeaTargets): () => void {
   const canvas = t.canvas;
-  const ctx = canvas.getContext("2d")!;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ctx = canvas.getContext("2d", { alpha: true })!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  const reduce = prefersReducedMotion();
+  const lowEnd = isLowEnd();
   let w = 0, h = 0, dpr = 1;
   let schools: School[] = [];
   let plankton: Plankton[] = [];
@@ -115,15 +119,18 @@ export function startSeaEngine(t: SeaTargets): () => void {
   let raf = 0, last = performance.now(), running = true;
 
   const resize = () => {
-    dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    dpr = cappedDPR(lowEnd ? 1.25 : 1.75);
     w = window.innerWidth;
     h = window.innerHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    schools = makeSchools(w, h, t.isDense());
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    schools = makeSchools(w, h, t.isDense() && !lowEnd);
     if (!mouse.touched) { mouse.px = w / 2; mouse.py = h / 2; }
-    plankton = Array.from({ length: Math.round(Math.min(90, (w * h) / 16000)) }, () => ({
+    const maxPlankton = lowEnd ? 40 : 90;
+    plankton = Array.from({ length: Math.round(Math.min(maxPlankton, (w * h) / (lowEnd ? 28000 : 16000))) }, () => ({
       x: Math.random() * w, y: Math.random() * h, r: 0.6 + Math.random() * 1.6, vy: 0.08 + Math.random() * 0.25, ph: Math.random() * 6.28,
     }));
   };
@@ -220,7 +227,7 @@ export function startSeaEngine(t: SeaTargets): () => void {
     last = now;
     const tt = scene.threat / 100;
 
-    /* haluskan nilai */
+    /* halvskan nilai */
     threat += (tt - threat) * 0.06 * dt;
     progress += (scene.progress - progress) * 0.05 * dt;
     active += ((scene.active ? 1 : 0) - active) * 0.05 * dt;
@@ -259,16 +266,14 @@ export function startSeaEngine(t: SeaTargets): () => void {
     /* canvas: kawanan ikan + plankton */
     ctx.clearRect(0, 0, w, h);
     if (!reduce) {
-      const flee = 1 + threat * 2.6; // ikan kabur lebih cepat
+      const flee = 1 + threat * 2.6;
       const spread = 1 + threat * 1.4;
       const panic = Math.min(1, threat * 1.4);
       for (const sc of schools) {
-        /* gradien badan mengikuti warna bahaya */
         if (sc.gradK < 0 || Math.abs(threat - sc.gradK) > 0.04) {
           sc.grad = schoolGradient(ctx, sc, threat);
           sc.gradK = threat;
         }
-        /* kawanan: pulse kruis–burst + drift vertikal pelan */
         const pulse = 0.78 + 0.3 * (0.5 + 0.5 * Math.sin(now / 5300 + sc.speedPh));
         const spd = sc.speed * pulse * flee;
         sc.cx += sc.dir * spd * dt;
@@ -281,7 +286,6 @@ export function startSeaEngine(t: SeaTargets): () => void {
         ctx.fillStyle = sc.grad!;
 
         for (const f of sc.fish) {
-          /* sesekali melesat mendadak (lebih sering saat panik) */
           f.dartT -= dt / 60;
           if (f.dartT <= 0) {
             f.dartV = 0.3 + Math.random() * 0.5;
@@ -291,12 +295,10 @@ export function startSeaEngine(t: SeaTargets): () => void {
           }
           f.dartV *= Math.pow(0.4, dt / 50);
 
-          /* goyangan individu di dalam kawanan */
           const wobX = Math.sin(now / (1600 / f.w1) + f.wob) * f.a1;
           const wobY = Math.cos(now / (2100 / f.w2) + f.wob) * f.a2;
           const bobY = Math.sin(now / 430 + f.wob * 2) * 2.2;
 
-          /* menjauh dari kursor */
           const wx0 = sc.cx + f.ox * spread + wobX + f.fx;
           const wy0 = cy + f.oy * spread + wobY + bobY + f.fy;
           const dxm = wx0 - mouse.px, dym = wy0 - mouse.py;
@@ -307,7 +309,6 @@ export function startSeaEngine(t: SeaTargets): () => void {
             f.fx += (dxm / d) * push * 2.1 * dt;
             f.fy += (dym / d) * push * 2.1 * dt;
           }
-          /* pegas kembali + batas simpangan */
           f.fx += -f.fx * 0.028 * dt;
           f.fy += -f.fy * 0.028 * dt;
           const fm = Math.hypot(f.fx, f.fy);
@@ -316,24 +317,21 @@ export function startSeaEngine(t: SeaTargets): () => void {
           const x = sc.cx + f.ox * spread + wobX + f.fx;
           const y = cy + f.oy * spread + wobY + bobY + f.fy;
 
-          /* badan miring mengikuti arah gerak sesungguhnya antar-bingkai */
           const vxw = x - f.px, vyw = y - f.py;
           if (Number.isFinite(f.px)) {
             if (Math.abs(vxw) < 45 && Math.abs(vyw) < 45) {
               const target = Math.max(-0.55, Math.min(0.55, Math.atan2(vyw * sc.dir, Math.abs(vxw) + 2)));
               f.pitch += (target - f.pitch) * Math.min(1, 0.18 * dt);
             } else {
-              f.pitch *= Math.pow(0.9, dt); // lompatan wrap → luruskan
+              f.pitch *= Math.pow(0.9, dt);
             }
           }
           f.px = x; f.py = y;
 
-          /* ekor: makin cepat berenang, makin cepat & lebar kibasannya */
           const speedNorm = Math.min(2.4, (spd * (1 + f.dartV)) / (sc.speed + 0.25));
           f.wagPh += dt * (0.16 + 0.13 * speedNorm) * f.wagMul;
           const tail = Math.sin(f.wagPh) * (0.2 + 0.14 * Math.min(1.6, speedNorm));
 
-          /* pupil melirik ke arah acak sesekali (condong ke depan) */
           f.eyeT -= dt / 60;
           if (f.eyeT <= 0) {
             f.tex = 0.35 + (Math.random() - 0.5) * 1.3;
