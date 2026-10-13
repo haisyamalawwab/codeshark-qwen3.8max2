@@ -1,5 +1,5 @@
 /* ============ SILABUS PERTEMUAN (16x) & MATERI LATIHAN PER TAHAP ============
-   Struktur kurikulum: HTML 6 pertemuan, CSS 4, JS 4, UTS 1, UAS 1 = 16.
+   Struktur kurikulum: HTML 6 pertemuan, UTS 1, CSS 4, jembatan 1, JS 3, DOM/UAS 1 = 16.
    Setiap pertemuan punya materi konsep tersendiri + latihan ketik bertingkat
    yang dipakai sebagai ajang praktik pada sesi pertemuan tersebut. */
 
@@ -365,13 +365,15 @@ const utsLesson = L(7, "UTS", "Panduan UTS: Halaman HTML + CSS",
          "CSS: selector benar, semua deklarasi ber-titik-koma?"),
       tip("Validasi cepat", "Reload halaman, buka DevTools (F12) → Console. Tidak ada error = poin aman, baru poles tampilan."),
     ]},
-  ]);
+  ],
+    { intro: "Pertemuan 7 — gladi UTS: halaman HTML + CSS dalam satu berkas. Cek pasangan tag, alt, label, dan titik koma CSS.",
+      code: `<!DOCTYPE html>\n<html lang="id">\n  <head>\n    <meta charset="UTF-8" />\n    <title>Halaman UTS</title>\n    <style>\n      body {\n        margin: 0;\n        background: #072a3f;\n        color: #eaf6ff;\n        font-family: sans-serif;\n      }\n      h1 {\n        color: #ffc247;\n      }\n      .kartu {\n        padding: 16px;\n        border: 2px solid #2ee6c8;\n        border-radius: 12px;\n      }\n    </style>\n  </head>\n  <body>\n    <header>\n      <h1>Profil Raka</h1>\n    </header>\n    <main>\n      <section class="kartu">\n        <h2>Tentang Saya</h2>\n        <p>Siswa yang suka <strong>laut</strong> dan kode.</p>\n        <img src="foto.jpg" alt="Foto Raka" width="160" />\n      </section>\n      <form>\n        <label for="nama">Nama:</label>\n        <input id="nama" type="text" required />\n        <button type="submit">Kirim</button>\n      </form>\n    </main>\n    <footer>&copy; 2026 Raka</footer>\n  </body>\n</html>` });
 
 const uasLesson = L(17, "UAS", "Panduan UAS: Aplikasi Mini Interaktif",
   "Strategi UAS: aplikasi HTML+CSS+JS satu berkas dengan logika dan event.",
   [
     { kicker: "UAS • Lingkup", title: "Lingkup & Format", blocks: [
-      p("UAS menguji seluruh rangkaian: HTML (6 sesi), CSS (4), JS (4). Soal berupa satu aplikasi mini — misalnya konverter nilai, daftar tugas, atau kuis sederhana — yang wajib punya input formulir, tampilan bergaya CSS, dan logika JS (variabel, percabangan, fungsi, event klik)."),
+      p("UAS menguji seluruh rangkaian: HTML (P1–6), CSS (P8–11), JS (P13–16). Soal berupa satu aplikasi mini — misalnya konverter nilai, daftar tugas, atau kuis sederhana — yang wajib punya input formulir, tampilan bergaya CSS, dan logika JS (variabel, percabangan, fungsi, event klik)."),
       li("Struktur: skeleton semantik + form + area hasil.",
          "Gaya: minimal class-based styling, layout flex, warna kontras.",
          "Logika: querySelector + addEventListener + if/loop/fungsi.",
@@ -389,7 +391,18 @@ const uasLesson = L(17, "UAS", "Panduan UAS: Aplikasi Mini Interaktif",
     ]},
   ]);
 
-/** 16 pertemuan efektif: HTML P1-6, UTS P7, CSS P8-11, jeda review P12, JS P13-16. */
+/* P16 = DOM/event (JS) + panduan UAS digabung, agar silabus tepat 16 pertemuan (16 minggu):
+   HTML 1-6 · UTS 7 · CSS 8-11 · Jembatan 12 · JS 13-15 · DOM & UAS 16. */
+const domLesson = jsLessons[3];
+const uasMerged: Lesson = {
+  ...domLesson,
+  phase: "UAS",
+  title: "DOM, Event & Mini App (Gladi UAS)",
+  goal: "Membangun mini app interaktif dari HTML + CSS + JS: memilih elemen, merespons event, dan menguji kasus tepi.",
+  slides: [...domLesson.slides, ...uasLesson.slides],
+};
+
+/** 16 pertemuan (no berurutan 1-16). */
 export const CURRICULUM: Lesson[] = [
   ...htmlLessons, utsLesson, ...cssLessons,
   /* P12 = pertemuan review/konsolidasi CSS→JS */
@@ -409,8 +422,8 @@ export const CURRICULUM: Lesson[] = [
     ],
     { intro: "Pertemuan 12 — review gabungan: HTML + CSS internal dalam satu latihan ketik.",
       code: `<!DOCTYPE html>\n<html lang="id">\n  <head>\n    <style>\n      body {\n        background: #072a3f;\n        color: #eaf6ff;\n      }\n      .btn {\n        padding: 10px 20px;\n        border-radius: 10px;\n      }\n    </style>\n  </head>\n  <body>\n    <h1>Review Gabungan</h1>\n    <button class="btn">Kirim</button>\n  </body>\n</html>` }),
-  ...jsLessons, uasLesson,
-].map((l, i) => ({ ...l, no: i + 1 }));
+  ...jsLessons.slice(0, 3), uasMerged,
+];
 
 export const getLesson = (no: number): Lesson =>
   CURRICULUM.find((l) => l.no === no) ?? CURRICULUM[0];

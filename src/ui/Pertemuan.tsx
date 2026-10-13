@@ -1,36 +1,33 @@
-/* Peta Pertemuan 16x — silabus: HTML (P1-6) → UTS (P7) → CSS (P8-11) →
-   review/jembatan (P12) → JS (P13-15) → UAS (P16). Setiap pertemuan punya
-   materi konsep tersendiri + latihan ketik bertingkat sebagai ajang praktik. */
+/* Peta Pertemuan 16× — silabus + tiga sesi ketik per pertemuan (Quest · Drill · Juggling).
+   Status & gating berasal dari lib/progress.ts (satu sumber aturan). */
 import { useState } from "react";
 import { CURRICULUM, PHASE_COLOR, getLesson } from "../data/curriculum";
 import type { Lesson } from "../data/curriculum";
 import type { Block, Slide } from "../data/modules";
-import { MODULES } from "../data/modules";
+import { getSession, questId, juggleSource, LESSON_LANG } from "../data/quests";
+import type { SessionKind } from "../data/quests";
+import type { SaveData } from "../lib/storage";
+import { meetingLevel, meetingUnlocked, sessionPassed, LEVEL_NAME, totalMeetings } from "../lib/progress";
 import { sfx } from "../lib/audio";
-import { loadSave } from "../lib/storage";
 import { tokenize } from "../lib/highlight";
-import {
-  IconX, IconBook, IconKeyboard, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar,
-} from "./icons";
+import { IconX, IconBook, IconKeyboard, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
 
 interface Props {
+  save: SaveData;
+  startNo: number;
   onClose: () => void;
-  onMateri: (modId: string) => void;
-  onPractice: (modId: string) => void;
+  /** buka materi .md (hanya pertemuan HTML) */
+  onMateri: (no: number) => void;
+  onPlay: (no: number, kind: Exclude<SessionKind, "misi">) => void;
 }
 
-/** modul pendamping tiap tahap/pertemuan ujian */
-function companion(phase: Lesson["phase"]): { id: string; label: string } {
-  switch (phase) {
-    case "HTML": return { id: "h0", label: "Misi H0" };
-    case "CSS": return { id: "c0", label: "Misi C0" };
-    case "JS": return { id: "j0", label: "Misi J0" };
-    case "UTS": return { id: "h5", label: "Rangkai Profil" };
-    case "UAS": return { id: "j3", label: "Aplikasi Mini" };
-  }
-}
+const KINDS: { kind: Exclude<SessionKind, "misi">; label: string; hint: string }[] = [
+  { kind: "quest", label: "Quest", hint: "Kode utuh pertemuan ini" },
+  { kind: "drill", label: "Drill", hint: "Baris pendek sintaks inti" },
+  { kind: "juggle", label: "Juggling", hint: "Drill dianyam dengan pertemuan sebelumnya" },
+];
 
-/* ---------- renderer blok materi (ringkas, gaya sama dengan Ruang Materi) ---------- */
+/* ---------- renderer blok materi ---------- */
 function CodeBlock({ b }: { b: Extract<Block, { t: "code" }> }) {
   const lines = tokenize(b.code, b.lang);
   return (
@@ -48,15 +45,36 @@ function CodeBlock({ b }: { b: Extract<Block, { t: "code" }> }) {
   );
 }
 
-function QuizBlock({ color }: { color: string }) {
+/** kuis interaktif: pilih jawaban → langsung tahu benar/salah + penjelasan */
+function QuizBlock({ b, color }: { b: Extract<Block, { t: "quiz" }>; color: string }) {
   const [pick, setPick] = useState<number | null>(null);
+  const ok = pick === b.answer;
   return (
-    <div className="rounded-xl border p-4 space-y-2" style={{ borderColor: `${color}55`, background: `${color}0d` }}>
+    <div className="rounded-xl border p-4 space-y-2.5" style={{ borderColor: `${color}55`, background: `${color}0d` }}>
       <p className="text-xs font-extrabold tracking-wider uppercase" style={{ color }}>Cek paham</p>
-      <input readOnly value="Soal lengkap ada di Ruang Materi →" className="w-full text-[11px] bg-transparent text-[var(--faint)] outline-none cursor-default" />
-      <button className="btn btn-ghost !py-1.5 text-xs w-full justify-center" onClick={() => setPick(pick === null ? 0 : null)}>
-        <IconStar size={13} /> {pick === null ? "Buka versi interaktif di Ruang Materi" : "Tutup"}
-      </button>
+      <p className="text-sm font-semibold text-[#bfe0f5]">{b.q}</p>
+      <div className="grid gap-1.5">
+        {b.options.map((o, i) => {
+          const chosen = pick === i;
+          const cls = pick === null
+            ? "border-[rgba(126,196,236,0.18)] text-[var(--dim)] hover:bg-white/5"
+            : i === b.answer
+              ? "border-[rgba(46,230,200,0.6)] text-[var(--teal)]"
+              : chosen ? "border-[rgba(255,107,87,0.6)] text-[var(--coral)]" : "border-[rgba(126,196,236,0.1)] text-[var(--faint)]";
+          return (
+            <button key={i} disabled={pick !== null}
+              onClick={() => { setPick(i); if (i === b.answer) sfx.quizOk(); }}
+              className={`text-left text-sm px-3 py-2 rounded-lg border transition-colors ${cls}`}>
+              {o}
+            </button>
+          );
+        })}
+      </div>
+      {pick !== null && (
+        <p className={`text-[12px] leading-relaxed ${ok ? "text-[var(--teal)]" : "text-[var(--coral)]"}`}>
+          {ok ? "Benar! " : "Belum tepat. "}{b.explain}
+        </p>
+      )}
     </div>
   );
 }
@@ -85,7 +103,7 @@ function Blocks({ blocks, color }: { blocks: Block[]; color: string }) {
             </div>
           );
         }
-        return <QuizBlock key={i} color={color} />;
+        return <QuizBlock key={i} b={b} color={color} />;
       })}
     </div>
   );
@@ -101,49 +119,52 @@ function SlideView({ s, color }: { s: Slide; color: string }) {
   );
 }
 
-/* ---------- panel latihan ketik per pertemuan (pratinjau + langsung main) ---------- */
-function PracticePanel({ l, onPractice }: { l: Lesson; onPractice: (id: string) => void }) {
-  const comp = companion(l.phase);
-  const mod = MODULES.find((m) => m.id === comp.id)!;
-  const [started, setStarted] = useState(false);
-  const lines = tokenize(l.practice!.code, mod.lang);
-  if (started) { sfx.click(); onPractice(comp.id); return null; }
+/* ---------- kartu sesi ketik (quest / drill / juggling) ---------- */
+function SessionCard({
+  no, kind, label, hint, save, locked, onPlay,
+}: {
+  no: number; kind: Exclude<SessionKind, "misi">; label: string; hint: string;
+  save: SaveData; locked: boolean; onPlay: () => void;
+}) {
+  const sess = getSession(questId(no, kind));
+  const done = sessionPassed(save, questId(no, kind));
+  const best = save.modules[questId(no, kind)]?.best;
+  const src = kind === "juggle" ? juggleSource(no) : null;
   return (
-    <div className="rounded-xl border border-[rgba(255,194,71,0.3)] bg-[rgba(255,194,71,0.05)] p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <IconKeyboard size={16} className="text-[var(--amber)]" />
-        <p className="font-display font-extrabold text-sm text-[var(--amber)]">Latihan Ketik Pertemuan {l.no}</p>
+    <div className={`rounded-xl border p-4 flex flex-col gap-2.5 ${done ? "border-[rgba(46,230,200,0.45)] bg-[rgba(46,230,200,0.05)]" : "border-[rgba(255,194,71,0.25)] bg-[rgba(255,194,71,0.04)]"}`}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-display font-extrabold text-sm">{label}</p>
+        {done ? (
+          <span className="chip !text-[var(--teal)] !border-[rgba(46,230,200,0.45)]"><IconCheck size={12} /> Lulus</span>
+        ) : (
+          <span className="chip !text-[var(--faint)]">Target ≥ {sess?.passAcc ?? "-"}%</span>
+        )}
       </div>
-      <p className="text-[13px] text-[var(--dim)] leading-relaxed">{l.practice!.intro}</p>
-      <pre className="px-4 py-3 text-[12.5px] leading-relaxed overflow-x-auto code-scroll font-mono rounded-xl border border-[rgba(126,196,236,0.16)] bg-[rgba(4,14,26,0.75)] max-h-56">
-        {lines.map((ln, i) => (
-          <div key={i}>
-            {ln.map((tk, j) => <span key={j} className={tk.cls}>{tk.ch}</span>)}
-            {ln.length === 0 && "\u00A0"}
-          </div>
-        ))}
-      </pre>
-      <button className="btn btn-primary w-full !py-2.5 text-sm justify-center" onClick={() => setStarted(true)}>
-        <IconKeyboard size={15} /> Mulai Latihan ({l.practice!.code.length} karakter)
+      <p className="text-[12px] text-[var(--dim)] leading-relaxed">{hint}{kind === "juggle" && (src !== null ? ` (P${src})` : " (balik)")}</p>
+      {best && <p className="text-[11px] text-[var(--faint)]">Terbaik: {best.accuracy}% • {best.wpm} WPM • {best.stars}★</p>}
+      <button
+        disabled={locked}
+        onClick={() => { sfx.click(); onPlay(); }}
+        className="btn btn-primary !py-2 text-xs justify-center disabled:opacity-40"
+      >
+        {locked ? <><IconLock size={13} /> Terkunci</> : <><IconKeyboard size={14} /> {done ? "Ulangi" : "Mulai"}</>}
       </button>
-      <p className="text-[11px] text-[var(--faint)]">Sesi latihan memakai mesin ketik misi {comp.label} dengan kode pertemuan ini.</p>
     </div>
   );
 }
 
-export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
-  const [no, setNo] = useState(1);
+export function Pertemuan({ save, startNo, onClose, onMateri, onPlay }: Props) {
+  const [no, setNo] = useState(startNo);
   const [openSlide, setOpenSlide] = useState<number | null>(0);
-  const save = loadSave();
-  const l = getLesson(no);
-  const comp = companion(l.phase);
+  const l: Lesson = getLesson(no);
   const c = PHASE_COLOR[l.phase];
-  const compProg = save.modules[comp.id];
-  const compDone = !!compProg?.best || !!compProg?.materiDone;
+  const level = meetingLevel(save, no);
+  const unlocked = meetingUnlocked(save, no);
+  const passedMeetings = CURRICULUM.filter((x) => meetingLevel(save, x.no) >= 2).length;
 
   const go = (n: number) => {
     sfx.click();
-    setNo(Math.min(CURRICULUM.length, Math.max(1, n)));
+    setNo(Math.min(totalMeetings(), Math.max(1, n)));
     setOpenSlide(0);
   };
 
@@ -153,9 +174,9 @@ export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
       <div className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto code-scroll rounded-[2rem] border border-[rgba(126,196,236,0.2)] bg-[#0a2c44] shadow-[0_30px_90px_rgba(0,0,0,0.7)]">
         {/* header */}
         <div className="sticky top-0 z-10 px-5 sm:px-7 py-4 border-b border-[rgba(126,196,236,0.14)] bg-[rgba(10,44,68,0.94)] backdrop-blur-lg flex items-center gap-3">
-          <span className="chip shrink-0 !bg-[rgba(255,194,71,0.12)] !text-[#ffc247] !border-[rgba(255,194,71,0.35)]">Silabus</span>
+          <span className="chip shrink-0 !bg-[rgba(255,194,71,0.12)] !text-[#ffc247] !border-[rgba(255,194,71,0.35)]">Peta</span>
           <h2 className="font-display text-lg sm:text-xl font-extrabold tracking-wide flex-1 min-w-0 truncate">
-            Peta Pertemuan <span className="text-[var(--dim)] text-base">16×</span>
+            Peta Pertemuan <span className="text-[var(--dim)] text-base">{passedMeetings}/{totalMeetings()} tuntas (Perak+)</span>
           </h2>
           <button className="w-9 h-9 rounded-full grid place-items-center text-[var(--dim)] hover:text-white hover:bg-white/10 transition-colors shrink-0"
             onClick={() => { sfx.back(); onClose(); }} aria-label="Tutup">
@@ -164,46 +185,31 @@ export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
         </div>
 
         <div className="px-5 sm:px-7 py-5 space-y-5">
-          {/* ringkasan struktur tahap */}
-          <div className="grid grid-cols-5 gap-2 text-center">
-            {(
-              [
-                ["HTML", 6], ["UTS", 1], ["CSS", 4], ["JS", 4 + 1], ["UAS", 1],
-              ] as const
-            ).map(([ph, cnt]) => (
-              <div key={ph} className="rounded-xl border border-[rgba(126,196,236,0.14)] bg-[rgba(255,255,255,0.03)] px-1 py-2">
-                <p className="font-display text-xl font-extrabold" style={{ color: PHASE_COLOR[ph as Lesson["phase"]] }}>
-                  {ph === "JS" ? cnt - 1 : cnt}
-                </p>
-                <p className="text-[9px] text-[var(--dim)] font-bold tracking-wider">{ph}{ph === "JS" ? "+" : ""}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-[11px] text-[var(--faint)] font-medium -mt-2">
-            6 pertemuan HTML + UTS + 4 CSS + 1 jembatan + 4 JS + UAS = 16 pertemuan. Semua sesi dimanfaatkan sebagai ajang latihan mengetik kode.
-          </p>
-
-          {/* pemilih pertemuan */}
+          {/* pemilih pertemuan + status */}
           <div className="flex flex-wrap gap-1.5">
             {CURRICULUM.map((x) => {
               const active = x.no === no;
               const cc = PHASE_COLOR[x.phase];
-              const xp = save.modules[companion(x.phase).id];
-              const isDone = !!xp?.best || !!xp?.materiDone;
+              const lv = meetingLevel(save, x.no);
+              const open = meetingUnlocked(save, x.no);
               return (
-                <button key={x.no} onClick={() => go(x.no)} title={x.title}
+                <button key={x.no} onClick={() => go(x.no)} title={`${x.title} — ${LEVEL_NAME[lv]}`}
                   className={`w-10 h-10 rounded-xl font-display font-extrabold text-sm transition-all relative ${active ? "scale-110" : "opacity-70 hover:opacity-100"}`}
                   style={{
                     background: active ? `${cc}26` : "rgba(255,255,255,0.04)",
                     border: `1.5px solid ${active ? cc : "rgba(126,196,236,0.14)"}`,
-                    color: active ? cc : "var(--dim)",
+                    color: open ? (active ? cc : "var(--dim)") : "var(--faint)",
                   }}>
                   {x.no}
-                  {isDone && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#4dd9c0] border-2 border-[#0a2c44]" />}
+                  {lv > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0a2c44]" style={{ background: lv >= 3 ? "#ffc247" : lv === 2 ? "#4dd9c0" : "#7ee4ff" }} />}
+                  {!open && <IconLock size={9} className="absolute -bottom-0.5 -right-0.5" />}
                 </button>
               );
             })}
           </div>
+          <p className="text-[11px] text-[var(--faint)] -mt-2">
+            Titik: <span className="text-[#7ee4ff]">●</span> Perunggu (quest) · <span className="text-[#4dd9c0]">●</span> Perak (quest+drill, membuka pertemuan berikutnya) · <span className="text-[#ffc247]">●</span> Emas (+juggling)
+          </p>
 
           {/* detail pertemuan */}
           <article className="rounded-2xl border border-[rgba(126,196,236,0.16)] bg-[rgba(255,255,255,0.03)] overflow-hidden">
@@ -211,7 +217,7 @@ export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
             <div className="p-5 space-y-4">
               <div className="flex items-start gap-3 flex-wrap">
                 <span className="chip shrink-0" style={{ background: `${c}1d`, color: c, border: `1px solid ${c}4d` }}>
-                  Pertemuan {l.no} • Tahap {l.phase}
+                  Pertemuan {l.no} • Tahap {l.phase} • {LEVEL_NAME[level]}
                 </span>
                 <h3 className="font-display text-xl sm:text-2xl font-extrabold leading-tight flex-1 min-w-[12rem]">{l.title}</h3>
               </div>
@@ -220,7 +226,13 @@ export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
                 <p className="text-sm text-[#bfe0f5] mt-1 leading-relaxed">{l.goal}</p>
               </div>
 
-              {/* MATERI PER TAHAP — accordion slide */}
+              {!unlocked && (
+                <p className="text-[12px] text-[var(--amber)] font-semibold flex items-center gap-1.5">
+                  <IconLock size={12} /> Kunci: capai minimal Perak di Pertemuan {no - 1} untuk membuka pertemuan ini. Sesi di bawah tetap bisa dipelajari materinya.
+                </p>
+              )}
+
+              {/* materi konsep */}
               <div className="space-y-2">
                 {l.slides.map((s, i) => {
                   const open = openSlide === i;
@@ -246,54 +258,55 @@ export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
                 })}
               </div>
 
-              {/* latihan ketik pertemuan ini */}
-              {l.practice && <PracticePanel l={l} onPractice={onPractice} />}
-
-              {/* aksi pendukung */}
-              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                <button className="btn btn-ghost flex-1 !py-2.5 text-sm justify-center" onClick={() => { sfx.click(); onMateri(comp.id); }}>
-                  <IconBook size={15} /> Buka Konsep Lengkap ({comp.label})
-                </button>
+              {/* tiga sesi ketik */}
+              <div className="space-y-2">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.2em]" style={{ color: c }}>Misi ketik pertemuan ini</p>
+                <div className="grid sm:grid-cols-3 gap-2.5">
+                  {KINDS.map((k) => (
+                    <SessionCard key={k.kind} no={no} kind={k.kind} label={k.label} hint={k.hint}
+                      save={save} locked={!unlocked} onPlay={() => onPlay(no, k.kind)} />
+                  ))}
+                </div>
+                <p className="text-[11px] text-[var(--faint)]">
+                  Urutan yang disarankan: Quest → Drill (lulus = Perak) → Juggling (Emas). Mesin ketik: {LESSON_LANG[no] ?? "html"}.
+                </p>
               </div>
-              {!compDone && l.no > 6 && (
-                <p className="text-[11px] text-[var(--amber)] font-semibold flex items-center gap-1.5">
-                  <IconLock size={12} /> Alur disarankan: taklukkan dulu misi {comp.label} di Peta Misi sebelum fokus ke pertemuan ini.
-                </p>
-              )}
-              {compDone && (
-                <p className="text-[11px] text-[var(--teal)] font-semibold flex items-center gap-1.5">
-                  <IconCheck size={12} /> Misi {comp.label} sudah kamu selesaikan — pertemuan ini tinggal memperdalam.
-                </p>
+
+              {/* materi .md — hanya tersedia untuk tahap HTML */}
+              {l.phase === "HTML" && (
+                <button className="btn btn-ghost w-full !py-2.5 text-sm justify-center" onClick={() => { sfx.click(); onMateri(no); }}>
+                  <IconBook size={15} /> Buka Materi Lengkap (dokumen .md)
+                </button>
               )}
             </div>
           </article>
 
-          {/* navigasi prev/next */}
+          {/* navigasi */}
           <div className="flex justify-between gap-3">
             <button className="btn btn-ghost !py-2 text-xs" onClick={() => go(no - 1)} disabled={no === 1} style={{ opacity: no === 1 ? 0.4 : 1 }}>
               <IconArrowL size={14} /> {no > 1 ? `Pertemuan ${no - 1}` : "Awal"}
             </button>
-            <span className="self-center text-[11px] font-bold text-[var(--faint)]">{no} / {CURRICULUM.length}</span>
-            <button className="btn btn-ghost !py-2 text-xs" onClick={() => go(no + 1)} disabled={no === CURRICULUM.length} style={{ opacity: no === CURRICULUM.length ? 0.4 : 1 }}>
-              {no < CURRICULUM.length ? `Pertemuan ${no + 1}` : "Selesai"} <IconArrowR size={14} />
+            <span className="self-center text-[11px] font-bold text-[var(--faint)]">{no} / {totalMeetings()}</span>
+            <button className="btn btn-ghost !py-2 text-xs" onClick={() => go(no + 1)} disabled={no === totalMeetings()} style={{ opacity: no === totalMeetings() ? 0.4 : 1 }}>
+              {no < totalMeetings() ? `Pertemuan ${no + 1}` : "Selesai"} <IconArrowR size={14} />
             </button>
           </div>
 
-          {/* daftar ringkas seluruh pertemuan */}
+          {/* daftar ringkas */}
           <details className="rounded-xl border border-[rgba(126,196,236,0.14)] bg-[rgba(255,255,255,0.02)] px-4 py-3">
-            <summary className="cursor-pointer text-sm font-bold text-[#bfe0f5] select-none">Daftar ringkas 16 pertemuan</summary>
+            <summary className="cursor-pointer text-sm font-bold text-[#bfe0f5] select-none">Daftar ringkas {totalMeetings()} pertemuan</summary>
             <ol className="mt-3 space-y-1">
               {CURRICULUM.map((x) => {
                 const xc = PHASE_COLOR[x.phase];
-                const xp = save.modules[companion(x.phase).id];
-                const isDone = !!xp?.best || !!xp?.materiDone;
+                const lv = meetingLevel(save, x.no);
                 return (
                   <li key={x.no}>
                     <button className="w-full text-left flex items-baseline gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/5 transition-colors" onClick={() => go(x.no)}>
                       <span className="font-display font-extrabold text-sm w-6 shrink-0 text-right" style={{ color: xc }}>{x.no}</span>
                       <span className="text-[10px] font-bold uppercase tracking-wider w-8 shrink-0" style={{ color: xc }}>{x.phase}</span>
                       <span className="text-sm text-[#bfe0f5] font-semibold flex-1">{x.title}</span>
-                      {isDone && <IconCheck size={14} className="text-[#4dd9c0] shrink-0" />}
+                      <span className="text-[10px] font-bold text-[var(--faint)]">{LEVEL_NAME[lv]}</span>
+                      {lv >= 2 && <IconStar size={12} className="text-[#ffc247] shrink-0" />}
                     </button>
                   </li>
                 );
@@ -305,3 +318,5 @@ export function Pertemuan({ onClose, onMateri, onPractice }: Props) {
     </div>
   );
 }
+
+export default Pertemuan;

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import type { AgeCfg, ModuleDef } from "../data/modules";
+import type { AgeCfg } from "../data/modules";
+import type { Session } from "../data/quests";
 import { tokenize } from "../lib/highlight";
+import { isShortcut, skipBlank } from "../lib/typing";
 import { sfx } from "../lib/audio";
 import { scene } from "../graphics/scene";
 import {
@@ -23,7 +25,8 @@ export interface GameResult {
 }
 
 interface Props {
-  mod: ModuleDef;
+  /** sesi yang dimainkan: misi lama, quest, drill, atau juggling */
+  mod: Session;
   cfg: AgeCfg;
   onDone: (r: GameResult) => void;
   onExit: () => void;
@@ -61,6 +64,7 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${Str
 
 export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
   const lines = useMemo(() => tokenize(mod.code, mod.lang), [mod]);
+  const threatRate = cfg.threatRate * mod.threatMul;
   const gref = useRef<G>(fresh());
   const [, force] = useReducer((x: number) => x + 1, 0);
   const [count, setCount] = useState(3);
@@ -139,6 +143,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
     if (gref.current.status !== "count") return;
     if (count === 0) {
       gref.current.status = "play";
+      gref.current.lineIdx = skipBlank(lines, 0);
       gref.current.startAt = performance.now();
       sfx.go();
       setShowGo(true);
@@ -149,14 +154,14 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
     sfx.count();
     const t = window.setTimeout(() => setCount((c) => c - 1), 800);
     return () => window.clearTimeout(t);
-  }, [count]);
+  }, [count]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ===== loop ancaman hiu ===== */
   useEffect(() => {
     const iv = window.setInterval(() => {
       const gg = gref.current;
       if (gg.status !== "play") return;
-      gg.threat = Math.min(100, gg.threat + cfg.threatRate);
+      gg.threat = Math.min(100, gg.threat + threatRate);
       if (gg.threat >= 100) hurt();
       force();
     }, 100);
@@ -182,6 +187,8 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
         return;
       }
       if (gg.status !== "play") return;
+      /* pintasan browser (Ctrl+R, Ctrl+C, ⌘+T, dll.) bukan ketikan kode: biarkan lewat */
+      if (isShortcut(e)) return;
       if (e.key === "Backspace") {
         e.preventDefault();
         if (gg.charIdx > 0) {
@@ -194,7 +201,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
       e.preventDefault();
 
       const line = lines[gg.lineIdx];
-      if (!line) return;
+      if (!line || line.length === 0) return;
       const tok = line[gg.charIdx];
 
       if (e.key === tok.ch) {
@@ -220,7 +227,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
           const id = ++idRef.current;
           setToast({ id, txt: cfg.cheers[gg.lineIdx % cfg.cheers.length] });
           window.setTimeout(() => setToast((t) => (t && t.id === id ? null : t)), 950);
-          gg.lineIdx += 1;
+          gg.lineIdx = skipBlank(lines, gg.lineIdx + 1);
           gg.charIdx = 0;
           if (gg.lineIdx >= lines.length) {
             win();
@@ -315,7 +322,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
           </button>
           <div className="leading-tight mr-auto">
             <p className="text-[10px] font-extrabold tracking-[0.2em] uppercase" style={{ color: mod.color }}>
-              Misi 0{mod.num} • {mod.practiceTitle}
+              {mod.tag}
             </p>
             <p className="font-display font-bold text-sm">Baris {Math.min(g.lineIdx + 1, lines.length)}/{lines.length}</p>
           </div>
@@ -323,9 +330,9 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
           <span
             className="chip font-display"
             style={{ color: accColor, borderColor: accColor }}
-            title="Syarat bintang: ≥95% = 3 bintang, ≥85% = 2 bintang"
+            title={mod.passAcc > 0 ? `Target lulus: akurasi ≥ ${mod.passAcc}%` : "Syarat bintang: ≥95% = 3 bintang, ≥85% = 2 bintang"}
           >
-            <IconTarget size={14} /> {liveAcc}%
+            <IconTarget size={14} /> {liveAcc}%{mod.passAcc > 0 && <span className="opacity-70"> / {mod.passAcc}%</span>}
           </span>
           <span className="chip !text-[var(--amber)] font-display text-base !px-3.5">
             <IconBolt size={15} /> {g.score}

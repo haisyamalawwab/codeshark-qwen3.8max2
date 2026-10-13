@@ -7,7 +7,10 @@ import { useMemo, useState } from "react";
 import { CURRICULUM, PHASE_COLOR, getLesson } from "../data/curriculum";
 import type { Lesson } from "../data/curriculum";
 import { HTML_DOCS, getHtmlDoc } from "../data/materiHtml";
-import type { MdDoc } from "../data/materiHtml";
+import { questId } from "../data/quests";
+import type { SessionKind } from "../data/quests";
+import type { SaveData } from "../lib/storage";
+import { meetingLevel, meetingUnlocked, sessionPassed, LEVEL_NAME } from "../lib/progress";
 import { parseMd } from "../lib/markdown";
 import type { MdBlock } from "../lib/markdown";
 import { getFigure } from "../lib/figures";
@@ -21,6 +24,10 @@ import {
 const C_HTML = PHASE_COLOR.HTML;
 
 interface Props {
+  /** pertemuan yang dibuka pertama kali (dari peta); default pertemuan HTML pertama */
+  startNo?: number;
+  save: SaveData;
+  /** id sesi: "q:<no>:<kind>" */
   onPractice: (id: string) => void;
   onExit: () => void;
 }
@@ -126,10 +133,17 @@ function MdView({ blocks }: { blocks: MdBlock[] }) {
   );
 }
 
-/* ---------- latihan ketik pertemuan (mengacu lesson curriculum) ---------- */
-function PracticeCard({ l, doc, onPractice }: { l: Lesson; doc: MdDoc; onPractice: (id: string) => void }) {
+/* ---------- latihan ketik pertemuan: Quest · Drill · Juggling (lib/progress = satu sumber status) ---------- */
+const KIND_LABEL: { kind: Exclude<SessionKind, "misi">; label: string }[] = [
+  { kind: "quest", label: "Quest" },
+  { kind: "drill", label: "Drill" },
+  { kind: "juggle", label: "Juggling" },
+];
+
+function PracticeCard({ l, no, save, onPractice }: { l: Lesson; no: number; save: SaveData; onPractice: (id: string) => void }) {
   if (!l.practice) return null;
-  const modId = l.phase === "HTML" ? "html" : l.phase === "CSS" ? "css" : "js";
+  const locked = !meetingUnlocked(save, no);
+  const lv = meetingLevel(save, no);
   return (
     <section className="md-practice hud-panel p-5 sm:p-6 anim-fadeUp">
       <div className="flex items-center gap-2.5 mb-2 flex-wrap">
@@ -137,25 +151,39 @@ function PracticeCard({ l, doc, onPractice }: { l: Lesson; doc: MdDoc; onPractic
           <IconKeyboard size={17} />
         </span>
         <h3 className="font-display font-extrabold text-lg text-[var(--amber)] m-0">
-          Ajang Latihan — Pertemuan {doc.no}
+          Ajang Latihan — Pertemuan {no}
         </h3>
-        <span className="chip ml-auto !text-[var(--amber)]">{l.practice.code.length} karakter</span>
+        <span className="chip ml-auto !text-[var(--amber)]">Level: {LEVEL_NAME[lv]}</span>
       </div>
       <p className="text-sm text-[var(--dim)] leading-relaxed mb-4">{l.practice.intro}</p>
-      <button className="btn btn-amber w-full justify-center !py-3" onClick={() => { sfx.click(); onPractice(modId); }}>
-        <IconKeyboard size={16} /> Mulai Gladi Ketik Kode Pertemuan Ini
-      </button>
+      <div className="grid sm:grid-cols-3 gap-2.5">
+        {KIND_LABEL.map((k) => {
+          const id = questId(no, k.kind);
+          const done = sessionPassed(save, id);
+          return (
+            <button
+              key={k.kind}
+              disabled={locked}
+              onClick={() => { sfx.click(); onPractice(id); }}
+              className="btn btn-amber justify-center !py-2.5 text-sm disabled:opacity-40"
+            >
+              <IconKeyboard size={15} /> {k.label} {done ? "✓" : ""}
+            </button>
+          );
+        })}
+      </div>
       <p className="text-[11px] text-[var(--faint)] mt-2.5">
-        Mesin ketik misi {l.phase} dipakai dengan potongan kode pertemuan ini — skor masuk ke progres profilmu.
+        Quest = kode pertemuan ini (akurasi ≥ 90%). Drill = baris sintaks inti (≥ 90%). Juggling = drill dianyam dengan pertemuan sebelumnya (≥ 85%).
+        {locked && " Selesaikan Perak di pertemuan sebelumnya untuk membuka."}
       </p>
     </section>
   );
 }
 
 /* ---------- layar utama ---------- */
-export default function MateriHtml({ onPractice, onExit }: Props) {
+export default function MateriHtml({ startNo, save, onPractice, onExit }: Props) {
   const htmlNos = CURRICULUM.filter((l) => l.phase === "HTML").map((l) => l.no);
-  const [no, setNo] = useState(htmlNos[0]);
+  const [no, setNo] = useState(startNo && htmlNos.includes(startNo) ? startNo : htmlNos[0]);
   const doc = getHtmlDoc(no)!;
   const lesson = getLesson(no);
   const blocks = useMemo(
@@ -238,7 +266,7 @@ export default function MateriHtml({ onPractice, onExit }: Props) {
           <MdView blocks={blocks} />
 
           {/* latihan ketik pertemuan ini */}
-          <PracticeCard l={lesson} doc={doc} onPractice={onPractice} />
+          <PracticeCard l={lesson} no={no} save={save} onPractice={onPractice} />
 
           {/* navigasi antar dokumen */}
           <div className="flex items-center justify-between gap-3 pt-2">

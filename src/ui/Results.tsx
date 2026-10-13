@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import type { AgeCfg, ModuleDef } from "../data/modules";
+import type { AgeCfg } from "../data/modules";
+import type { Session } from "../data/quests";
 import type { GameResult } from "./TypingGame";
 import { sfx } from "../lib/audio";
 import { CodePanel } from "./Dashboard";
@@ -9,9 +10,12 @@ import {
 } from "./icons";
 
 interface Props {
-  mod: ModuleDef;
+  mod: Session;
   cfg: AgeCfg;
   result: GameResult;
+  /** true = memenuhi target akurasi sesi (lihat Session.passAcc) */
+  passed: boolean;
+  /** XP baru yang benar-benar ditambahkan (0 bila belum melampaui skor terbaik) */
   xpGained: number;
   coinsGained: number;
   rankUp: string | null;
@@ -38,7 +42,7 @@ function useCountUp(target: number, dur = 950, delay = 0) {
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
-export default function Results({ mod, cfg, result, xpGained, coinsGained, rankUp, onRetry, onMap }: Props) {
+export default function Results({ mod, cfg, result, passed, xpGained, coinsGained, rankUp, onRetry, onMap }: Props) {
   const r = result;
   const score = useCountUp(r.score, 1100, 300);
   const xp = useCountUp(xpGained, 900, 800);
@@ -79,13 +83,24 @@ export default function Results({ mod, cfg, result, xpGained, coinsGained, rankU
         {/* ===== kepala hasil ===== */}
         <section className="text-center screen-in">
           <p className="text-xs font-extrabold tracking-[0.28em] uppercase" style={{ color: mod.color }}>
-            Misi 0{mod.num} • {mod.practiceTitle}
+            {mod.tag} • {mod.practiceTitle}
           </p>
           <h1 className="font-display font-extrabold text-4xl md:text-5xl mt-2">
             {r.accuracy >= 95 ? "SEMPURNA!" : r.accuracy >= 85 ? "HEBAT SEKALI!" : "MISI SELESAI!"}
           </h1>
           <p className="mt-2.5 flex items-center justify-center gap-2 flex-wrap">
             <span className="chip !text-[var(--accent)]">{cfg.label}</span>
+            {mod.passAcc > 0 && (
+              passed ? (
+                <span className="chip !text-[var(--teal)] !border-[rgba(46,230,200,0.45)]">
+                  <IconCheck size={13} /> LULUS • target ≥ {mod.passAcc}%
+                </span>
+              ) : (
+                <span className="chip !text-[var(--coral)] !border-[rgba(255,107,87,0.45)]">
+                  <IconX size={13} /> BELUM LULUS • target ≥ {mod.passAcc}% (akurasimu {r.accuracy}%)
+                </span>
+              )
+            )}
             {rankUp && (
               <span className="chip !text-[var(--amber)] anim-pop">
                 <IconTrophy size={14} /> Rank naik: {rankUp}!
@@ -174,7 +189,9 @@ export default function Results({ mod, cfg, result, xpGained, coinsGained, rankU
             </span>
             <div>
               <p className="font-display font-extrabold text-3xl leading-none text-[var(--teal)] tabular-nums">+{xp}</p>
-              <p className="text-xs font-bold text-[var(--dim)] mt-1">XP • dasar 50 + bintang + akurasi</p>
+              <p className="text-xs font-bold text-[var(--dim)] mt-1">
+                {xpGained > 0 ? "XP baru • dasar 50 + bintang + akurasi" : "Belum ada XP baru — skor harus melampaui hasil terbaikmu"}
+              </p>
             </div>
           </div>
           <div className="hidden sm:block w-px h-12 bg-[var(--line-soft)]" />
