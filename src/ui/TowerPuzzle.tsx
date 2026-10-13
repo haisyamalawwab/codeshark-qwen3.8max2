@@ -14,6 +14,9 @@ import {
 import { tokenizeLine } from "../lib/highlight";
 import { sfx } from "../lib/audio";
 import { scene } from "../graphics/scene";
+import { DndContext, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import TowerPhysicsCanvas from "../games/tower/TowerPhysicsCanvas";
 import {
   IconX, IconHeart, IconBolt, IconTimer, IconPause, IconPlay, IconRetry,
   IconMap, IconFin, IconTarget, IconCheck, IconEye, IconArrowR,
@@ -36,6 +39,31 @@ interface BankItem {
 }
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+/* Blok bank yang bisa di-drag (dnd-kit) + tetap bisa di-ketuk (fallback HP/mouse).
+   Drag ke menara = sama dengan ketuk: memanggil onTap bila di-drop di shaft. */
+function DragBlock({ item, disabled, children, onTap }: { item: BankItem; disabled: boolean; children: React.ReactNode; onTap: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id, disabled });
+  const style: React.CSSProperties = transform
+    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 50, opacity: 0.92 }
+    : {};
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <button onClick={onTap} disabled={disabled} className={`w-full text-left ${isDragging ? "ring-2 ring-[var(--amber)]" : ""}`} style={{ all: "unset", display: "block", width: "100%" }}>
+        <span className="block">{children}</span>
+      </button>
+    </div>
+  );
+}
+
+function ShaftDrop({ children }: { children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id: "shaft" });
+  return (
+    <div ref={setNodeRef} className={isOver ? "outline-2 outline-dashed outline-[var(--amber)] rounded-xl" : ""}>
+      {children}
+    </div>
+  );
+}
 
 export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
   const level = useMemo(() => getTowerLevel(mod.num), [mod.num]);
@@ -90,6 +118,12 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
   const idRef = useRef(100000);
   const onDoneRef = useRef(onDone);
   useEffect(() => { onDoneRef.current = onDone; });
+
+  /* sensor drag: mouse butuh jarak 6px, sentuh butuh tahan 180ms agar scroll tetap enak */
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } })
+  );
 
   let threatRate = cfg.threatRate * level.threat;
   if (mod.kind === "drill") threatRate *= 0.8;
@@ -257,6 +291,13 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
         return th;
       });
     }
+  };
+
+  const onDragEnd = (e: DragEndEvent) => {
+    if (status !== "play") return;
+    if (e.over?.id !== "shaft") return;
+    const item = bank.find((b) => b.id === e.active.id);
+    if (item) tap(item);
   };
 
   const undo = () => {
