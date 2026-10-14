@@ -13,6 +13,7 @@ import { tokenize } from "../lib/highlight";
 import { SUBGAMES } from "../data/subgames";
 import type { SubGameId } from "../data/subgames";
 import { IconBook, IconKeyboard, IconTower, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
+import { StationArt, stationFor } from "../graphics/stations";
 
 interface Props {
   save: SaveData;
@@ -234,6 +235,10 @@ export function Pertemuan({ save, startNo, subGame = "shark", onExit, onMateri, 
                   Pertemuan {l.no} • Tahap {l.phase} • {LEVEL_NAME[level]}
                 </span>
                 <h3 className="font-display text-xl sm:text-2xl font-extrabold leading-tight flex-1 min-w-[12rem]">{l.title}</h3>
+                <figure className="ml-auto text-center shrink-0" title={stationFor(l.no).label}>
+                  <StationArt no={l.no} width={104} />
+                  <figcaption className="text-[10px] font-extrabold tracking-[0.18em] uppercase text-[var(--faint)] mt-1">{stationFor(l.no).label}</figcaption>
+                </figure>
               </div>
               <div className="rounded-xl px-4 py-3 border-l-4" style={{ borderColor: c, background: `${c}0c` }}>
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.2em]" style={{ color: c }}>Tujuan pembelajaran</p>

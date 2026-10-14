@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { SaveData } from "../lib/storage";
-import { rankOf } from "../lib/storage";
+import { rankOf, RANKS } from "../lib/storage";
 import type { AgeCfg, ModuleDef } from "../data/modules";
 import { MODULES } from "../data/modules";
 import { HTML_DOCS } from "../data/materiHtml";
@@ -15,7 +15,9 @@ import { SUBGAMES, SUBGAME_ORDER } from "../data/subgames";
 import type { SubGameId } from "../data/subgames";
 import { tokenize } from "../lib/highlight";
 import { CaptainAvatar } from "../characters";
+import { SharkSprite } from "../graphics/stations";
 import MiniSpeedometer from "./MiniSpeedometer";
+import HudMap from "./HudMap";
 
 interface Props {
   save: SaveData;
@@ -93,6 +95,35 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             </p>
           </div>
 
+          {/* Lencana level + bilah XP ala konsep (Lv 1 · 45/100 XP) */}
+          <span
+            className="text-xs font-extrabold px-3 py-1.5 rounded-full shrink-0"
+            style={{ background: "linear-gradient(135deg,#ffc247,#f59e0b)", color: "#2b1802", boxShadow: "0 0 14px rgba(255,194,71,0.5)" }}
+            title={`Rank: ${rank.cur.name}`}
+          >
+            Lv {RANKS.indexOf(rank.cur) + 1}
+          </span>
+          <div
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full shrink-0 min-w-44"
+            style={{ background: "rgba(7,24,42,0.85)", border: "1px solid rgba(46,230,200,0.4)" }}
+            title={rank.next ? `${rank.next.xp - save.xp} XP menuju ${rank.next.name}` : "Pangkat tertinggi"}
+            role="progressbar"
+            aria-valuenow={rank.pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Progres XP"
+          >
+            <div className="w-24 h-2 rounded-full overflow-hidden bg-[rgba(4,16,28,0.95)]">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${Math.max(4, rank.pct)}%`, background: "linear-gradient(90deg,#2ee6c8,#45c6ff)", boxShadow: "0 0 8px rgba(46,230,200,0.7)" }}
+              />
+            </div>
+            <span className="text-[11px] font-extrabold text-[var(--teal)] whitespace-nowrap">
+              {save.xp} / {rank.next ? rank.next.xp : "MAX"} XP
+            </span>
+          </div>
+
           {/* Chips Koin & XP */}
           <div className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(255,194,71,0.35)] !text-[var(--amber)] shadow-[0_2px_10px_rgba(0,0,0,0.25)]" title="Koin">
             <IconCoin size={15} /> {save.coins}
@@ -117,6 +148,10 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
           {/* Ambient Glow di belakang kartu */}
           <div className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full pointer-events-none opacity-20" style={{ background: `radial-gradient(circle, var(--teal), transparent 70%)` }} />
           <div className="absolute right-0 top-0 w-80 h-80 rounded-full pointer-events-none opacity-15" style={{ background: `radial-gradient(circle, #45c6ff, transparent 70%)` }} />
+          {/* Hiu sprite melayang ala mockup HUD */}
+          <div className="absolute right-4 md:right-10 top-4 pointer-events-none hidden sm:block anim-bob" aria-hidden="true">
+            <SharkSprite width={132} />
+          </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center gap-7 relative z-10">
             {/* Sisi Kiri: Avatar Kapten + Sapaan & Progress Rank */}
@@ -246,6 +281,26 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
               )}
             </div>
           </div>
+        </section>
+
+        {/* ============ PETA MISI HUD (gaya konsep Gemini) ============ */}
+        <section className="mt-8 reveal">
+          <div className="flex items-center gap-4 mb-4">
+            <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
+              Peta Misi
+            </h2>
+            <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
+            <span className="chip shrink-0 hidden sm:inline-flex">
+              🗺️ 16 pertemuan • UTS 8 • UAS 16
+            </span>
+          </div>
+          <HudMap
+            save={save}
+            subGame={subGame}
+            onNode={() => { sfx.click(); onPeta?.(); }}
+            onPlayShark={() => { sfx.click(); onSelectSubGame?.("shark"); onPeta?.(); }}
+            onPlayTower={() => { sfx.click(); onSelectSubGame?.("tower"); onPeta?.(); }}
+          />
         </section>
 
         {/* ============ HUB SUB-GAME: pilih arena dulu ============ */}

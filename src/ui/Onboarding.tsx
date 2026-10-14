@@ -18,9 +18,11 @@ interface Props {
   soundOn: boolean;
   onToggleSound: () => void;
   onCreate: (name: string, age: AgeId) => void;
+  cloudReady?: boolean;
+  onGoogleLogin?: () => void;
 }
 
-export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) {
+export default function Onboarding({ soundOn, onToggleSound, onCreate, cloudReady, onGoogleLogin }: Props) {
   const [name, setName] = useState("");
   const [age, setAge] = useState<AgeId | null>(null);
   const valid = name.trim().length >= 2 && age !== null;
@@ -208,8 +210,17 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate }: Props) 
             Mulai Petualangan
             <IconArrowR size={20} />
           </button>
+          {cloudReady && onGoogleLogin && (
+            <button
+              type="button"
+              onClick={onGoogleLogin}
+              className="btn w-full py-3 mt-2 border border-[var(--line)] bg-white text-slate-800 font-bold"
+            >
+              Login dengan Google (sinkron multi-device)
+            </button>
+          )}
           <p className="text-center text-xs text-[var(--faint)] mt-2">
-            Butuh keyboard fisik untuk misi ketik • Data disimpan via localStorage
+            Butuh keyboard fisik untuk misi ketik • {cloudReady ? "Tamu tersimpan di perangkat, login untuk sinkron" : "Data disimpan via localStorage"}
           </p>
         </div>
       </div>

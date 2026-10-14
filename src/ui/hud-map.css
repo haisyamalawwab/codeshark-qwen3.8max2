@@ -1,0 +1,220 @@
+/* ============ HUD MAP — gaya konsep Gemini (Codeshark Academy) ============
+   Latar & properti memakai aset teroptimasi di src/assets/hud/:
+   - hud-concept.jpg/webp : contoh referensi, dipakai samar sebagai backdrop stage
+   - hud-checkpoint / hud-station-uas : cutout tunggal (picture/webp + png)
+   - hud-sprite-* : sheet PNG terkompresi (image matrix, lihat peta di bawah)
+
+   PETA IMAGE MATRIX (kolom × baris, posisi background %):
+   hud-sprite-main  4×3 : A1 kubah emas·1 | B1 kubah neon·8 | C1 stasiun·16+gembok
+                         | D1 stasiun PLAY | A2 kubah gelap | B2/C2 tombol arena
+                         | D2 stasiun kecil | A3 node 2-7 | B3 node 9-15
+                         | C3 ikon koin/suara | D3 gembok/panah
+   hud-sprite-icons 4×3 : A1 kubah emas | B1 kubah neon | C1 stasiun | D1 hiu
+                         | A2 gembok pink | B2 node 1 | C2 node 12 | D2 node 16
+                         | A3 node 8 UTS | B3 logo | C3 tombol shark | D3 tombol tower
+   hud-sprite-wide  3×3 : A1 kubah neon | B1 kubah emas | C1 stasiun | A2/B2 hiu
+                         | bawah: rantai node, gelembung, karang, target
+   Trik matrix: background-size = (kolom*100)% (baris*100)%, lalu
+   background-position memilih sel — 1 request HTTP per sheet. */
+
+.hudmap { display: flex; flex-direction: column; gap: 14px; }
+
+/* ---- strip 5 stat ala konsep (MISI·AKURASI·WPM·COMBO·MATERI) ---- */
+.hudmap-stats {
+  margin: 0; padding: 10px 6px;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  list-style: none;
+  border: 1.5px solid rgba(69, 198, 255, 0.45);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(10, 34, 58, 0.88), rgba(5, 18, 33, 0.94));
+  box-shadow: 0 0 22px rgba(69, 198, 255, 0.14), inset 0 1px 0 rgba(255,255,255,0.07);
+  overflow-x: auto;
+}
+.hudmap-stats li {
+  min-width: 96px; padding: 4px 8px; text-align: center;
+  border-left: 1px solid rgba(69, 198, 255, 0.16);
+}
+.hudmap-stats li:first-child { border-left: none; }
+.hudmap-stats small {
+  display: block; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.14em; color: var(--dim);
+}
+.hudmap-stats strong {
+  font-family: var(--font-d); font-size: 1.35rem; font-weight: 800;
+  color: var(--amber); text-shadow: 0 0 14px rgba(255, 194, 71, 0.45);
+}
+
+/* ---- panggung peta ---- */
+.hudmap-stage {
+  border: 1.5px solid rgba(69, 198, 255, 0.35);
+  border-radius: 20px; overflow: hidden;
+  background: linear-gradient(180deg, #07263f 0%, #051627 55%, #030d1a 100%);
+  box-shadow: 0 24px 60px rgba(1, 8, 17, 0.55), 0 0 28px rgba(69, 198, 255, 0.1);
+}
+.hudmap-scroll { overflow-x: auto; }
+.hudmap-canvas { position: relative; min-width: 720px; aspect-ratio: 1000 / 560; }
+.hudmap-concept {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0.22; pointer-events: none;
+}
+.hudmap-shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 20% 40%, rgba(255, 194, 71, 0.12), transparent 70%),
+    radial-gradient(55% 50% at 75% 65%, rgba(217, 70, 239, 0.14), transparent 70%),
+    linear-gradient(180deg, rgba(3, 13, 26, 0.05), rgba(3, 13, 26, 0.55));
+}
+.hudmap-wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ---- bangunan checkpoint (cutout tunggal, bukan sheet) ---- */
+.hudmap-base { position: absolute; margin: 0; z-index: 1; }
+.hudmap-base img { display: block; width: 100%; height: auto; }
+.hudmap-base figcaption { text-align: center; margin-top: 2px; }
+.hudmap-base .t1 {
+  display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+  color: var(--amber);
+}
+.hudmap-base .t2 { display: block; font-size: 15px; font-weight: 800; color: #fff; }
+.hudmap-base .t3 { display: block; font-size: 11px; font-weight: 600; color: var(--dim); }
+.hudmap-base-m1 { left: 1%; top: 16%; width: 27%; }
+.hudmap-base-m1 img {
+  filter: sepia(0.55) saturate(1.6) hue-rotate(-12deg) drop-shadow(0 0 22px rgba(255, 194, 71, 0.45));
+}
+.hudmap-base-m2 { left: 50%; top: 50%; width: 31%; }
+.hudmap-base-m2 img { filter: drop-shadow(0 0 24px rgba(217, 70, 239, 0.5)); }
+.hudmap-base-uas { left: 64%; top: 0%; width: 33%; }
+.hudmap-base-uas .crop {
+  display: block; overflow: hidden; aspect-ratio: 1 / 0.82;
+}
+.hudmap-base-uas img {
+  width: 100%; height: 100%; object-fit: cover; object-position: left center;
+  filter: drop-shadow(0 0 24px rgba(69, 198, 255, 0.45));
+}
+.hudmap-tag {
+  display: inline-block; margin-top: 3px; padding: 1px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+  border: 1px solid rgba(217, 70, 239, 0.6); color: #f0abfc;
+  background: rgba(20, 8, 30, 0.7);
+}
+
+/* ---- node pertemuan (tombol ≥44px, ramah sentuh) ---- */
+.hudmap-node {
+  position: absolute; z-index: 2; transform: translate(-50%, -50%);
+  min-width: 44px; min-height: 44px; padding: 0 6px;
+  display: grid; place-items: center;
+  border-radius: 999px; cursor: pointer;
+  font-family: var(--font-d); font-weight: 800; font-size: 14px;
+  color: #cfe6f5; background: rgba(8, 24, 40, 0.92);
+  border: 2px solid rgba(126, 196, 236, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.hudmap-node:hover { transform: translate(-50%, -50%) scale(1.12); }
+.hudmap-node .lock { font-size: 11px; line-height: 1; }
+.hudmap-node.done {
+  color: #04222b; background: linear-gradient(160deg, #7ee4ff, #2ee6c8);
+  border-color: #2ee6c8; box-shadow: 0 0 18px rgba(46, 230, 200, 0.65);
+}
+.hudmap-node.now {
+  color: #fff; background: linear-gradient(160deg, #ffc247, #f59e0b);
+  border-color: #ffd88a; box-shadow: 0 0 22px rgba(255, 194, 71, 0.8);
+  animation: hudmap-ping 1.8s ease-out infinite;
+}
+.hudmap-node.big { font-size: 20px; }
+.hudmap-node.uts { border-color: #d946ef; box-shadow: 0 0 22px rgba(217, 70, 239, 0.7); }
+.hudmap-node.uas { border-color: #f472b6; box-shadow: 0 0 22px rgba(244, 114, 182, 0.7); }
+@keyframes hudmap-ping {
+  0% { box-shadow: 0 0 0 0 rgba(255, 194, 71, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(255, 194, 71, 0); }
+}
+
+/* ---- sprite kecil dari sheet (image matrix) ---- */
+.spr { display: block; background-repeat: no-repeat; }
+/* sel A1 sheet main (4×3): kubah emas MISI 01 */
+.spr-dome-gold {
+  width: 100%; aspect-ratio: 4 / 3;
+  background-image: image-set(
+    url("../assets/hud/hud-sprite-main.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-main.png") type("image/png"));
+  background-size: 400% 300%; background-position: 0% 0%;
+  filter: sepia(0.3) saturate(1.4) drop-shadow(0 0 22px rgba(255, 194, 71, 0.45));
+}
+.spr-shark {
+  position: absolute; z-index: 1; width: 11%; aspect-ratio: 2.4 / 1;
+  background-image: image-set(
+    url("../assets/hud/hud-sprite-icons.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-icons.png") type("image/png"));
+  background-size: 400% 300%; background-position: 100% 0%;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+  animation: spr-drift 7s ease-in-out infinite alternate;
+}
+.spr-shark.s1 { left: 30%; top: 30%; }
+.spr-shark.s2 { left: 82%; top: 52%; width: 9%; animation-delay: -3s; }
+@keyframes spr-drift {
+  from { transform: translateX(-8px) translateY(3px); }
+  to { transform: translateX(10px) translateY(-4px); }
+}
+.spr-logo {  width: 44px; height: 44px; border-radius: 12px; flex: none;
+  background-image: image-set(
+    url("../assets/hud/hud-sprite-icons.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-icons.png") type("image/png"));
+  background-size: 400% 300%; background-position: 33.3% 100%;
+  border: 1px solid rgba(46, 230, 200, 0.5);
+  box-shadow: 0 0 16px rgba(46, 230, 200, 0.3);
+}
+.spr-lock {
+  width: 30px; height: 30px; flex: none;
+  background-image: image-set(
+    url("../assets/hud/hud-sprite-icons.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-icons.png") type("image/png"));
+  background-size: 400% 300%; background-position: 0% 50%;
+  filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.8));
+}
+/* sel B3 sheet wide (3×3): gugus karang hias sudut panggung */
+.spr-reef {
+  position: absolute; z-index: 1; right: 1%; bottom: 2%; width: 16%; aspect-ratio: 1 / 1;
+  background-image: image-set(
+    url("../assets/hud/hud-sprite-wide.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-wide.png") type("image/png"));
+  background-size: 300% 300%; background-position: 50% 50%;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+/* ---- kartu sub-game ala konsep ---- */
+.hudmap-arena { display: grid; gap: 10px; }
+@media (min-width: 640px) { .hudmap-arena { grid-template-columns: 1fr 1fr; } }
+.hudmap-card {
+  border-radius: 16px; padding: 14px 16px; text-align: left;
+  background: rgba(8, 24, 40, 0.85);
+  border: 1px solid rgba(126, 196, 236, 0.22);
+}
+.hudmap-card h3 { margin: 0; font-size: 17px; font-weight: 800; color: #fff; }
+.hudmap-card .hint {
+  display: inline-block; margin-top: 2px; font-size: 11px; font-weight: 700;
+  color: var(--dim); border: 1px solid rgba(126, 196, 236, 0.25);
+  border-radius: 999px; padding: 0 8px;
+}
+.hudmap-card .go {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 10px; padding: 12px; min-height: 48px;
+  border: none; border-radius: 12px; cursor: pointer;
+  font-family: var(--font-d); font-weight: 800; font-size: 15px;
+}
+.hudmap-card.shark .go {
+  color: #2b1002; background: linear-gradient(135deg, #ff6a3d, #f97316);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.hudmap-card.tower .go {
+  color: #03242e; background: linear-gradient(135deg, #38e1ff, #22b8e6);
+  box-shadow: 0 6px 20px rgba(56, 225, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.hudmap-card .go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.hudmap-card small { display: block; margin-top: 6px; font-size: 11px; color: var(--faint); }
+
+.hudmap-ref { font-size: 11px; color: var(--faint); text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hudmap-node.now, .spr-shark { animation: none; }
+}

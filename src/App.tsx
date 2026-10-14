@@ -5,6 +5,10 @@ import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
 import type { Session } from "./data/quests";
 import { applyAttempt, meetingLevel, meetingUnlocked } from "./lib/progress";
+import { logAttempt } from "./lib/history";
+import { enqueueAttempt, pushOutbox } from "./lib/sync";
+import { guestUser, signInWithGoogle } from "./lib/auth";
+import { isCloudReady } from "./lib/supabaseClient";
 import Pertemuan from "./ui/Pertemuan";
 import { sfx } from "./lib/audio";
 import Ambient from "./graphics/Ambient";
@@ -70,6 +74,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   /* ===== aksi profil ===== */
   const createProfile = (name: string, age: AgeId) => {
     sfx.click();
+    guestUser(name);
     setSave((s) => ({
       ...s,
       profile: { name, age, sound, createdAt: Date.now() },
@@ -129,6 +134,14 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     const newRankName = rankOf(save.xp + xpAward).cur.name;
     const rankUp = newRankName !== prevRankName ? newRankName : null;
 
+    const rec = logAttempt({
+      sessionId: id, won: r.won, stars: r.stars, score: r.score,
+      accuracy: r.accuracy, wpm: r.wpm, maxCombo: r.maxCombo,
+      xpAward, coinsAward, passed,
+    });
+    enqueueAttempt(rec);
+    pushOutbox(save.deviceId, save.profile?.name ?? null, save).catch(() => {});
+
     setSave((s) => ({
       ...s,
       xp: s.xp + xpAward,
@@ -155,7 +168,13 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       <Ambient fish={!profile || screen.s === "dash"} />
 
       {!profile ? (
-        <Onboarding soundOn={sound} onToggleSound={toggleSound} onCreate={createProfile} />
+        <Onboarding
+          soundOn={sound}
+          onToggleSound={toggleSound}
+          onCreate={createProfile}
+          cloudReady={isCloudReady()}
+          onGoogleLogin={() => signInWithGoogle().catch(() => {})}
+        />
       ) : screen.s === "dash" ? (
         <>
           {lockedSubGame && (hubHref || siblingHref) && (
