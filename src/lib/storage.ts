@@ -45,9 +45,46 @@ export interface SaveData {
   coins: number;
   modules: Record<string, ModProg>;
   stats: Stats;
+  /** identitas perangkat untuk sync NeonDB (stabil antar sesi) */
+  deviceId: string;
+  updatedAt: number;
 }
 
 const KEY = "codeshark:save:v1";
+const DEVICE_KEY = "codeshark:device:v1";
+const SAVE_PREFIX = "codeshark:save:v1:";
+
+/** Kunci save per-user — satu perangkat bisa dipakai banyak anak tanpa tabrakan. */
+export function saveKeyFor(userId?: string | null): string {
+  if (!userId || userId === "guest") return KEY;
+  return `${SAVE_PREFIX}${userId}`;
+}
+
+export function listLocalUserIds(): string[] {
+  const out: string[] = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(SAVE_PREFIX)) out.push(k.slice(SAVE_PREFIX.length));
+    }
+  } catch {
+    /* abaikan */
+  }
+  return out;
+}
+
+export function deviceId(): string {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id) {
+      id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  } catch {
+    return "web";
+  }
+}
 
 export const defaultSave = (): SaveData => ({
   profile: null,
@@ -55,30 +92,67 @@ export const defaultSave = (): SaveData => ({
   coins: 0,
   modules: {},
   stats: { games: 0, wins: 0, bestWpm: 0, bestCombo: 0, keystrokes: 0, correct: 0 },
+  deviceId: deviceId(),
+  updatedAt: Date.now(),
 });
 
-export function loadSave(): SaveData {
+export function loadSaveFor(userId?: string | null): SaveData {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return defaultSave();
-    const d = JSON.parse(raw) as Partial<SaveData>;
-    const base = defaultSave();
-    return {
-      ...base,
-      ...d,
-      stats: { ...base.stats, ...(d.stats || {}) },
-      modules: { ...(d.modules || {}) },
-    };
+    const raw = localStorage.getItem(saveKeyFor(userId));
+    if (!raw) {
+      // migrasi: save lama tanpa userId pindah ke namespace baru sekali saja
+      if (userId && userId !== "guest") {
+        const legacy = localStorage.getItem(KEY);
+        if (legacy) {
+          try {
+            localStorage.setItem(saveKeyFor(userId), legacy);
+          } catch { /* abaikan */ }
+          return parseSave(legacy);
+        }
+      }
+      return defaultSave();
+    }
+    return parseSave(raw);
   } catch {
     return defaultSave();
   }
 }
 
-export function persist(s: SaveData) {
+function parseSave(raw: string): SaveData {
+  const d = JSON.parse(raw) as Partial<SaveData>;
+  const base = defaultSave();
+  return {
+    ...base,
+    ...d,
+    stats: { ...base.stats, ...(d.stats || {}) },
+    modules: { ...(d.modules || {}) },
+    deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
+    updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
+  };
+}
+
+export function loadSave(): SaveData {
   try {
-    localStorage.setItem(KEY, JSON.stringify(s));
+    const last = localStorage.getItem("codeshark:lastUser:v1");
+    if (last && last !== "guest") return loadSaveFor(last);
+  } catch { /* abaikan */ }
+  return loadSaveFor(null);
+}
+
+export function persistFor(s: SaveData, userId?: string | null) {
+  try {
+    localStorage.setItem(saveKeyFor(userId), JSON.stringify({ ...s, updatedAt: Date.now() }));
   } catch {
     /* storage penuh / private mode — abaikan */
+  }
+}
+
+export function persist(s: SaveData) {
+  try {
+    const last = localStorage.getItem("codeshark:lastUser:v1");
+    persistFor(s, last && last !== "guest" ? last : null);
+  } catch {
+    persistFor(s, null);
   }
 }
 
