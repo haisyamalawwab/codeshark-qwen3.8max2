@@ -65,7 +65,7 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
 
       {/* lapisan 1: jauh */}
       <div ref={farRef} className={layer} style={{ transform: "scale(1.1)" }}>
-        <img src={seaFar} alt="" className={img} draggable={false} />
+        <img src={seaFar} alt="" className={img} draggable={false} decoding="async" />
       </div>
 
       {/* berkas cahaya dari permukaan */}
@@ -93,7 +93,7 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
 
       {/* lapisan 2: tengah */}
       <div ref={midRef} className={layer} style={{ transform: "scale(1.1)" }}>
-        <img src={seaMid} alt="" className={img} draggable={false} />
+        <img src={seaMid} alt="" className={img} draggable={false} decoding="async" />
       </div>
 
       {/* canvas 2D: kawanan ikan + plankton */}
@@ -120,7 +120,7 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
 
       {/* lapisan 3: depan */}
       <div ref={nearRef} className={layer} style={{ transform: "scale(1.1)" }}>
-        <img src={seaNear} alt="" className={img} draggable={false} />
+        <img src={seaNear} alt="" className={img} draggable={false} decoding="async" />
       </div>
 
       {/* semburat merah saat hiu hampir menyerang */}

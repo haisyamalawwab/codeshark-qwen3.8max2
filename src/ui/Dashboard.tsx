@@ -367,7 +367,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 const isLast = idx === MODULES.length - 1;
 
                 return (
-                  <article key={m.id} className="reveal relative" style={{ transitionDelay: `${idx * 0.08}s` }}>
+                  <article key={m.id} className="cv-auto reveal relative" style={{ transitionDelay: `${idx * 0.08}s` }}>
                     {/* Garis Vertikal Antar-Node */}
                     {!isLast && (
                       <div className={done ? "hud-timeline-line" : "hud-timeline-dashed"} />

@@ -13,6 +13,7 @@ export default function CaptainAvatar({ className = "", size = 120, ...props }: 
         alt=""
         draggable={false}
         decoding="async"
+        fetchPriority="high"
         width={size}
         height={size}
         className={className}

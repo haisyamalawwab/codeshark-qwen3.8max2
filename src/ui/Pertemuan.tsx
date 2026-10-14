@@ -226,7 +226,7 @@ export function Pertemuan({ save, startNo, subGame = "shark", onExit, onMateri, 
           </p>
 
           {/* detail pertemuan */}
-          <article className="rounded-2xl border border-[rgba(126,196,236,0.16)] bg-[rgba(255,255,255,0.03)] overflow-hidden">
+          <article className="cv-auto rounded-2xl border border-[rgba(126,196,236,0.16)] bg-[rgba(255,255,255,0.03)] overflow-hidden">
             <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${c}, transparent)` }} />
             <div className="p-5 space-y-4">
               <div className="flex items-start gap-3 flex-wrap">

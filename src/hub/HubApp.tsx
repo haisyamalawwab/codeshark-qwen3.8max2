@@ -4,7 +4,10 @@
    - Kartu Coding Tower → ./codingtower/ (susun blok, ramah HP, Matter+Pixi+p5 lazy)
    - Slot "Segera hadir" untuk sub-game berikutnya (tinggal tambah folder + kartu).
    Desain netral (tidak meniru tema gelap shark / terang tower) agar jadi payung.
-   Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi. */
+   Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi.
+   Ikon kartu memakai SVG vektor (ui/icons) agar tajam di semua DPR. */
+import type { ComponentType } from "react";
+import { IconTower, IconFin, IconBolt, IconBrush } from "../ui/icons";
 
 interface HubGame {
   id: string;
@@ -14,7 +17,7 @@ interface HubGame {
   desc: string;
   points: string[];
   cta: string;
-  icon: string;
+  Icon: ComponentType<{ size?: number; className?: string }>;
   accent: string;
   live: boolean;
 }
@@ -28,7 +31,7 @@ const GAMES: HubGame[] = [
     desc: "Susun blok HTML/CSS/JS menjadi menara. Ketuk / drag saja — tanpa keyboard fisik. Ada pengecoh, petunjuk, undo, dan live preview halaman.",
     points: ["Tanpa simbol sulit", "Tombol ≥48px", "PWA offline"],
     cta: "Main Coding Tower",
-    icon: "🧱",
+    Icon: IconTower,
     accent: "#f97316",
     live: true,
   },
@@ -40,7 +43,7 @@ const GAMES: HubGame[] = [
     desc: "Ketik ulang kode persis sambil mengusir hiu. Combo, overdrive ×2, HP, dan preview hidup. Paling enak di laptop / keyboard fisik.",
     points: ["Keyboard fisik", "Combo & WPM", "16 pertemuan"],
     cta: "Main CodeShark",
-    icon: "🦈",
+    Icon: IconFin,
     accent: "#2ee6c8",
     live: true,
   },
@@ -52,7 +55,7 @@ const GAMES: HubGame[] = [
     desc: "Pelari bawah laut: lompat rintangan dengan menjawab sintaks. Slot sub-game ketiga — folder /shark-runner/ tinggal dicolok ke hub ini.",
     points: ["Arcade", "Reaksi cepat", "Segera"],
     cta: "Segera hadir",
-    icon: "🏃",
+    Icon: IconBolt,
     accent: "#818cf8",
     live: false,
   },
@@ -64,7 +67,7 @@ const GAMES: HubGame[] = [
     desc: "Hias terumbu karang dengan CSS (flex/grid/warna). Slot media belajar keempat untuk jalur desain visual.",
     points: ["Flex/Grid", "Warna", "Segera"],
     cta: "Segera hadir",
-    icon: "🪸",
+    Icon: IconBrush,
     accent: "#fb7185",
     live: false,
   },
@@ -75,8 +78,8 @@ export default function HubApp() {
     <div className="min-h-screen" style={{ background: "#060f1d", color: "#e6f2f8" }}>
       <header className="sticky top-0 z-40 backdrop-blur-md" style={{ background: "rgba(6,15,29,0.86)", borderBottom: "1px solid rgba(69,198,255,0.16)" }}>
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
-          <span className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0" style={{ background: "rgba(46,230,200,0.12)", border: "1px solid rgba(46,230,200,0.45)" }}>
-            🎮
+          <span className="w-10 h-10 rounded-xl grid place-items-center shrink-0" style={{ background: "rgba(46,230,200,0.12)", border: "1px solid rgba(46,230,200,0.45)", color: "#2ee6c8" }}>
+            <IconFin size={22} />
           </span>
           <div className="mr-auto leading-tight">
             <p className="font-extrabold tracking-wide text-sm md:text-base">
@@ -86,11 +89,11 @@ export default function HubApp() {
               Template belajar koding berbasis game
             </p>
           </div>
-          <a href="./codingtower/" className="text-xs font-bold px-4 py-2 rounded-xl" style={{ background: "#f97316", color: "#fff" }}>
-            🧱 Tower (HP)
+          <a href="./codingtower/" className="text-xs font-bold px-4 py-2 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
+            <IconTower size={15} /> Tower (HP)
           </a>
-          <a href="./codingshark/" className="text-xs font-bold px-4 py-2 rounded-xl border border-cyan-300/40" style={{ color: "#7ee4ff" }}>
-            🦈 Shark (PC)
+          <a href="./codingshark/" className="text-xs font-bold px-4 py-2 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
+            <IconFin size={15} /> Shark (PC)
           </a>
         </div>
       </header>
@@ -126,8 +129,8 @@ export default function HubApp() {
               }}
             >
               <div className="flex items-start gap-3.5">
-                <span className="w-14 h-14 shrink-0 rounded-2xl grid place-items-center text-3xl" style={{ background: `${g.accent}1f`, border: `1px solid ${g.accent}66` }}>
-                  {g.icon}
+                <span className="w-14 h-14 shrink-0 rounded-2xl grid place-items-center" style={{ background: `${g.accent}1f`, border: `1px solid ${g.accent}66`, color: g.accent }}>
+                  <g.Icon size={30} />
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

@@ -1126,3 +1126,11 @@
   .shimmer::after, .ping-dot::after, .glow-pulse,
   .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char { animation: none !important; }
 }
+
+/* Lewati render kartu di luar viewport (Pertemuan, timeline misi) —
+   browser tidak me-layout/paint sampai mendekati layar. Aman untuk konten
+   dinamis; intrinsic-size menahan lompatan scrollbar. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 340px;
+}
