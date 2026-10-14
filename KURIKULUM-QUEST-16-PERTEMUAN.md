@@ -21,13 +21,13 @@ Aturan tambahan: pertemuan *n+1* terbuka setelah *n* minimal **Perak**. XP & koi
 | 3 | HTML | Teks & Daftar | html | P2 |
 | 4 | HTML | Media & Navigasi | html | P3 |
 | 5 | HTML | Formulir & Elemen Semantik | html | P4 |
-| 6 | HTML | Mini Project: Halaman Profil & Review | html | P5 |
-| 7 | UTS | Panduan UTS: Halaman HTML + CSS | html | P6 |
-| 8 | CSS | Cara Kerja CSS & Selektor Dasar | css | urutan balik (drill sendiri) |
-| 9 | CSS | Class, ID, Warna & Tipografi | css | P8 |
-| 10 | CSS | Box Model: Kotak di Balik Semua Hal | css | P9 |
-| 11 | CSS | Layout: Flexbox & Responsif | css | P10 |
-| 12 | JS | Jembatan: Menyuntik Logika ke Halaman | html | P7 |
+| 6 | HTML | Mini Project: Merakit Halaman Profil | html | P5 |
+| 7 | HTML | Mini Project: Presentasi & Review Sejawat | html | P6 |
+| 8 | UTS | Panduan UTS: Halaman HTML + CSS | html | P7 |
+| 9 | CSS | Cara Kerja CSS & Selektor Dasar | css | urutan balik (drill sendiri) |
+| 10 | CSS | Class, ID, Warna & Tipografi | css | P9 |
+| 11 | CSS | Box Model: Kotak di Balik Semua Hal | css | P10 |
+| 12 | CSS | Layout: Flexbox & Responsif | css | P11 |
 | 13 | JS | Variabel, Tipe Data & Operator | js | urutan balik (drill sendiri) |
 | 14 | JS | Logika Percabangan | js | P13 |
 | 15 | JS | Perulangan & Fungsi | js | P14 |
@@ -181,7 +181,7 @@ Anyam drill P5 dengan drill P4: baris P5 dan P4 diketik bergantian (baris 1 P5, 
 
 ---
 
-## Pertemuan 6 — Mini Project: Halaman Profil & Review
+## Pertemuan 6 — Mini Project: Merakit Halaman Profil
 
 **Tahap:** HTML · **Tujuan:** Menggabungkan semua materi HTML menjadi satu proyek utuh sebagai bekal UTS.
 
@@ -210,7 +210,36 @@ Anyam drill P6 dengan drill P5: baris P6 dan P5 diketik bergantian (baris 1 P6, 
 
 ---
 
-## Pertemuan 7 — Panduan UTS: Halaman HTML + CSS
+## Pertemuan 7 — Mini Project: Presentasi & Review Sejawat
+
+**Tahap:** HTML · **Tujuan:** Mempresentasikan halaman profil, memberi review kode teman, dan memantapkan HTML sebelum UTS.
+
+### Quest (Perunggu)
+**Demo profil & review** — ketik kode latihan pertemuan (289 karakter), akurasi ≥ 90%.
+
+### Drill (Perak)
+```html
+<nav>
+<a href="index.html">Beranda</a>
+<a href="#kontak">Kontak</a>
+</nav>
+<section id="kontak">
+<h2>Hubungi Saya</h2>
+<label for="email">Email:</label>
+<input id="email" type="email" required />
+<footer>&copy; 2026 Raka</footer>
+```
+
+### Juggling (Emas)
+Anyam drill P7 dengan drill P6: baris P7 dan P6 diketik bergantian (baris 1 P7, baris 1 P6, baris 2 P7, …). Akurasi ≥ 85%.
+
+### Tugas mandiri
+- **Produk:** Demo 5 menit + review sejawat, siap UTS
+- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
+
+---
+
+## Pertemuan 8 — Panduan UTS: Halaman HTML + CSS
 
 **Tahap:** UTS · **Tujuan:** Strategi mengerjakan UTS: lingkup, format, dan checklist pengerjaan.
 
@@ -233,7 +262,7 @@ Anyam drill P6 dengan drill P5: baris P6 dan P5 diketik bergantian (baris 1 P6, 
 ```
 
 ### Juggling (Emas)
-Anyam drill P7 dengan drill P6: baris P7 dan P6 diketik bergantian (baris 1 P7, baris 1 P6, baris 2 P7, …). Akurasi ≥ 85%.
+Anyam drill P8 dengan drill P7: baris P8 dan P7 diketik bergantian (baris 1 P8, baris 1 P7, baris 2 P8, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
 - **Produk:** Ujian praktik 40 menit dengan gaya.css eksternal
@@ -241,7 +270,7 @@ Anyam drill P7 dengan drill P6: baris P7 dan P6 diketik bergantian (baris 1 P7, 
 
 ---
 
-## Pertemuan 8 — Cara Kerja CSS & Selektor Dasar
+## Pertemuan 9 — Cara Kerja CSS & Selektor Dasar
 
 **Tahap:** CSS · **Tujuan:** Memahami cascade, tiga cara memasang CSS, dan selektor elemen.
 
@@ -265,7 +294,7 @@ border-radius: 10px;
 ```
 
 ### Juggling (Emas)
-Tidak ada pertemuan sebahasa sebelumnya: drill P8 dianyam dengan urutan terbalik dirinya sendiri (baris terakhir ke pertama). Akurasi ≥ 85%.
+Tidak ada pertemuan sebahasa sebelumnya: drill P9 dianyam dengan urutan terbalik dirinya sendiri (baris terakhir ke pertama). Akurasi ≥ 85%.
 
 ### Tugas mandiri
 - **Produk:** gaya.css dengan selector elemen, tanpa inline style
@@ -273,7 +302,7 @@ Tidak ada pertemuan sebahasa sebelumnya: drill P8 dianyam dengan urutan terbalik
 
 ---
 
-## Pertemuan 9 — Class, ID, Warna & Tipografi
+## Pertemuan 10 — Class, ID, Warna & Tipografi
 
 **Tahap:** CSS · **Tujuan:** Membedakan class vs id, membaca kode warna, dan mengatur huruf.
 
@@ -299,7 +328,7 @@ font-weight: 700;
 ```
 
 ### Juggling (Emas)
-Anyam drill P9 dengan drill P8: baris P9 dan P8 diketik bergantian (baris 1 P9, baris 1 P8, baris 2 P9, …). Akurasi ≥ 85%.
+Anyam drill P10 dengan drill P9: baris P10 dan P9 diketik bergantian (baris 1 P10, baris 1 P9, baris 2 P10, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
 - **Produk:** Tiga class, satu id, HEX, rem
@@ -307,7 +336,7 @@ Anyam drill P9 dengan drill P8: baris P9 dan P8 diketik bergantian (baris 1 P9, 
 
 ---
 
-## Pertemuan 10 — Box Model: Kotak di Balik Semua Hal
+## Pertemuan 11 — Box Model: Kotak di Balik Semua Hal
 
 **Tahap:** CSS · **Tujuan:** Memahami margin, border, padding, dan ukuran kotak elemen.
 
@@ -331,7 +360,7 @@ border-radius: 14px;
 ```
 
 ### Juggling (Emas)
-Anyam drill P10 dengan drill P9: baris P10 dan P9 diketik bergantian (baris 1 P10, baris 1 P9, baris 2 P10, …). Akurasi ≥ 85%.
+Anyam drill P11 dengan drill P10: baris P11 dan P10 diketik bergantian (baris 1 P11, baris 1 P10, baris 2 P11, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
 - **Produk:** box-sizing, margin: auto, border
@@ -339,7 +368,9 @@ Anyam drill P10 dengan drill P9: baris P10 dan P9 diketik bergantian (baris 1 P1
 
 ---
 
-## Pertemuan 11 — Layout: Flexbox & Responsif
+## Pertemuan 12 — Layout: Flexbox & Responsif
+
+**Tahap:** CSS · **Tujuan:** Menyusun posisi elemen dengan display:flex, menyesuaikan layout di HP, plus review gabungan dan cicipan DOM sebagai jembatan ke JS.
 
 **Tahap:** CSS · **Tujuan:** Menyusun posisi elemen dengan display:flex dan menyesuaikan layout di HP.
 
@@ -362,36 +393,10 @@ flex-direction: column;
 ```
 
 ### Juggling (Emas)
-Anyam drill P11 dengan drill P10: baris P11 dan P10 diketik bergantian (baris 1 P11, baris 1 P10, baris 2 P11, …). Akurasi ≥ 85%.
+Anyam drill P12 dengan drill P11: baris P12 dan P11 diketik bergantian (baris 1 P12, baris 1 P11, baris 2 P12, …). Akurasi ≥ 85%.
 
 ### Tugas mandiri
 - **Produk:** Flex + @media, menumpuk di layar 375px
-- **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
-
----
-
-## Pertemuan 12 — Jembatan: Menyuntik Logika ke Halaman
-
-**Tahap:** JS · **Tujuan:** Review CSS melalui latihan ketik gabungan, lalu kenalan dengan cara JS menyentuh halaman.
-
-### Quest (Perunggu)
-**HTML + CSS gabungan** — ketik kode latihan pertemuan (323 karakter), akurasi ≥ 90%.
-
-### Drill (Perak)
-```html
-<style>
-.btn { background: #2ee6c8; }
-</style>
-<button class="btn">Kirim</button>
-<h1 class="judul">Review</h1>
-<p class="catatan">Gabungan HTML + CSS</p>
-```
-
-### Juggling (Emas)
-Anyam drill P12 dengan drill P7: baris P12 dan P7 diketik bergantian (baris 1 P12, baris 1 P7, baris 2 P12, …). Akurasi ≥ 85%.
-
-### Tugas mandiri
-- **Produk:** Halaman dengan <style>, class, tombol
 - **Kumpulkan:** berkas hasil + tangkapan layar level sesi di Peta Pertemuan.
 
 ---

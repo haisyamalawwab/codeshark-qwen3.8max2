@@ -1,10 +1,10 @@
-/* Ladder kesulitan Coding Tower untuk fase HTML (P1–P7).
+/* Ladder kesulitan Coding Tower untuk fase HTML (P1–P8: P1–P6 dasar, P7 mini project, P8 gladi UTS).
    Tiap pertemuan = satu level: jumlah lantai per tahap, blok pengecoh,
    laju ancaman, jatah petunjuk, dan mekanik yang diajarkan — makin sulit.
    Pertemuan non-HTML / misi lama memakai level generik (ramping ringan). */
 
 export interface TowerLevel {
-  /** nomor level tampil (1–7 untuk HTML) */
+  /** nomor level tampil (1–8 untuk HTML) */
   level: number;
   title: string;
   /** mekanik yang dilatih di level ini */
@@ -68,7 +68,15 @@ const HTML_LEVELS: Record<number, TowerLevel> = {
       '<img src="foto.jpg" width="120" />',
       "<section>\n  <h2>Kontak</h2>\n</main>",
     ]),
-  7: L(7, "Gladi UTS", "Campuran + validasi rapi",
+  7: L(7, "Menara Presentasi", "Semantik rapi untuk didemo",
+    "Menara yang rapi = demo yang meyakinkan: nav, section ber-id, dan footer berurutan.",
+    6, 3, 1.15, 2, 5,
+    [
+      '<section id="kontak">\n  <h2>Hubungi Saya</h2>\n</footer>',
+      '<a href="#kontak">Kontak</a>\n</nav>',
+      '<label for="nama">Nama:</label>\n<input id="email" type="text" />',
+    ]),
+  8: L(8, "Gladi UTS", "Campuran + validasi rapi",
     "Ujian sesungguhnya: atribut, alt, label, dan titik koma CSS — teliti tiap lantai.",
     6, 3, 1.25, 2, 6,
     [

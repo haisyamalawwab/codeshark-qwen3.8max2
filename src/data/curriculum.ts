@@ -1,5 +1,6 @@
 /* ============ SILABUS PERTEMUAN (16x) & MATERI LATIHAN PER TAHAP ============
-   Struktur kurikulum: HTML 6 pertemuan, UTS 1, CSS 4, jembatan 1, JS 3, DOM/UAS 1 = 16.
+   Struktur kurikulum: HTML 5 pertemuan (1-5) + mini project 2 pertemuan (6-7),
+   UTS 1 (8), CSS 4 (9-12, P12 plus jembatan ke JS), JS 3 (13-15), DOM/UAS 1 (16).
    Setiap pertemuan punya materi konsep tersendiri + latihan ketik bertingkat
    yang dipakai sebagai ajang praktik pada sesi pertemuan tersebut. */
 
@@ -144,7 +145,7 @@ const htmlLessons: Lesson[] = [
     { intro: "Pertemuan 5 — formulir pendaftaran dengan label, jenis input berbeda, dan tombol kirim. Teliti pasangan id/for!",
       code: `<form>\n  <label for="nama">Nama:</label>\n  <input id="nama" type="text" required />\n  <label for="email">Email:</label>\n  <input id="email" type="email" required />\n  <label for="pas">Kata sandi:</label>\n  <input id="pas" type="password" minlength="8" />\n  <button type="submit">Daftar</button>\n</form>` }),
 
-  L(6, "HTML", "Mini Project: Halaman Profil & Review",
+  L(6, "HTML", "Mini Project: Merakit Halaman Profil",
     "Menggabungkan semua materi HTML menjadi satu proyek utuh sebagai bekal UTS.",
     [
       { kicker: "Pertemuan 6 • Konsep", title: "Menyatukan Semuanya", blocks: [
@@ -153,7 +154,7 @@ const htmlLessons: Lesson[] = [
         li("Checklist pra-UTS: pasangan tag lengkap? satu <h1>? semua <img> punya alt? label terhubung id?",
            "Validasi gratis: tempel kode ke validator.w3.org — error muncul baris per baris.",
            "Buka di HP (DevTools → mode perangkat) — apakah masih terbaca?"),
-        fun("Ujian terdekat", "UTS pertemuan 7 menguji tahap HTML (pertemuan 1-6). Kerjakan mini project ini sampai lancar, sisanya tinggal percaya diri."),
+        fun("Ujian terdekat", "UTS pertemuan 8 menguji tahap HTML (pertemuan 1-7). Kerjakan mini project ini sampai lancar, sisanya tinggal percaya diri."),
       ]},
       { kicker: "Pertemuan 6 • Latihan", title: "Gladi Ketik: Proyek Utuh", blocks: [
         p("Latihan ketik di bawah adalah halaman profil gabungan — semua tag yang pernah kamu pelajari muncul. Target: WPM stabil dan akurasi ≥ 90% tanpa melihat keyboard untuk simbol < > \" / ."),
@@ -162,14 +163,37 @@ const htmlLessons: Lesson[] = [
     ],
     { intro: "Pertemuan 6 — gladi UTS: halaman profil lengkap lintas semua topik HTML. Simbol < > \" / adalah kunci!",
       code: `<!DOCTYPE html>\n<html lang="id">\n  <head>\n    <meta charset="UTF-8" />\n    <title>Profil Raka</title>\n  </head>\n  <body>\n    <header>\n      <h1>Raka Pratama</h1>\n      <nav><a href="#kontak">Kontak</a></nav>\n    </header>\n    <main>\n      <section>\n        <h2>Tentang Saya</h2>\n        <p>Siswa yang suka <strong>laut</strong> dan kode.</p>\n        <img src="foto.jpg" alt="Foto Raka" width="120" />\n      </section>\n      <section>\n        <h2>Keahlian</h2>\n        <ul>\n          <li>HTML dasar</li>\n          <li>Mengetik 40 WPM</li>\n        </ul>\n      </section>\n      <section id="kontak">\n        <h2>Kontak</h2>\n        <label for="pesan">Pesan:</label>\n        <textarea id="pesan"></textarea>\n        <button type="submit">Kirim</button>\n      </section>\n    </main>\n    <footer>&copy; 2026 Raka</footer>\n  </body>\n</html>` }),
+
+  L(7, "HTML", "Mini Project: Presentasi & Review Sejawat",
+    "Mempresentasikan halaman profil, memberi review kode teman, dan memantapkan HTML sebelum UTS.",
+    [
+      { kicker: "Pertemuan 7 • Praktik", title: "Demo: Presentasikan Halamanmu", blocks: [
+        p("Mini project dikumpulkan lewat demo: buka halamanmu di browser, tunjukkan tiap bagian sambil menyebut tag pembentuknya, lalu ceritakan satu kesulitan dan cara kamu mengatasinya. Penjelasan yang runtut dinilai sama pentingnya dengan kodenya."),
+        li("Urutan demo: kerangka → heading & teks → daftar → gambar & link → formulir → semantik.",
+          "Tunjuk langsung di layar: bagian ini memakai nav berisi dua link.",
+          "Siapkan satu jawaban: bagian mana yang paling sulit dan kenapa.",
+          "Batasi 5 menit — singkat, jelas, tunjukkan buktinya di browser."),
+        tip("Kriteria nilai demo", "Kelengkapan halaman, kerapian kode (indentasi + tag tertutup), dan kejelasan penjelasan. Hafal, jangan membaca."),
+      ]},
+      { kicker: "Pertemuan 7 • Latihan", title: "Review Sejawat & Pemantapan", blocks: [
+        p("Tukar halaman dengan teman sebangku dan periksa kodenya seperti pemeriksa ujian: pasangan tag, alt pada gambar, href yang valid, dan label yang terhubung id. Tulis temuanmu dengan bahasa yang membangun."),
+        li("Cek berpasangan: setiap tag buka ada tutupnya? satu h1? semua img punya alt?",
+          "Klik semua link: tidak ada href kosong atau berkas yang salah nama.",
+          "Uji formulir: label bisa diklik? kolom wajib menolak kiriman kosong?",
+          "Tutup dengan satu pujian spesifik + satu saran perbaikan."),
+        quiz("Saat mereview kode teman, hal pertama yang dicek?", ["Warna favoritnya", "Pasangan tag & struktur", "Jumlah emoji", "Nama berkas saja"], 1, "Struktur dulu: tag tak tertutup merusak segalanya, warna bisa dipoles belakangan."),
+      ]},
+    ],
+    { intro: "Pertemuan 7 — bagian demo: navigasi, section kontak dengan formulir, dan footer. Anchor kontak wajib cocok dengan id!",
+      code: `<nav>\n  <a href="index.html">Beranda</a>\n  <a href="#kontak">Kontak</a>\n</nav>\n<section id="kontak">\n  <h2>Hubungi Saya</h2>\n  <label for="email">Email:</label>\n  <input id="email" type="email" required />\n  <button type="submit">Kirim</button>\n</section>\n<footer>&copy; 2026 Raka</footer>` }),
 ];
 
-/* ---------- TAHAP 2: CSS — Pertemuan 8-11 ---------- */
+/* ---------- TAHAP 2: CSS — Pertemuan 9-12 (P12 plus jembatan ke JS) ---------- */
 const cssLessons: Lesson[] = [
-  L(8, "CSS", "Cara Kerja CSS & Selektor Dasar",
+  L(9, "CSS", "Cara Kerja CSS & Selektor Dasar",
     "Memahami cascade, tiga cara memasang CSS, dan selektor elemen.",
     [
-      { kicker: "Pertemuan 8 • Konsep", title: "Cascade: Gaya Mengalir", blocks: [
+      { kicker: "Pertemuan 9 • Konsep", title: "Cascade: Gaya Mengalir", blocks: [
         p("CSS = Cascading Style Sheets. Aturan ditulis: selector { properti: nilai; }. Ada tiga cara memasangnya: inline (atribut style), internal (<style> di head), dan eksternal (berkas .css lewat <link>). Proyek serius selalu memakai eksternal supaya satu gaya dipakai banyak halaman."),
         code("css", `h1 {\n  color: #ffc247;\n  font-size: 32px;\n}`, "Selector → blok kurung kurawal → deklarasi berakhiran titik koma"),
         li('Inline: <h1 style="color:red"> — hindari, susah dirawat.',
@@ -178,20 +202,20 @@ const cssLessons: Lesson[] = [
            "'Cascading': aturan yang lebih spesifik atau menyusul menang atas yang umum."),
         tip("Urutan beban", "Taruh <link> CSS di dalam <head> agar gaya siap sebelum halaman digambar — tidak ada kedip tanpa gaya."),
       ]},
-      { kicker: "Pertemuan 8 • Latihan", title: "Selektor Elemen & Grup", blocks: [
+      { kicker: "Pertemuan 9 • Latihan", title: "Selektor Elemen & Grup", blocks: [
         p("Selektor paling sederhana adalah nama tag: p { } mengenai SEMUA paragraf. Beberapa selektor bisa digabung dengan koma: h1, h2, h3 { } berlaku untuk semuanya sekaligus."),
         code("css", `body {\n  background: #072a3f;\n  color: #eaf6ff;\n  font-family: sans-serif;\n}\nh1, h2, h3 {\n  color: #ffc247;\n}`, "Grup selektor menghindari pengulangan kode"),
         warn("Titik koma hilang", "Satu deklarasi tanpa ; membuat deklarasi berikutnya ikut diabaikan browser. Kesalahan CSS paling senyap dan paling sering."),
         quiz("Cara memasang CSS yang dianjurkan untuk proyek nyata?", ["Inline style", "<style> di head", "Berkas .css eksternal via <link>", "Memakai JavaScript"], 2, "Eksternal: satu berkas gaya untuk banyak halaman, mudah dirawat dan di-cache browser."),
       ]},
     ],
-    { intro: "Pertemuan 8 — blok CSS pertama: tubuh halaman, grup heading, dan satu tombol. Titik koma adalah sahabatmu.",
+    { intro: "Pertemuan 9 — blok CSS pertama: tubuh halaman, grup heading, dan satu tombol. Titik koma adalah sahabatmu.",
       code: `body {\n  background: #072a3f;\n  color: #eaf6ff;\n  font-family: sans-serif;\n}\nh1, h2 {\n  color: #ffc247;\n}\nbutton {\n  border-radius: 10px;\n}` }),
 
-  L(9, "CSS", "Class, ID, Warna & Tipografi",
+  L(10, "CSS", "Class, ID, Warna & Tipografi",
     "Membedakan class vs id, membaca kode warna, dan mengatur huruf.",
     [
-      { kicker: "Pertemuan 9 • Konsep", title: "Class vs ID", blocks: [
+      { kicker: "Pertemuan 10 • Konsep", title: "Class vs ID", blocks: [
         p('<p class="card"> dipanggil CSS dengan .card — bisa dipakai banyak elemen. <div id="hero"> dipanggil dengan #hero — hanya boleh SATU di halaman. Kombinasi keduanya: p.card memilih hanya <p> yang ber-class card.'),
         code("html", `<p class="catatan">Paragraf biasa</p>\n<p class="catatan">Boleh berulang</p>\n<h1 id="judul-besar">Hanya satu</h1>`),
         code("css", `.catatan {\n  color: #9ad7f5;\n}\n#judul-besar {\n  letter-spacing: 2px;\n}`, "Titik = class, pagar = id"),
@@ -200,20 +224,20 @@ const cssLessons: Lesson[] = [
            'Satu elemen boleh punya banyak class: class="tombol besar".'),
         tip("Penamaan konsisten", "Pakai kebab-case (judul-besar) — pilih satu gaya penamaan dan jangan campur."),
       ]},
-      { kicker: "Pertemuan 9 • Latihan", title: "Warna HEX & Tipografi", blocks: [
+      { kicker: "Pertemuan 10 • Latihan", title: "Warna HEX & Tipografi", blocks: [
         p("Warna CSS: nama (red), HEX (#ff6b57 = RR GG BB), atau rgb()/hsl(). Tipografi diatur font-family (keluarga huruf), font-size (ukuran px/rem), font-weight (tebal 400/700), line-height (jarak baris), text-align (posisi)."),
         code("css", `h1 {\n  color: #ffc247;\n  font-size: 2rem;\n  font-weight: 800;\n}\np {\n  line-height: 1.6;\n  text-align: center;\n}`, "rem mengikuti ukuran dasar browser — ramah aksesibilitas"),
         warn("Kontras rendah", "Teks abu tipis di latar gelap sulit dibaca. Uji kontras: kalau kamu pusing membacanya, pengguna lain juga."),
         quiz("Pada #ff6b57, pasangan huruf pertama (ff) mengatur…", ["Komponen merah", "Komponen hijau", "Komponen biru", "Ketajaman"], 0, "HEX dibaca per pasangan: ff=255 merah, 6b=107 hijau, 57=87 biru."),
       ]},
     ],
-    { intro: "Pertemuan 9 — gaya berbasis class dan id dengan warna HEX. Cermati #, ., titik dua, dan titik koma!",
+    { intro: "Pertemuan 10 — gaya berbasis class dan id dengan warna HEX. Cermati #, ., titik dua, dan titik koma!",
       code: `.kartu {\n  background: #0c3350;\n  color: #eaf6ff;\n  padding: 16px;\n}\n.judul {\n  color: #ffc247;\n  font-size: 1.5rem;\n  font-weight: 700;\n}\n#hero {\n  text-align: center;\n  line-height: 1.6;\n}` }),
 
-  L(10, "CSS", "Box Model: Kotak di Balik Semua Hal",
+  L(11, "CSS", "Box Model: Kotak di Balik Semua Hal",
     "Memahami margin, border, padding, dan ukuran kotak elemen.",
     [
-      { kicker: "Pertemuan 10 • Konsep", title: "Empat Lapisan Kotak", blocks: [
+      { kicker: "Pertemuan 11 • Konsep", title: "Empat Lapisan Kotak", blocks: [
         p("Setiap elemen HTML adalah kotak bersarang: ISI (content) → PADDING (jarak dalam) → BORDER (garis tepi) → MARGIN (jarak luar ke tetangga). Menggeser satu lapisan mengubah seluruh tampilan."),
         code("css", `button {\n  padding: 10px 20px; /* atas-bawah kiri-kanan */\n  border: 2px solid #2ee6c8;\n  border-radius: 12px;\n  margin: 8px;\n}`, "padding = napas di dalam, margin = jarak di luar"),
         li("padding: 10px → keempat sisi; 10px 20px → vertikal/horizontal.",
@@ -222,20 +246,20 @@ const cssLessons: Lesson[] = [
            "box-sizing: border-box → width mencakup padding & border."),
         tip("Reset penyelamat", "Tulis * { box-sizing: border-box; } di awal stylesheet — perhitungan lebar langsung masuk akal."),
       ]},
-      { kicker: "Pertemuan 10 • Latihan", title: "Jarak Antar Elemen", blocks: [
+      { kicker: "Pertemuan 11 • Latihan", title: "Jarak Antar Elemen", blocks: [
         p("Margin vertikal bertumpuk (collapsing): dua margin 10px bersebelahan hanya menghasilkan 10px, bukan 20px. margin: 16px auto membuat elemen melebar penuh lalu terpusat horizontal."),
         code("css", `body {\n  margin: 0; /* hilangkan jarak bawaan browser */\n}\n.kartu {\n  padding: 20px;\n  margin-bottom: 16px;\n  border-left: 4px solid #45c6ff;\n}`, "margin: 0 pada body adalah ritual awal setiap stylesheet"),
         warn("Lebar total menjengkelkan", "div { width: 100%; padding: 20px } tanpa border-box akan LEBAR dari layar dan memicu scroll horizontal. Itu ulah box model default."),
         quiz("Lapisan mana yang berada PALING LUAR?", ["padding", "border", "margin", "content"], 2, "Urutan dari dalam: content → padding → border → margin."),
       ]},
     ],
-    { intro: "Pertemuan 10 — kartu dengan empat lapisan box model. Perhatikan urutan nilai shorthand padding!",
+    { intro: "Pertemuan 11 — kartu dengan empat lapisan box model. Perhatikan urutan nilai shorthand padding!",
       code: `* {\n  box-sizing: border-box;\n}\nbody {\n  margin: 0;\n  background: #072a3f;\n}\n.kartu {\n  width: 320px;\n  padding: 20px 24px;\n  margin: 16px auto;\n  border: 2px solid #2ee6c8;\n  border-radius: 14px;\n}` }),
 
-  L(11, "CSS", "Layout: Flexbox & Responsif",
-    "Menyusun posisi elemen dengan display:flex dan menyesuaikan layout di HP.",
+  L(12, "CSS", "Layout: Flexbox & Responsif",
+    "Menyusun posisi elemen dengan display:flex, menyesuaikan layout di HP, plus review gabungan dan cicipan DOM sebagai jembatan ke JS.",
     [
-      { kicker: "Pertemuan 11 • Konsep", title: "Flexbox Satu Dimensi", blocks: [
+      { kicker: "Pertemuan 12 • Konsep", title: "Flexbox Satu Dimensi", blocks: [
         p("display: flex mengubah wadah menjadi baris fleksibel: anak-anaknya disejajarkan menurut sumbu utama. justify-content mengatur sepanjang baris, align-items menyilangnya, gap memberi jarak antar anak tanpa margin ribet."),
         code("css", `.bar {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 12px;\n}`, "Navbar klasik: logo kiri, menu kanan, sejajar tengah"),
         li("flex-direction: column → tumpuk vertikal.",
@@ -244,15 +268,25 @@ const cssLessons: Lesson[] = [
            "flex-wrap: wrap → item turun baris bila tak muat."),
         fun("Bayangkan", "Flexbox itu nampan pramusaji: ia menata gelas-gelas (item) di satu baris, mengatur jarak, dan pusat gravitasi."),
       ]},
-      { kicker: "Pertemuan 11 • Latihan", title: "Responsif dengan Media Query", blocks: [
+      { kicker: "Pertemuan 12 • Latihan", title: "Responsif dengan Media Query", blocks: [
         p("Halaman harus enak di HP dan desktop. Dua senjata: meta viewport di HTML, dan @media di CSS — aturan yang aktif hanya bila kondisi terpenuhi (mis. lebar ≤ 600px). Unit relatif (%, rem, vw) membantu menyesuaikan diri."),
         code("html", `<meta name="viewport" content="width=device-width, initial-scale=1" />`),
         code("css", `.sidebar {\n  width: 240px;\n}\n@media (max-width: 600px) {\n  .sidebar {\n    width: 100%;\n  }\n}`, "Di layar kecil, sidebar melebar penuh"),
         warn("Lupa viewport", "Tanpa meta viewport, HP berpura-pura jadi monitor 980px lalu mengecilkan semuanya — teks jadi seupil."),
         quiz("Properti flex mana mengatur jarak ANTAR item?", ["letter-spacing", "gap", "grid-space", "word-gap"], 1, "gap khusus untuk flex/grid; memberi jarak bersih tanpa margin bertumpuk."),
       ]},
+      { kicker: "Pertemuan 12 • Review", title: "Gabungan HTML + CSS", blocks: [
+        p("Sebelum masuk JS, kita latih kombinasi HTML+CSS: halaman dengan class, box model, dan flex sekaligus. Latihan ketik pertemuan ini mencampur kedua bahasa — perhatikan perpindahan blok <style> ke aturan CSS."),
+        code("html", `<style>\n  .btn { background: #2ee6c8; }\n</style>\n<button class="btn">Kirim</button>`, "CSS internal: <style> hidup di <head>"),
+        tip("Tanda kamu siap ke JS", "Kalau kurung kurawal CSS dan titik koma sudah jadi refleks, logika JS tinggal menumpang pada kebiasaan mengetik itu."),
+      ]},
+      { kicker: "Pertemuan 12 • Jembatan", title: "JS Menyentuh DOM", blocks: [
+        p("Cicipan minggu depan: JS bisa memanggil elemen lewat document.querySelector, lalu mengubah teksnya dengan textContent. Perhatikan titik (.) yang menghubungkan objek, sifat, dan metode — sintaks yang sama dipakai di seluruh JS."),
+        code("js", `const judul = document.querySelector("h1");\njudul.textContent = "Diganti oleh JS!";`, "Baris 1 ambil elemennya, baris 2 ubah isinya"),
+        quiz("Symbol apa yang menghubungkan objek dan anggotanya di JS (document.querySelector)?", ["->", "::", ".", "#"], 2, "Dot notation: document.querySelector — titik adalah sambungan kepemilikan di JS."),
+      ]},
     ],
-    { intro: "Pertemuan 11 — navbar flex + media query responsif. Kurung kurawal @media wajib teliti!",
+    { intro: "Pertemuan 12 — navbar flex + media query responsif. Kurung kurawal @media wajib teliti!",
       code: `.bar {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 12px;\n  padding: 12px 20px;\n  background: #0c3350;\n}\n.link {\n  color: #9ad7f5;\n  text-decoration: none;\n}\n@media (max-width: 600px) {\n  .bar {\n    flex-direction: column;\n  }\n}` }),
 ];
 
@@ -345,19 +379,19 @@ const jsLessons: Lesson[] = [
       code: `const tombol = document.querySelector("button");\nconst pesan = document.querySelector("#pesan");\nlet jumlah = 0;\n\ntombol.addEventListener("click", function () {\n  jumlah = jumlah + 1;\n  pesan.textContent = "Tombol diklik " + jumlah + " kali!";\n  console.log("Klik ke-" + jumlah);\n});` }),
 ];
 
-/* ---------- UTS (Pertemuan 7) & UAS (Pertemuan 17*) ---------- */
-const utsLesson = L(7, "UTS", "Panduan UTS: Halaman HTML + CSS",
+/* ---------- UTS (Pertemuan 8) & UAS ---------- */
+const utsLesson = L(8, "UTS", "Panduan UTS: Halaman HTML + CSS",
   "Strategi mengerjakan UTS: lingkup, format, dan checklist pengerjaan.",
   [
-    { kicker: "Pertemuan 7 • UTS", title: "Apa yang Diujikan", blocks: [
-      p("UTS digelar pada pertemuan ke-7, menguji tahap HTML (pertemuan 1-6) dan awal CSS. Format: praktik membangun satu halaman berisi kerangka, teks & daftar, gambar & link, formulir, lalu dihias gaya CSS dasar."),
+    { kicker: "Pertemuan 8 • UTS", title: "Apa yang Diujikan", blocks: [
+      p("UTS digelar pada pertemuan ke-8, menguji tahap HTML (pertemuan 1-7) dan awal CSS. Format: praktik membangun satu halaman berisi kerangka, teks & daftar, gambar & link, formulir, lalu dihias gaya CSS dasar."),
       li("Bobot terbesar: struktur semantik + formulir ber-label.",
          "Soal konsep: pilihan ganda singkat (tag, atribut, head vs body).",
          "Dokumen dinilai rapi: indentasi konsisten, tag tertutup, alt terisi.",
          "Alokasi: 10 menit soal konsep, 40 menit praktik halaman."),
       warn("Kesalahan fatal ujian", "Melupakan </body></html> atau lupa MENYIMPAN berkas sebelum dikumpulkan. Cek dua-duanya sebelum angkat tangan."),
     ]},
-    { kicker: "Pertemuan 7 • Strategi", title: "Checklist Sebelum Submit", blocks: [
+    { kicker: "Pertemuan 8 • Strategi", title: "Checklist Sebelum Submit", blocks: [
       li("Ada <!DOCTYPE html>, <html lang>, <meta charset>, <title>?",
          "Satu <h1>, heading bertingkat tanpa lompat?",
          "Semua <img> punya alt, semua <a> punya href valid?",
@@ -366,14 +400,14 @@ const utsLesson = L(7, "UTS", "Panduan UTS: Halaman HTML + CSS",
       tip("Validasi cepat", "Reload halaman, buka DevTools (F12) → Console. Tidak ada error = poin aman, baru poles tampilan."),
     ]},
   ],
-    { intro: "Pertemuan 7 — gladi UTS: halaman HTML + CSS dalam satu berkas. Cek pasangan tag, alt, label, dan titik koma CSS.",
+    { intro: "Pertemuan 8 — gladi UTS: halaman HTML + CSS dalam satu berkas. Cek pasangan tag, alt, label, dan titik koma CSS.",
       code: `<!DOCTYPE html>\n<html lang="id">\n  <head>\n    <meta charset="UTF-8" />\n    <title>Halaman UTS</title>\n    <style>\n      body {\n        margin: 0;\n        background: #072a3f;\n        color: #eaf6ff;\n        font-family: sans-serif;\n      }\n      h1 {\n        color: #ffc247;\n      }\n      .kartu {\n        padding: 16px;\n        border: 2px solid #2ee6c8;\n        border-radius: 12px;\n      }\n    </style>\n  </head>\n  <body>\n    <header>\n      <h1>Profil Raka</h1>\n    </header>\n    <main>\n      <section class="kartu">\n        <h2>Tentang Saya</h2>\n        <p>Siswa yang suka <strong>laut</strong> dan kode.</p>\n        <img src="foto.jpg" alt="Foto Raka" width="160" />\n      </section>\n      <form>\n        <label for="nama">Nama:</label>\n        <input id="nama" type="text" required />\n        <button type="submit">Kirim</button>\n      </form>\n    </main>\n    <footer>&copy; 2026 Raka</footer>\n  </body>\n</html>` });
 
 const uasLesson = L(17, "UAS", "Panduan UAS: Aplikasi Mini Interaktif",
   "Strategi UAS: aplikasi HTML+CSS+JS satu berkas dengan logika dan event.",
   [
     { kicker: "UAS • Lingkup", title: "Lingkup & Format", blocks: [
-      p("UAS menguji seluruh rangkaian: HTML (P1–6), CSS (P8–11), JS (P13–16). Soal berupa satu aplikasi mini — misalnya konverter nilai, daftar tugas, atau kuis sederhana — yang wajib punya input formulir, tampilan bergaya CSS, dan logika JS (variabel, percabangan, fungsi, event klik)."),
+      p("UAS menguji seluruh rangkaian: HTML (P1–7), CSS (P9–12), JS (P13–15). Soal berupa satu aplikasi mini — misalnya konverter nilai, daftar tugas, atau kuis sederhana — yang wajib punya input formulir, tampilan bergaya CSS, dan logika JS (variabel, percabangan, fungsi, event klik)."),
       li("Struktur: skeleton semantik + form + area hasil.",
          "Gaya: minimal class-based styling, layout flex, warna kontras.",
          "Logika: querySelector + addEventListener + if/loop/fungsi.",
@@ -392,7 +426,7 @@ const uasLesson = L(17, "UAS", "Panduan UAS: Aplikasi Mini Interaktif",
   ]);
 
 /* P16 = DOM/event (JS) + panduan UAS digabung, agar silabus tepat 16 pertemuan (16 minggu):
-   HTML 1-6 · UTS 7 · CSS 8-11 · Jembatan 12 · JS 13-15 · DOM & UAS 16. */
+   HTML 1-5 · Mini project 6-7 · UTS 8 · CSS 9-12 (P12 plus jembatan) · JS 13-15 · DOM & UAS 16. */
 const domLesson = jsLessons[3];
 const uasMerged: Lesson = {
   ...domLesson,
@@ -405,23 +439,6 @@ const uasMerged: Lesson = {
 /** 16 pertemuan (no berurutan 1-16). */
 export const CURRICULUM: Lesson[] = [
   ...htmlLessons, utsLesson, ...cssLessons,
-  /* P12 = pertemuan review/konsolidasi CSS→JS */
-  L(12, "JS", "Jembatan: Menyuntik Logika ke Halaman",
-    "Review CSS melalui latihan ketik gabungan, lalu kenalan dengan cara JS menyentuh halaman.",
-    [
-      { kicker: "Pertemuan 12 • Review", title: "Gabungan HTML + CSS", blocks: [
-        p("Sebelum masuk JS, kita latih kombinasi HTML+CSS: halaman dengan class, box model, dan flex sekaligus. Latihan ketik pertemuan ini mencampur kedua bahasa — perhatikan perpindahan blok <style> ke aturan CSS."),
-        code("html", `<style>\n  .btn { background: #2ee6c8; }\n</style>\n<button class="btn">Kirim</button>`, "CSS internal: <style> hidup di <head>"),
-        tip("Tanda kamu siap ke JS", "Kalau kurung kurawal CSS dan titik koma sudah jadi refleks, logika JS tinggal menumpang pada kebiasaan mengetik itu."),
-      ]},
-      { kicker: "Pertemuan 12 • Introspeksi", title: "JS Menyentuh DOM", blocks: [
-        p("Cicipan minggu depan: JS bisa memanggil elemen lewat document.querySelector, lalu mengubah teksnya dengan textContent. Perhatikan titik (.) yang menghubungkan objek, sifat, dan metode — sintaks yang sama dipakai di seluruh JS."),
-        code("js", `const judul = document.querySelector("h1");\njudul.textContent = "Diganti oleh JS!";`, "Baris 1 ambil elemennya, baris 2 ubah isinya"),
-        quiz("Symbol apa yang menghubungkan objek dan anggotanya di JS (document.querySelector)?", ["->", "::", ".", "#"], 2, "Dot notation: document.querySelector — titik adalah sambungan kepemilikan di JS."),
-      ]},
-    ],
-    { intro: "Pertemuan 12 — review gabungan: HTML + CSS internal dalam satu latihan ketik.",
-      code: `<!DOCTYPE html>\n<html lang="id">\n  <head>\n    <style>\n      body {\n        background: #072a3f;\n        color: #eaf6ff;\n      }\n      .btn {\n        padding: 10px 20px;\n        border-radius: 10px;\n      }\n    </style>\n  </head>\n  <body>\n    <h1>Review Gabungan</h1>\n    <button class="btn">Kirim</button>\n  </body>\n</html>` }),
   ...jsLessons.slice(0, 3), uasMerged,
 ];
 

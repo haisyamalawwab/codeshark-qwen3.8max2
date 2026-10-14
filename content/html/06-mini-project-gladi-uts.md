@@ -1,6 +1,6 @@
 # Pertemuan 6 — Mini Project & Gladi UTS HTML
 
-> **Tahap:** HTML (Pertemuan 6 dari 6) · **Fase latihan:** gladi ketik proyek utuh sebagai bekal UTS (Pertemuan 7).
+> **Tahap:** HTML (Pertemuan 6 dari 7) · **Fase latihan:** gladi ketik proyek utuh sebagai bekal UTS (Pertemuan 8).
 
 ## Menyatukan Semuanya
 
@@ -32,6 +32,6 @@ Latihan ketik pertemuan ini adalah halaman profil gabungan — semua tag yang pe
 
 > 💡 **Simbol paling sering salah.** Kurung sudut `< >` biasanya di dekat tombol M/N (layout US). Kutip ganda `"` = Shift + `'`. Latih otot jarimu sampai refleks.
 
-> 🦈 **Ujian terdekat.** UTS pertemuan 7 menguji tahap HTML (pertemuan 1–6). Kerjakan mini project ini sampai lancar, sisanya tinggal percaya diri.
+> 🦈 **Ujian terdekat.** UTS pertemuan 8 menguji tahap HTML (pertemuan 1–7). Kerjakan mini project ini sampai lancar, sisanya tinggal percaya diri.
 
 **Cek paham:** apa urutan pola kerja yang benar? Skeleton semantik → isi konten → rapikan & validasi — bukan menghias duluan.

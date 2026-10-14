@@ -46,11 +46,10 @@ const THREAT_MUL: Record<Exclude<SessionKind, "misi">, number> = {
   juggle: 1.3,
 };
 
-/** bahasa tampilan tiap pertemuan (P12 = latihan HTML+CSS gabungan) */
+/** bahasa tampilan tiap pertemuan (P8 UTS = latihan HTML+CSS, lang html; P12 = flexbox CSS) */
 export const LESSON_LANG: Record<number, Lang> = {
-  1: "html", 2: "html", 3: "html", 4: "html", 5: "html", 6: "html", 7: "html",
-  8: "css", 9: "css", 10: "css", 11: "css",
-  12: "html",
+  1: "html", 2: "html", 3: "html", 4: "html", 5: "html", 6: "html", 7: "html", 8: "html",
+  9: "css", 10: "css", 11: "css", 12: "css",
   13: "js", 14: "js", 15: "js", 16: "js",
 };
 
@@ -124,6 +123,17 @@ export const DRILLS: Record<number, string[]> = {
     '<input id="nama" type="text" placeholder="Nama" />',
   ],
   7: [
+    "<nav>",
+    '<a href="index.html">Beranda</a>',
+    '<a href="#kontak">Kontak</a>',
+    "</nav>",
+    '<section id="kontak">',
+    "<h2>Hubungi Saya</h2>",
+    '<label for="email">Email:</label>',
+    '<input id="email" type="email" required />',
+    "<footer>&copy; 2026 Raka</footer>",
+  ],
+  8: [
     "<!DOCTYPE html>",
     '<html lang="id">',
     "<head>",
@@ -136,7 +146,7 @@ export const DRILLS: Record<number, string[]> = {
     "</body>",
     "</html>",
   ],
-  8: [
+  9: [
     "body {",
     "color: #eaf6ff;",
     "}",
@@ -150,7 +160,7 @@ export const DRILLS: Record<number, string[]> = {
     "border-radius: 10px;",
     "}",
   ],
-  9: [
+  10: [
     ".kartu {",
     "background: #0c3350;",
     "padding: 16px;",
@@ -166,7 +176,7 @@ export const DRILLS: Record<number, string[]> = {
     "font-weight: 700;",
     "}",
   ],
-  10: [
+  11: [
     "* {",
     "box-sizing: border-box;",
     "}",
@@ -180,7 +190,7 @@ export const DRILLS: Record<number, string[]> = {
     "border-radius: 14px;",
     "}",
   ],
-  11: [
+  12: [
     ".bar {",
     "display: flex;",
     "justify-content: space-between;",
@@ -192,14 +202,6 @@ export const DRILLS: Record<number, string[]> = {
     "flex-direction: column;",
     "}",
     "}",
-  ],
-  12: [
-    "<style>",
-    ".btn { background: #2ee6c8; }",
-    "</style>",
-    '<button class="btn">Kirim</button>',
-    '<h1 class="judul">Review</h1>',
-    '<p class="catatan">Gabungan HTML + CSS</p>',
   ],
   13: [
     'const nama = "Raka";',
@@ -257,12 +259,12 @@ export const TUGAS_PERTEMUAN: Record<number, { quest: string; tugas: string }> =
   4: { quest: "Blog + gambar + link", tugas: "Dua halaman dengan nav, alt wajib, anchor" },
   5: { quest: "Formulir daftar", tugas: "Form dengan label, radio, checkbox, select, textarea" },
   6: { quest: "Profil utuh", tugas: "Halaman gabungan P1–P5, lolos checklist pra-UTS" },
-  7: { quest: "Halaman HTML + CSS", tugas: "Ujian praktik 40 menit dengan gaya.css eksternal" },
-  8: { quest: "Gaya dasar", tugas: "gaya.css dengan selector elemen, tanpa inline style" },
-  9: { quest: "Kartu dengan class/id", tugas: "Tiga class, satu id, HEX, rem" },
-  10: { quest: "Kartu berpadding", tugas: "box-sizing, margin: auto, border" },
-  11: { quest: "Navbar flex", tugas: "Flex + @media, menumpuk di layar 375px" },
-  12: { quest: "HTML + CSS gabungan", tugas: "Halaman dengan <style>, class, tombol" },
+  7: { quest: "Demo profil & review", tugas: "Demo 5 menit + review sejawat, siap UTS" },
+  8: { quest: "Halaman HTML + CSS", tugas: "Ujian praktik 40 menit dengan gaya.css eksternal" },
+  9: { quest: "Gaya dasar", tugas: "gaya.css dengan selector elemen, tanpa inline style" },
+  10: { quest: "Kartu dengan class/id", tugas: "Tiga class, satu id, HEX, rem" },
+  11: { quest: "Kartu berpadding", tugas: "box-sizing, margin: auto, border" },
+  12: { quest: "Navbar flex", tugas: "Flex + @media, menumpuk di layar 375px" },
   13: { quest: "Operator & variabel", tugas: "const/let, typeof, console.log" },
   14: { quest: "if/else, &&, ternary", tugas: "cekNilai(n) dengan minimal 3 kasus uji" },
   15: { quest: "for, while, function", tugas: "Angka 1–10, rata-rata, fungsi dipanggil 3×" },
