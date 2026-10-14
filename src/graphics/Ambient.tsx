@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { BackgroundShark } from "../characters";
 import { startSeaEngine } from "./seaEngine";
+import { isLowEnd } from "../lib/perf";
 import seaFar from "./assets/sea-far.svg";
 import seaMid from "./assets/sea-mid.svg";
 import seaNear from "./assets/sea-near.svg";
@@ -17,18 +18,17 @@ interface BubbleSpec {
 
 /* Komponen presentasional latar laut. Logika animasi ada di ./seaEngine. */
 export default function Ambient({ fish = false }: { fish?: boolean }) {
-  const bubbles = useMemo<BubbleSpec[]>(
-    () =>
-      Array.from({ length: 18 }, () => ({
-        left: Math.random() * 100,
-        size: 5 + Math.random() * 22,
-        dur: 10 + Math.random() * 16,
-        delay: Math.random() * 14,
-        o: 0.18 + Math.random() * 0.4,
-        dx: -30 + Math.random() * 60,
-      })),
-    []
-  );
+  const bubbles = useMemo<BubbleSpec[]>(() => {
+    const n = isLowEnd() ? 8 : 18;
+    return Array.from({ length: n }, () => ({
+      left: Math.random() * 100,
+      size: 5 + Math.random() * 22,
+      dur: 10 + Math.random() * 16,
+      delay: Math.random() * 14,
+      o: 0.18 + Math.random() * 0.4,
+      dx: -30 + Math.random() * 60,
+    }));
+  }, []);
 
   const farRef = useRef<HTMLDivElement>(null);
   const midRef = useRef<HTMLDivElement>(null);
