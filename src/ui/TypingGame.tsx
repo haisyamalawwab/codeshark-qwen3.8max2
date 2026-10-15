@@ -64,6 +64,14 @@ const SPEED_BONUS_WPM = 40;
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
+/* emblem markas per jenis sesi — sel atlas hud-atlas-cs (lihat shark-hud-atlas.css) */
+const EMBLEM: Record<string, { cell: AtlasName; label: string }> = {
+  misi: { cell: "dome-gold", label: "Kubah emas" },
+  quest: { cell: "dome-neon", label: "Kubah neon" },
+  drill: { cell: "dev-turret", label: "Turet latihan" },
+  juggle: { cell: "station", label: "Stasiun final" },
+};
+
 export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
   const lines = useMemo(() => tokenize(mod.code, mod.lang), [mod]);
   const threatRate = cfg.threatRate * mod.threatMul;
@@ -310,6 +318,9 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
   const upcoming = lines.slice(g.lineIdx + 1, g.lineIdx + 3);
   const progress = ((g.lineIdx + (activeLine.length ? g.charIdx / activeLine.length : 0)) / lines.length) * 100;
   const threatColor = g.threat > 78 ? "var(--coral)" : g.threat > 45 ? "var(--amber)" : "var(--teal)";
+  const emblem = EMBLEM[mod.kind] ?? EMBLEM.quest;
+  /* hiu bar ancaman bereaksi: jelajah → memburu → menyerang */
+  const threatShark: AtlasName = g.threat > 78 ? "shark-front" : g.threat > 45 ? "shark-c" : "shark-a";
   const hintChars = activeLine.slice(g.charIdx, g.charIdx + 3);
   const totalKeys = g.correct + g.errors;
   const liveAcc = totalKeys > 0 ? Math.round((g.correct / totalKeys) * 100) : 100;
@@ -327,6 +338,8 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
           <button className="btn btn-ghost !px-3 !py-2" onClick={onExit} aria-label="Keluar">
             <IconX size={16} />
           </button>
+          <AtlasSprite name={emblem.cell} label={emblem.label} width={40} eager
+            style={{ filter: "drop-shadow(0 0 10px rgba(46,230,200,0.35))" }} />
           <div className="leading-tight mr-auto">
             <p className="text-[10px] font-extrabold tracking-[0.2em] uppercase" style={{ color: mod.color }}>
               {mod.tag}
@@ -360,6 +373,9 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
         </div>
         {/* bar ancaman */}
         <div className="max-w-5xl mx-auto px-4 pb-2.5 flex items-center gap-3">
+          <AtlasSprite name={threatShark} width={52} className="shrink-0"
+            label={g.threat > 78 ? "Hiu menyerang" : "Hiu mendekat"}
+            style={g.threat > 78 ? { filter: "drop-shadow(0 0 12px rgba(255,107,87,0.7))" } : undefined} />
           <span className="text-[10px] font-extrabold tracking-[0.18em] uppercase text-[var(--dim)] whitespace-nowrap">Ancaman Hiu</span>
           <div className="flex-1 h-2.5 rounded-full bg-[rgba(6,24,41,0.9)] border border-[var(--line-soft)] overflow-hidden">
             <div className="h-full rounded-full transition-[width] duration-150" style={{ width: `${g.threat}%`, background: `linear-gradient(90deg, var(--teal), ${threatColor})` }} />
@@ -449,6 +465,12 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
             <Diver />
             <span className="text-[9px] font-extrabold tracking-[0.2em] uppercase text-[var(--faint)]">Pangkalan</span>
           </div>
+          {/* terumbu + batu dari atlas (hiasan, 1 request untuk semua) */}
+          <AtlasSprite name="coral-clu" width={54} className="absolute bottom-1 left-28 md:left-36" />
+          <AtlasSprite name="rock-a" width={72} className="absolute bottom-0 left-0 opacity-90" />
+          <AtlasSprite name="rock-b" width={84} className="absolute bottom-0 right-0 opacity-90" />
+          <AtlasSprite name="crystal" width={40} className="absolute bottom-1 right-24 md:right-32 atlas-float" />
+          <AtlasSprite name="bubbles" width={44} className="absolute top-1 right-1/3 atlas-float" />
           {/* hiu */}
           <div
             className="absolute bottom-1 transition-[left] duration-300 ease-out"
@@ -474,6 +496,8 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
       {(g.status === "count" || showGo) && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[rgba(2,9,17,0.72)] backdrop-blur-sm">
           <div className="text-center">
+            <AtlasSprite name="dome-gold" label="Kubah emas" width={132} eager
+              className="mx-auto mb-2" style={{ filter: "drop-shadow(0 0 26px rgba(255,194,71,0.5))" }} />
             <p className="text-sm font-extrabold tracking-[0.3em] uppercase text-[var(--dim)] mb-3">Misi Ketik Dimulai</p>
             <div key={showGo ? "go" : count} className={`font-display font-extrabold ${showGo ? "text-6xl md:text-7xl text-[var(--teal)]" : "text-8xl md:text-9xl"} count-pop`} style={{ color: showGo ? undefined : cfg.accent }}>
               {showGo ? "MULAI!" : count}
@@ -502,7 +526,8 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
       {g.status === "dead" && (
         <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(20,5,8,0.8)] backdrop-blur-sm screen-in">
           <div className="panel w-full max-w-md p-7 text-center anim-pop !border-[rgba(255,107,87,0.45)]">
-            <div className="w-20 mx-auto opacity-90 grayscale-[0.3]"><SharkMascot className="w-full" /></div>
+            <AtlasSprite name="shark-front" label="Hiu menyerang" width={148} eager
+              className="mx-auto" style={{ filter: "drop-shadow(0 0 22px rgba(255,107,87,0.65))" }} />
             <h2 className="font-display font-extrabold text-3xl mt-3 text-[var(--coral)]">HIU MENYERANG!</h2>
             <p className="text-sm text-[var(--dim)] mt-2">
               Nyawamu habis di baris {Math.min(g.lineIdx + 1, lines.length)}. Kesalahan membuat ancaman hiu naik — jaga ritme ketikanmu!
@@ -524,6 +549,7 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
         <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-[rgba(2,9,17,0.78)] backdrop-blur-sm">
           <div className="text-center anim-pop">
             <div className="w-32 mx-auto anim-bob"><SharkMascot className="w-full" /></div>
+            <AtlasSprite name="bubbles" width={56} className="mx-auto -mt-2 atlas-float" />
             <h2 className="font-display font-extrabold text-4xl md:text-5xl mt-4 text-[var(--teal)]" style={{ textShadow: "0 6px 30px rgba(46,230,200,0.4)" }}>
               MISI SELESAI!
             </h2>
