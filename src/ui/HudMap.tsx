@@ -134,6 +134,10 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
                 <span className="t1">MISI 02 · UTS</span>
                 <span className="t2">{lessonTitle(8)}</span>
                 <span className="t3">Seni Gaya Web</span>
+                <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
+                  <span className="spr-iso spr-iso-dome-neon building" style={{ width: 72 }} role="img" aria-label="Kubah neon UTS pertemuan 8" />
+                  <span className="spr-iso spr-iso-badge-8 badge" style={{ width: 40 }} role="img" aria-label="Badge 8 UTS terkunci" />
+                </span>
               </figcaption>
             </figure>
 
@@ -148,8 +152,15 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
                 </picture>
               </span>
               <figcaption>
-                <span className="hudmap-tag">🔒 UAS 03 · JAVASCRIPT</span>
+                <span className="hudmap-tag hudmap-iso-row" style={{ display: "inline-flex" }}>
+                  <span className="spr-iso spr-iso-lock lock-chip" aria-hidden="true" />
+                  UAS 03 · JAVASCRIPT
+                </span>
                 <span className="t3">{lessonTitle(16)}</span>
+                <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
+                  <span className="spr-iso spr-iso-station building" style={{ width: 84 }} role="img" aria-label="Stasiun teknologi UAS pertemuan 16" />
+                  <span className="spr-iso spr-iso-badge-16 badge" style={{ width: 40 }} role="img" aria-label="Badge 16 UAS terkunci" />
+                </span>
               </figcaption>
             </figure>
 
@@ -178,7 +189,7 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
                   }
                   title={open ? `${lessonTitle(n.no)} (${["Belum", "Perunggu", "Perak", "Emas"][lvl]})` : "Selesaikan pertemuan sebelumnya hingga Perak"}
                 >
-                  {state === "lock" ? <span className="lock">🔒</span> : n.no}
+                  {state === "lock" ? <span className="spr spr-lock sm" aria-label="Terkunci" /> : n.no}
                 </button>
               );
             })}
