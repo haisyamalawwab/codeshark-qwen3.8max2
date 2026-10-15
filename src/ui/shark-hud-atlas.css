@@ -1,0 +1,71 @@
+/* ============ ATLAS SPRITE CodeShark (hud-atlas-cs) ============
+   Sumber: Gemini_Generated_Image_ex0gc8ex0gc8ex0g.jpg_20261014204302.png
+   (1176×521, transparan) → teroptimasi jadi hud-atlas-cs.png (127 KB) +
+   hud-atlas-cs.webp. Satu file melayani SEMUA potongan (1 request HTTP).
+
+   Teknik image-matrix: tiap sel didefinisikan sebagai kotak fraksional
+   (--fx --fy --fw --fh, diukur dari master 1176×521 via connected-components).
+   <AtlasSprite> me-render <span class="atlas <nama>"> + satu <img> yang sama;
+   browser meng-cache URL sehingga N pemakaian = 1 unduhan.
+
+   PETA SEL (x, y, w, h piksel master):
+   dome-gold     34,  10, 304, 220   kubah emas (emblem misi)
+   dome-neon    406,  26, 340, 260   kubah neon (emblem quest/drill)
+   station      806,  10, 344, 272   stasiun UAS (emblem juggling/final)
+   shark-a        6, 302, 184,  92   hiu jelajah (ancaman rendah)
+   shark-b      182, 302, 184,  88   hiu samping (ancaman sedang)
+   shark-c       22, 386, 176,  96   hiu memburu (ancaman tinggi)
+   shark-front  234, 386, 104, 100   hiu tampak depan (serangan/game-over)
+   coral-a      414, 298,  84, 100   karang ungu (hiasan arena)
+   crystal      626, 294, 128, 120   kristal (hiasan arena)
+   coral-clu    502, 326, 120, 164   gugus karang (dekat pangkalan)
+   rock-a       810, 306, 120, 104   batu kiri (lantai arena)
+   rock-b       930, 318, 132,  80   batu kanan (lantai arena)
+   dev-turret   918, 394,  72,  88   turet (hiasan / ikon drill)
+   dev-pad      998, 422,  68,  52   landasan (hiasan)
+   bubbles     1078, 362,  88,  84   gelembung (efek apung) */
+
+.atlas {
+  --fx: 0; --fy: 0; --fw: 1; --fh: 1;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: calc(var(--fw) * 1176) / calc(var(--fh) * 521);
+}
+.atlas > picture { display: contents; }
+.atlas img {
+  position: absolute;
+  width: calc(100% / var(--fw));
+  max-width: none;
+  height: auto;
+  left: calc(-1 * var(--fx) / var(--fw) * 100%);
+  top: calc(-1 * var(--fy) / var(--fh) * 100%);
+}
+
+/* sel-sel terpakai (fraksi = piksel / 1176 atau / 521) */
+.atlas-dome-gold  { --fx: 0.0289; --fy: 0.0192; --fw: 0.2585; --fh: 0.4223; }
+.atlas-dome-neon  { --fx: 0.3452; --fy: 0.0499; --fw: 0.2891; --fh: 0.4990; }
+.atlas-station    { --fx: 0.6854; --fy: 0.0192; --fw: 0.2925; --fh: 0.5221; }
+.atlas-shark-a    { --fx: 0.0051; --fy: 0.5797; --fw: 0.1565; --fh: 0.1766; }
+.atlas-shark-b    { --fx: 0.1548; --fy: 0.5797; --fw: 0.1565; --fh: 0.1689; }
+.atlas-shark-c    { --fx: 0.0187; --fy: 0.7409; --fw: 0.1497; --fh: 0.1843; }
+.atlas-shark-front { --fx: 0.1990; --fy: 0.7409; --fw: 0.0884; --fh: 0.1919; }
+.atlas-coral-a    { --fx: 0.3520; --fy: 0.5718; --fw: 0.0714; --fh: 0.1919; }
+.atlas-crystal    { --fx: 0.5323; --fy: 0.5643; --fw: 0.1088; --fh: 0.2303; }
+.atlas-coral-clu  { --fx: 0.4269; --fy: 0.6257; --fw: 0.1020; --fh: 0.3148; }
+.atlas-rock-a     { --fx: 0.6888; --fy: 0.5873; --fw: 0.1020; --fh: 0.1996; }
+.atlas-rock-b     { --fx: 0.7908; --fy: 0.6104; --fw: 0.1122; --fh: 0.1536; }
+.atlas-dev-turret { --fx: 0.7806; --fy: 0.7562; --fw: 0.0612; --fh: 0.1689; }
+.atlas-dev-pad    { --fx: 0.8486; --fy: 0.8098; --fw: 0.0578; --fh: 0.0998; }
+.atlas-bubbles    { --fx: 0.9167; --fy: 0.6948; --fw: 0.0748; --fh: 0.1612; }
+
+/* apung halus untuk hiasan arena */
+@keyframes atlas-drift {
+  from { transform: translateY(3px); }
+  to { transform: translateY(-4px); }
+}
+.atlas-float { animation: atlas-drift 4s ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-float { animation: none; }
+}

@@ -200,16 +200,24 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
       {/* pilih sub-game ala konsep: tombol oranye vs sian */}
       <div className="hudmap-arena">
         <div className="hudmap-card shark">
-          <h3>CodeShark</h3>
+          <h3 className="hudmap-iso-row">
+            <span className="spr-iso spr-iso-logo logo-chip" role="img" aria-label="Logo Codeshark Academy" />
+            CodeShark
+          </h3>
           <span className="hint">Ada petunjuk &amp; undo</span>
+          <span className="spr-iso spr-iso-btn-shark btn-art" style={{ marginTop: 10 }} role="img" aria-label="Tombol Main Shark Typer dari sprite" />
           <button type="button" className="go" onClick={onPlayShark}>
             {subGame === "shark" ? "▶ Main Shark Typer" : "Main Shark Typer"}
           </button>
           <small>Keyboard fisik</small>
         </div>
         <div className="hudmap-card tower">
-          <h3>Coding Tower</h3>
+          <h3 className="hudmap-iso-row">
+            <span className="spr-iso spr-iso-badge-12 badge" style={{ width: 34 }} role="img" aria-label="Badge pertemuan 12" />
+            Coding Tower
+          </h3>
           <span className="hint">Tanpa mengetik simbol</span>
+          <span className="spr-iso spr-iso-btn-tower btn-art" style={{ marginTop: 10 }} role="img" aria-label="Tombol Main Tower dari sprite" />
           <button type="button" className="go" onClick={onPlayTower}>
             {subGame === "tower" ? "▶ Main Tower" : "Main Tower"}
           </button>
@@ -219,7 +227,9 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
 
       <p className="hudmap-ref">
         Visual mengikuti referensi <em>Gemini_Generated_Image_ex0gc8…92314</em> ·
-        sheet <code>hud-sprite-*</code> (matrix 4×3 / 3×3, PNG + WebP) · cutout CHECKPOINT &amp; UAS teroptimasi.
+        sheet kanonik <code>hud-sprite-isolated</code> 4×3 (dari{" "}
+        <code>buat_white_isolated_background_sprite_20261014205159.png</code> 1376×768, PNG + WebP) ·
+        alias <code>hud-sprite-icons</code> diperbarui · cutout CHECKPOINT &amp; UAS teroptimasi.
       </p>
     </section>
   );
