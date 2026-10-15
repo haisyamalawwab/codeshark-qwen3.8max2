@@ -205,7 +205,8 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
           <h3 className="hudmap-iso-row">
             <span className="spr-iso spr-iso-logo logo-chip" role="img" aria-label="Logo Codeshark Academy" />
             CodeShark
-          </h3>          <span className="hint">Ada petunjuk &amp; undo</span>
+          </h3>
+          <span className="hint">Ada petunjuk &amp; undo</span>
           <span className="spr-iso spr-iso-btn-shark btn-art" style={{ marginTop: 10 }} role="img" aria-label="Tombol Main Shark Typer dari sprite" />
           <button type="button" className="go" onClick={onPlayShark}>
             {subGame === "shark" ? "▶ Main Shark Typer" : "Main Shark Typer"}
@@ -214,7 +215,7 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
         </div>
         <div className="hudmap-card tower">
           <h3 className="hudmap-iso-row">
-            <span className="spr-iso spr-iso-badge-12 badge" style={{ width: 34 }} role="img" aria-label="Badge pertemuan 12" />
+            <span className="spr-iso spr-iso-badge-12 badge" style={{ width: 46 }} role="img" aria-label="Badge pertemuan 12" />
             Coding Tower
           </h3>
           <span className="hint">Tanpa mengetik simbol</span>
