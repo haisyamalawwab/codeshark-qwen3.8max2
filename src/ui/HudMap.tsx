@@ -107,14 +107,18 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
               })}
             </svg>
 
-            {/* bangunan checkpoint — cutout tunggal teroptimasi */}
+            {/* bangunan checkpoint — sprite isolated 4×3 (kanonik) */}
             <figure className="hudmap-base hudmap-base-m1">
-              {/* sel A1 image-matrix hud-sprite-main: kubah emas */}
-              <span className="spr spr-dome-gold" role="img" aria-label="Kubah emas misi 1" />
+              {/* sel A1 sheet isolated: kubah emas */}
+              <span className="spr-iso spr-iso-dome-gold building" role="img" aria-label="Kubah emas misi 1" />
               <figcaption>
                 <span className="t1">MISI 01</span>
                 <span className="t2">{lessonTitle(1)}</span>
                 <span className="t3">Misi Abjad</span>
+                <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
+                  <span className="spr-iso spr-iso-badge-1 badge" style={{ width: 34 }} role="img" aria-label="Badge pertemuan 1" />
+                  <span className="spr-iso spr-iso-shark" style={{ width: 52, aspectRatio: "2.4 / 1" }} aria-hidden="true" />
+                </span>
               </figcaption>
             </figure>
 
