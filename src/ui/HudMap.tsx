@@ -1,6 +1,8 @@
 /* Peta Misi HUD ala konsep Gemini — Codeshark Academy.
    Aset: cutout tunggal via <picture> (webp + png, lazy, anti-CLS) +
-   properti kecil via image-matrix sprite (hud-map.css: .spr-*).
+   properti kecil via image-matrix sprite isolated 4×3 (hud-map.css: .spr-iso-*,
+   kanonik dari buat_white_isolated_background_sprite_20261014205159.png) +
+   legacy .spr-* (kini menunjuk sheet isolated 1376×768).
    Data live: stat dari save, node 1–16 dari lib/progress (bukan hard-code). */
 import type { SaveData } from "../lib/storage";
 import { meetingLevel, meetingUnlocked } from "../lib/progress";
@@ -116,8 +118,8 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
                 <span className="t2">{lessonTitle(1)}</span>
                 <span className="t3">Misi Abjad</span>
                 <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
-                  <span className="spr-iso spr-iso-badge-1 badge" style={{ width: 34 }} role="img" aria-label="Badge pertemuan 1" />
-                  <span className="spr-iso spr-iso-shark" style={{ width: 52, aspectRatio: "2.4 / 1" }} aria-hidden="true" />
+                  <span className="spr-iso spr-iso-badge-1 badge" style={{ width: 46 }} role="img" aria-label="Badge pertemuan 1" />
+                  <span className="spr-iso spr-iso-shark" style={{ width: 70, aspectRatio: "4 / 3" }} aria-hidden="true" />
                 </span>
               </figcaption>
             </figure>
@@ -135,8 +137,8 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
                 <span className="t2">{lessonTitle(8)}</span>
                 <span className="t3">Seni Gaya Web</span>
                 <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
-                  <span className="spr-iso spr-iso-dome-neon building" style={{ width: 72 }} role="img" aria-label="Kubah neon UTS pertemuan 8" />
-                  <span className="spr-iso spr-iso-badge-8 badge" style={{ width: 40 }} role="img" aria-label="Badge 8 UTS terkunci" />
+                  <span className="spr-iso spr-iso-dome-neon building" style={{ width: 96 }} role="img" aria-label="Kubah neon UTS pertemuan 8" />
+                  <span className="spr-iso spr-iso-badge-8 badge" style={{ width: 54 }} role="img" aria-label="Badge 8 UTS terkunci" />
                 </span>
               </figcaption>
             </figure>
@@ -158,8 +160,8 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
                 </span>
                 <span className="t3">{lessonTitle(16)}</span>
                 <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
-                  <span className="spr-iso spr-iso-station building" style={{ width: 84 }} role="img" aria-label="Stasiun teknologi UAS pertemuan 16" />
-                  <span className="spr-iso spr-iso-badge-16 badge" style={{ width: 40 }} role="img" aria-label="Badge 16 UAS terkunci" />
+                  <span className="spr-iso spr-iso-station building" style={{ width: 112 }} role="img" aria-label="Stasiun teknologi UAS pertemuan 16" />
+                  <span className="spr-iso spr-iso-badge-16 badge" style={{ width: 54 }} role="img" aria-label="Badge 16 UAS terkunci" />
                 </span>
               </figcaption>
             </figure>
@@ -203,8 +205,7 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
           <h3 className="hudmap-iso-row">
             <span className="spr-iso spr-iso-logo logo-chip" role="img" aria-label="Logo Codeshark Academy" />
             CodeShark
-          </h3>
-          <span className="hint">Ada petunjuk &amp; undo</span>
+          </h3>          <span className="hint">Ada petunjuk &amp; undo</span>
           <span className="spr-iso spr-iso-btn-shark btn-art" style={{ marginTop: 10 }} role="img" aria-label="Tombol Main Shark Typer dari sprite" />
           <button type="button" className="go" onClick={onPlayShark}>
             {subGame === "shark" ? "▶ Main Shark Typer" : "Main Shark Typer"}

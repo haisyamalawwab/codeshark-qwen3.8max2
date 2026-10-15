@@ -9,6 +9,8 @@ import {
   IconX, IconHeart, IconBolt, IconTimer, IconPause, IconPlay, IconRetry, IconMap, IconFin, IconTarget,
 } from "./icons";
 import { SharkMascot, Diver } from "../characters";
+import AtlasSprite from "./AtlasSprite";
+import type { AtlasName } from "./AtlasSprite";
 
 export interface GameResult {
   won: boolean;

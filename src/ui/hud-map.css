@@ -222,21 +222,22 @@
 .spr-iso-logo { background-position: 33.333% 100%; }
 .spr-iso-btn-shark { background-position: 66.666% 100%; }
 .spr-iso-btn-tower { background-position: 100% 100%; }
-/* varian tampilan siap pakai di HUD */
+/* varian tampilan siap pakai di HUD (sel asli 4:3 = 344×256 px, jadi
+   kontainer ikut 4/3 agar tidak melar; sel berisi padding transparan) */
 .spr-iso.building { width: 100%; aspect-ratio: 4 / 3; }
-.spr-iso.building.tall { aspect-ratio: 1 / 1; }
-.spr-iso.badge { width: 100%; aspect-ratio: 1 / 1; }
+.spr-iso.badge { width: 100%; aspect-ratio: 4 / 3; }
 .spr-iso.btn-art {
-  width: 100%; aspect-ratio: 3.4 / 1;
+  width: 100%; aspect-ratio: 4 / 3;
   border-radius: 10px;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
 }
 .spr-iso.logo-chip {
-  width: 44px; height: 44px; border-radius: 12px; flex: none;
+  width: 58px; aspect-ratio: 4 / 3; flex: none;
   border: 1px solid rgba(46, 230, 200, 0.5);
+  border-radius: 12px;
   box-shadow: 0 0 16px rgba(46, 230, 200, 0.3);
 }
-.spr-iso.lock-chip { width: 22px; height: 17px; flex: none; }
+.spr-iso.lock-chip { width: 26px; aspect-ratio: 4 / 3; flex: none; }
 .hudmap-iso-row { display: flex; align-items: center; gap: 8px; }
 .hudmap-iso-row .spr-iso.badge { width: 40px; flex: none; }
 
