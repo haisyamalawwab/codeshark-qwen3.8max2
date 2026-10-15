@@ -1,4 +1,5 @@
 import type { AttemptRecord } from "./history";
+import { accessToken } from "./auth";
 
 export interface SyncPayload {
   deviceId: string;
@@ -65,7 +66,8 @@ export function syncEndpoint(): string {
 export async function pushOutbox(deviceId: string, profileName: string | null, save: unknown, userId?: string | null): Promise<{ sent: number; ok: boolean }> {
   const pending = loadOutbox();
   if (!pending.length) return { sent: 0, ok: true };
-  const { accessToken } = await import("./auth");
+  /* import statis: ./auth sudah ada di chunk utama via App.tsx, dynamic import
+     tidak bisa memisah chunk dan hanya memicu warning reporter Vite. */
   const token = await accessToken().catch(() => null);
   const payload: SyncPayload = { deviceId, userId: userId ?? null, profileName, save, attempts: pending, sentAt: Date.now() };
   const res = await fetch(syncEndpoint(), {

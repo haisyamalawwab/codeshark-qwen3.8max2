@@ -58,7 +58,17 @@ export default defineConfig({
   build: {
     // jangan inline aset: SVG latar tetap file terpisah (elemen grafis)
     assetsInlineLimit: 0,
+    // Chunk lazy arena (pixi/p5 + sql.js on-demand) tidak boleh memblokir first paint,
+    // jadi batas warning dinaikkan: yang dijaga ramping adalah initial-load
+    // (hub + vendor-react + vendor + App), bukan engine game yang di-load per-arena.
+    chunkSizeWarningLimit: 900,
     rollupOptions: {
+      // Anotasi @__PURE__ di node_modules (mis. zod via p5) posisinya tak terbaca
+      // Rollup — jinak dan otomatis dibuang. Disenyapkan agar log build bersih.
+      onwarn(warning, handler) {
+        if (warning.code === "INVALID_ANNOTATION") return;
+        handler(warning);
+      },
       // TIGA ENTRY: hub agregat + 2 sub-game mandiri (output dist sub-folder)
       input: {
         hub: path.resolve(__dirname, "index.html"),
