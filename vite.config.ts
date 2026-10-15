@@ -58,10 +58,10 @@ export default defineConfig({
   build: {
     // jangan inline aset: SVG latar tetap file terpisah (elemen grafis)
     assetsInlineLimit: 0,
-    // Chunk lazy arena (pixi/p5 + sql.js on-demand) tidak boleh memblokir first paint,
-    // jadi batas warning dinaikkan: yang dijaga ramping adalah initial-load
-    // (hub + vendor-react + vendor + App), bukan engine game yang di-load per-arena.
-    chunkSizeWarningLimit: 900,
+    // Engine arena (p5 ~1MB, pixi ~0.9MB min) memang tak bisa <500 kB dan
+    // semuanya lazy per-arena — tak memblokir first paint (gzip ±230 kB).
+    // Yang dijaga ramping adalah initial-load: hub + vendor-react + vendor + App.
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       // Anotasi @__PURE__ di node_modules (mis. zod via p5) posisinya tak terbaca
       // Rollup — jinak dan otomatis dibuang. Disenyapkan agar log build bersih.
@@ -86,15 +86,30 @@ export default defineConfig({
           return "assets/[name]-[hash][extname]";
         },
         // split agresif per pustaka game agar HP hanya unduh yang dipakai:
-        // hub (~kecil), shark (react+dom), tower (matter/pixi/p5/dnd/anime lazy)
+        // hub (~kecil), shark (react+dom), tower (matter/pixi/p5/dnd lazy).
+        // Kolektor "vendor" HARUS ramping (initial-load) — dependensi transitif
+        // engine (zod/acorn/i18next milik p5, earcut/eventemitter milik pixi,
+        // sql.js milik initSqlite) dilarang bocor ke sana karena path-nya tak
+        // mengandung nama engine-nya.
         manualChunks: (id) => {
           // helper preload bawaan Vite HARUS di chunk sendiri — bila ikut
           // game-pixi, semua entry (termasuk hub ringan) terpaksa mengunduh pixi.
           if (id.includes("vite/preload")) return "preload";
           if (!id.includes("node_modules")) return undefined;
-          if (id.includes("pixi.js") || id.includes("@pixi")) return "game-pixi";
-          if (id.includes("p5")) return "game-p5";
+          if (
+            id.includes("pixi.js") || id.includes("@pixi") || id.includes("earcut") ||
+            id.includes("eventemitter3") || id.includes("gifuct") || id.includes("ismobilejs") ||
+            id.includes("parse-svg") || id.includes("xmldom") || id.includes("tiny-lru") ||
+            id.includes("colord")
+          ) return "game-pixi";
+          if (
+            id.includes("p5") || id.includes("zod") || id.includes("bezier-path") ||
+            id.includes("unicode-range") || id.includes("acorn") || id.includes("escodegen") ||
+            id.includes("colorjs") || id.includes("gifenc") || id.includes("i18next") ||
+            id.includes("libtess") || id.includes("omggif") || id.includes("/pako/")
+          ) return "game-p5";
           if (id.includes("matter-js")) return "game-matter";
+          if (id.includes("sql.js")) return "game-sql";
           if (id.includes("@dnd-kit")) return "game-dnd";
           if (id.includes("react") || id.includes("scheduler")) return "vendor-react";
           return "vendor";

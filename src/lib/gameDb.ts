@@ -1,7 +1,7 @@
 /* Adapter penyimpanan siap-SQLite.
-   Hari ini: localStorage (nol dependensi, build tetap hijau).
-   Besok: `npm i sql.js` lalu isi initSqlite() — API ini tidak berubah,
-   jadi App.tsx tidak perlu disentuh lagi. */
+   Hari ini: localStorage. sql.js sudah terinstal tapi hanya di-load
+   on-demand via initSqlite() (chunk game-sql terpisah, tak membebani first paint).
+   API ini tidak berubah, jadi App.tsx tidak perlu disentuh lagi. */
 
 import type { SaveData } from "./storage";
 import type { AttemptRecord } from "./history";
