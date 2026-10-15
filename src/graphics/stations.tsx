@@ -1,16 +1,16 @@
 /* Art stasiun peta — sprite Gemini transparan (background hitam dihapus via flood-fill,
    lalu WebP q85 + fallback PNG). Dipakai sebagai penanda milestone sesuai rujukan mockup HUD:
    P1–7 markas emas · P8 pos kristal UTS · P9–15 terumbu · P16 stasiun lab UAS. */
-import domeGold from "./assets/stations/dome-gold.webp";
-import domeGoldPng from "./assets/stations/dome-gold.png";
-import domeCrystal from "./assets/stations/dome-crystal.webp";
-import domeCrystalPng from "./assets/stations/dome-crystal.png";
-import coral from "./assets/stations/coral-cluster.webp";
-import coralPng from "./assets/stations/coral-cluster.png";
-import lab from "./assets/stations/lab-station.webp";
-import labPng from "./assets/stations/lab-station.png";
-import sharkSide from "./assets/stations/shark-side.webp";
-import sharkSidePng from "./assets/stations/shark-side.png";
+import domeGold from "../assets/stations/dome-gold.webp";
+import domeGoldPng from "../assets/stations/dome-gold.png";
+import domeCrystal from "../assets/stations/dome-crystal.webp";
+import domeCrystalPng from "../assets/stations/dome-crystal.png";
+import coral from "../assets/stations/coral-cluster.webp";
+import coralPng from "../assets/stations/coral-cluster.png";
+import lab from "../assets/stations/lab-station.webp";
+import labPng from "../assets/stations/lab-station.png";
+import sharkSide from "../assets/stations/shark-side.webp";
+import sharkSidePng from "../assets/stations/shark-side.png";
 
 interface Station {
   webp: string;

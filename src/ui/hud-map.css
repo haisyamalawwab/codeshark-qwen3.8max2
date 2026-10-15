@@ -1,24 +1,11 @@
-/* ============ HUD MAP — gaya konsep Gemini (Codeshark Academy) ============
-   Latar & properti memakai aset teroptimasi di src/assets/hud/:
-   - hud-concept.jpg/webp : contoh referensi, dipakai samar sebagai backdrop stage
-   - hud-checkpoint / hud-station-uas : cutout tunggal (picture/webp + png)
-   - hud-sprite-* : sheet PNG terkompresi (image matrix, lihat peta di bawah)
-
-   PETA IMAGE MATRIX (kolom × baris, posisi background %):
-   hud-sprite-main  4×3 : A1 kubah emas·1 | B1 kubah neon·8 | C1 stasiun·16+gembok
-                         | D1 stasiun PLAY | A2 kubah gelap | B2/C2 tombol arena
-                         | D2 stasiun kecil | A3 node 2-7 | B3 node 9-15
-                         | C3 ikon koin/suara | D3 gembok/panah
-   hud-sprite-icons 4×3 (alias hud-sprite-isolated, master 1376×768): A1 kubah emas | B1 kubah neon | C1 stasiun | D1 hiu
-                         | A2 gembok pink | B2 node 1 | C2 node 12 | D2 node 16
-                         | A3 node 8 UTS | B3 logo | C3 tombol shark | D3 tombol tower
-   hud-sprite-isolated 4×3 KANONIK (buat_white_isolated_background_sprite_20261014205159,
-   1376×768 PNG + WebP): sel identik di atas. Kelas: .spr-iso + .spr-iso-a1..d3 /
-   alias semantik (.spr-iso-dome-gold, .spr-iso-shark, dst). 1 request per sheet.
-   hud-sprite-wide  3×3 : A1 kubah neon | B1 kubah emas | C1 stasiun | A2/B2 hiu
-                         | bawah: rantai node, gelembung, karang, target
-   Trik matrix: background-size = (kolom*100)% (baris*100)%, lalu
-   background-position memilih sel — 1 request HTTP per sheet. */
+/* ============ HUD MAP — Codeshark Academy ============
+   Aset live di src/assets/ (dibundel Vite → dist/assets/img/):
+   - hud/ : hud-concept (backdrop), hud-checkpoint, hud-station-uas,
+     hud-sprite-isolated (KANONIK 4×3), hud-sprite-wide, hud-atlas-cs
+   - stations/ : dome-gold, dome-crystal, coral-cluster, lab-station, shark-side
+   - sea/ : sea-far, sea-mid, sea-near (SVG)
+   - characters/ : shark-captain, shark-cyber (webp + png fallback)
+   Arsip mentah AI ada di docs/reference-images/ (tidak dibundel). */
 
 .hudmap { display: flex; flex-direction: column; gap: 14px; }
 
@@ -120,15 +107,6 @@
 
 /* ---- sprite kecil dari sheet (image matrix) ---- */
 .spr { display: block; background-repeat: no-repeat; }
-/* sel A1 sheet main (4×3): kubah emas MISI 01 */
-.spr-dome-gold {
-  width: 100%; aspect-ratio: 4 / 3;
-  background-image: image-set(
-    url("../assets/hud/hud-sprite-main.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-main.png") type("image/png"));
-  background-size: 400% 300%; background-position: 0% 0%;
-  filter: sepia(0.3) saturate(1.4) drop-shadow(0 0 22px rgba(255, 194, 71, 0.45));
-}
 .spr-shark {
   position: absolute; z-index: 1; width: 11%; aspect-ratio: 2.4 / 1;
   background-image: image-set(

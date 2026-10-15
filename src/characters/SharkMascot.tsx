@@ -1,5 +1,5 @@
-import sharkCyber from "./shark-cyber.webp";
-import sharkCyberPng from "./shark-cyber.png";
+import sharkCyber from "../assets/characters/shark-cyber.webp";
+import sharkCyberPng from "../assets/characters/shark-cyber.png";
 
 /* ============ MASKOT HIU ============
    WebP utama (~69KB) + fallback PNG (~99KB) untuk browser lawas.

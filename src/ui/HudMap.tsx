@@ -1,9 +1,7 @@
-/* Peta Misi HUD ala konsep Gemini — Codeshark Academy.
-   Aset: cutout tunggal via <picture> (webp + png, lazy, anti-CLS) +
-   properti kecil via image-matrix sprite isolated 4×3 (hud-map.css: .spr-iso-*,
-   kanonik dari buat_white_isolated_background_sprite_20261014205159.png) +
-   legacy .spr-* (kini menunjuk sheet isolated 1376×768).
-   Data live: stat dari save, node 1–16 dari lib/progress (bukan hard-code). */
+/* Peta Misi HUD — Codeshark Academy.
+   Aset live: src/assets/hud/ (cutout + sprite isolated kanonik) +
+   src/assets/stations/ + src/assets/sea/.
+   Data live: node 1–16 dari lib/progress. */
 import type { SaveData } from "../lib/storage";
 import { meetingLevel, meetingUnlocked } from "../lib/progress";
 import { CURRICULUM } from "../data/curriculum";

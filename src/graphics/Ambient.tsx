@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef } from "react";
 import { BackgroundShark } from "../characters";
 import { startSeaEngine } from "./seaEngine";
 import { isLowEnd } from "../lib/perf";
-import seaFar from "./assets/sea-far.svg";
-import seaMid from "./assets/sea-mid.svg";
-import seaNear from "./assets/sea-near.svg";
+import seaFar from "../assets/sea/sea-far.svg";
+import seaMid from "../assets/sea/sea-mid.svg";
+import seaNear from "../assets/sea/sea-near.svg";
 import "./graphics.css";
 
 interface BubbleSpec {
