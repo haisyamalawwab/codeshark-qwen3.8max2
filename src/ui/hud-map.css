@@ -9,9 +9,12 @@
                          | D1 stasiun PLAY | A2 kubah gelap | B2/C2 tombol arena
                          | D2 stasiun kecil | A3 node 2-7 | B3 node 9-15
                          | C3 ikon koin/suara | D3 gembok/panah
-   hud-sprite-icons 4×3 : A1 kubah emas | B1 kubah neon | C1 stasiun | D1 hiu
+   hud-sprite-icons 4×3 (alias hud-sprite-isolated, master 1376×768): A1 kubah emas | B1 kubah neon | C1 stasiun | D1 hiu
                          | A2 gembok pink | B2 node 1 | C2 node 12 | D2 node 16
                          | A3 node 8 UTS | B3 logo | C3 tombol shark | D3 tombol tower
+   hud-sprite-isolated 4×3 KANONIK (buat_white_isolated_background_sprite_20261014205159,
+   1376×768 PNG + WebP): sel identik di atas. Kelas: .spr-iso + .spr-iso-a1..d3 /
+   alias semantik (.spr-iso-dome-gold, .spr-iso-shark, dst). 1 request per sheet.
    hud-sprite-wide  3×3 : A1 kubah neon | B1 kubah emas | C1 stasiun | A2/B2 hiu
                          | bawah: rantai node, gelembung, karang, target
    Trik matrix: background-size = (kolom*100)% (baris*100)%, lalu
@@ -143,8 +146,8 @@
 .spr-shark {
   position: absolute; z-index: 1; width: 11%; aspect-ratio: 2.4 / 1;
   background-image: image-set(
-    url("../assets/hud/hud-sprite-icons.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-icons.png") type("image/png"));
+    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
   background-size: 400% 300%; background-position: 100% 0%;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
   animation: spr-drift 7s ease-in-out infinite alternate;
@@ -157,20 +160,21 @@
 }
 .spr-logo {  width: 44px; height: 44px; border-radius: 12px; flex: none;
   background-image: image-set(
-    url("../assets/hud/hud-sprite-icons.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-icons.png") type("image/png"));
-  background-size: 400% 300%; background-position: 33.3% 100%;
+    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
+  background-size: 400% 300%; background-position: 33.333% 100%;
   border: 1px solid rgba(46, 230, 200, 0.5);
   box-shadow: 0 0 16px rgba(46, 230, 200, 0.3);
 }
 .spr-lock {
   width: 30px; height: 30px; flex: none;
   background-image: image-set(
-    url("../assets/hud/hud-sprite-icons.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-icons.png") type("image/png"));
+    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
   background-size: 400% 300%; background-position: 0% 50%;
   filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.8));
 }
+.spr-lock.sm { width: 16px; height: 12px; }
 /* sel B3 sheet wide (3×3): gugus karang hias sudut panggung */
 .spr-reef {
   position: absolute; z-index: 1; right: 1%; bottom: 2%; width: 16%; aspect-ratio: 1 / 1;
