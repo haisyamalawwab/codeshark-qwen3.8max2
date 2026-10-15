@@ -227,39 +227,6 @@
 .hudmap-iso-row { display: flex; align-items: center; gap: 8px; }
 .hudmap-iso-row .spr-iso.badge { width: 40px; flex: none; }
 
-/* ---- kartu sub-game ala konsep ---- */
-.hudmap-arena { display: grid; gap: 10px; }
-@media (min-width: 640px) { .hudmap-arena { grid-template-columns: 1fr 1fr; } }
-.hudmap-card {
-  border-radius: 16px; padding: 14px 16px; text-align: left;
-  background: rgba(8, 24, 40, 0.85);
-  border: 1px solid rgba(126, 196, 236, 0.22);
-}
-.hudmap-card h3 { margin: 0; font-size: 17px; font-weight: 800; color: #fff; }
-.hudmap-card .hint {
-  display: inline-block; margin-top: 2px; font-size: 11px; font-weight: 700;
-  color: var(--dim); border: 1px solid rgba(126, 196, 236, 0.25);
-  border-radius: 999px; padding: 0 8px;
-}
-.hudmap-card .go {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; margin-top: 10px; padding: 12px; min-height: 48px;
-  border: none; border-radius: 12px; cursor: pointer;
-  font-family: var(--font-d); font-weight: 800; font-size: 15px;
-}
-.hudmap-card.shark .go {
-  color: #2b1002; background: linear-gradient(135deg, #ff6a3d, #f97316);
-  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45), inset 0 1px 0 rgba(255,255,255,0.35);
-}
-.hudmap-card.tower .go {
-  color: #03242e; background: linear-gradient(135deg, #38e1ff, #22b8e6);
-  box-shadow: 0 6px 20px rgba(56, 225, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
-}
-.hudmap-card .go:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.hudmap-card small { display: block; margin-top: 6px; font-size: 11px; color: var(--faint); }
-
-.hudmap-ref { font-size: 11px; color: var(--faint); text-align: center; }
-
 @media (prefers-reduced-motion: reduce) {
   .hudmap-node.now, .spr-shark { animation: none; }
 }
