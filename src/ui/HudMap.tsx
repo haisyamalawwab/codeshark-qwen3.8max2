@@ -6,9 +6,7 @@
    Data live: stat dari save, node 1–16 dari lib/progress (bukan hard-code). */
 import type { SaveData } from "../lib/storage";
 import { meetingLevel, meetingUnlocked } from "../lib/progress";
-import { MODULES } from "../data/modules";
 import { CURRICULUM } from "../data/curriculum";
-import type { SubGameId } from "../data/subgames";
 import checkpointPng from "../assets/hud/hud-checkpoint.png";
 import checkpointWebp from "../assets/hud/hud-checkpoint.webp";
 import stationPng from "../assets/hud/hud-station-uas.png";
@@ -39,23 +37,13 @@ const NODES: { no: number; x: number; y: number; cls?: string; big?: boolean }[]
 
 interface Props {
   save: SaveData;
-  subGame: SubGameId;
   onNode: (no: number) => void;
-  onPlayShark: () => void;
-  onPlayTower: () => void;
 }
 
 const lessonTitle = (no: number): string =>
   CURRICULUM.find((l) => l.no === no)?.title ?? `Pertemuan ${no}`;
 
-export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower }: Props) {
-  const doneCount = MODULES.filter((m) => (save.modules[m.id]?.completions ?? 0) > 0).length;
-  const bests = MODULES.map((m) => save.modules[m.id]?.best).filter(
-    (b): b is NonNullable<typeof b> => !!b
-  );
-  const avgAcc = bests.length
-    ? Math.round(bests.reduce((a, b) => a + b.accuracy, 0) / bests.length)
-    : null;
+export default function HudMap({ save, onNode }: Props) {
   const matured = CURRICULUM.filter((l) => meetingLevel(save, l.no) >= 2).length;
 
   const firstOpen: number = (() => {
@@ -67,14 +55,12 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
 
   return (
     <section className="hudmap" aria-label="Peta misi gaya konsep">
-      {/* strip 5 stat seperti bingkai neon di konsep */}
-      <ol className="hudmap-stats">
-        <li><small>MISI</small><strong>{doneCount}</strong></li>
-        <li><small>AKURASI</small><strong>{avgAcc === null ? "—" : `${avgAcc}%`}</strong></li>
-        <li><small>WPM TERBAIK</small><strong>{save.stats.bestWpm || "—"}</strong></li>
-        <li><small>COMBO MAKS</small><strong>{save.stats.bestCombo || "—"}</strong></li>
-        <li><small>MATERI</small><strong>{matured}/16</strong></li>
-      </ol>
+      {/* satu-satunya indikator progres peta: hindari duplikat stat hero */}
+      <div className="hudmap-progress" role="status">
+        <span>Pertemuan <strong>{matured}/16</strong></span>
+        <span aria-hidden="true">•</span>
+        <span className="truncate">Lanjut: {lessonTitle(firstOpen)}</span>
+      </div>
 
       <div className="hudmap-stage">
         <div className="hudmap-scroll">
@@ -197,42 +183,8 @@ export default function HudMap({ save, subGame, onNode, onPlayShark, onPlayTower
             })}
           </div>
         </div>
-      </div>
+    </div>
 
-      {/* pilih sub-game ala konsep: tombol oranye vs sian */}
-      <div className="hudmap-arena">
-        <div className="hudmap-card shark">
-          <h3 className="hudmap-iso-row">
-            <span className="spr-iso spr-iso-logo logo-chip" role="img" aria-label="Logo Codeshark Academy" />
-            CodeShark
-          </h3>
-          <span className="hint">Ada petunjuk &amp; undo</span>
-          <span className="spr-iso spr-iso-btn-shark btn-art" style={{ marginTop: 10 }} role="img" aria-label="Tombol Main Shark Typer dari sprite" />
-          <button type="button" className="go" onClick={onPlayShark}>
-            {subGame === "shark" ? "▶ Main Shark Typer" : "Main Shark Typer"}
-          </button>
-          <small>Keyboard fisik</small>
-        </div>
-        <div className="hudmap-card tower">
-          <h3 className="hudmap-iso-row">
-            <span className="spr-iso spr-iso-badge-12 badge" style={{ width: 46 }} role="img" aria-label="Badge pertemuan 12" />
-            Coding Tower
-          </h3>
-          <span className="hint">Tanpa mengetik simbol</span>
-          <span className="spr-iso spr-iso-btn-tower btn-art" style={{ marginTop: 10 }} role="img" aria-label="Tombol Main Tower dari sprite" />
-          <button type="button" className="go" onClick={onPlayTower}>
-            {subGame === "tower" ? "▶ Main Tower" : "Main Tower"}
-          </button>
-          <small>Menggunakan tombol arah</small>
-        </div>
-      </div>
-
-      <p className="hudmap-ref">
-        Visual mengikuti referensi <em>Gemini_Generated_Image_ex0gc8…92314</em> ·
-        sheet kanonik <code>hud-sprite-isolated</code> 4×3 (dari{" "}
-        <code>buat_white_isolated_background_sprite_20261014205159.png</code> 1376×768, PNG + WebP) ·
-        alias <code>hud-sprite-icons</code> diperbarui · cutout CHECKPOINT &amp; UAS teroptimasi.
-      </p>
     </section>
   );
 }

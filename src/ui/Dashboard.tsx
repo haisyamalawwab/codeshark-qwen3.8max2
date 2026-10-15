@@ -77,6 +77,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
     if (!bests.length) return null;
     return Math.round(bests.reduce((a, b) => a + b.accuracy, 0) / bests.length);
   })();
+  const hasStats = avgAcc !== null || save.stats.bestWpm > 0 || save.stats.bestCombo > 0;
 
   return (
     <div ref={revealRef} className="relative z-10 min-h-screen">
@@ -124,12 +125,9 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             </span>
           </div>
 
-          {/* Chips Koin & XP */}
+          {/* Chip Koin — XP sudah tampil di bilah progres, jangan ganda */}
           <div className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(255,194,71,0.35)] !text-[var(--amber)] shadow-[0_2px_10px_rgba(0,0,0,0.25)]" title="Koin">
             <IconCoin size={15} /> {save.coins}
-          </div>
-          <div className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(46,230,200,0.35)] !text-[var(--teal)] shadow-[0_2px_10px_rgba(0,0,0,0.25)]" title="Experience">
-            <IconBolt size={15} /> {save.xp} XP
           </div>
 
           {/* Tombol Suara & Profil */}
@@ -161,9 +159,6 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
               </div>
 
               <div className="flex-1 min-w-0 text-center sm:text-left">
-                <p className="text-xs font-semibold text-[var(--dim)] tracking-wide">
-                  {doneCount === MODULES.length ? "Semua misi selesai — luar biasa!" : "Selamat datang kembali,"}
-                </p>
                 <div className="flex items-center justify-center sm:justify-start gap-2.5 mt-1 flex-wrap">
                   <h1 className="font-display font-extrabold text-3xl md:text-4xl text-white tracking-tight">
                     Kapten {profile.name}
@@ -172,6 +167,11 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                     {cfg.range}
                   </span>
                 </div>
+                {doneCount === MODULES.length && (
+                  <p className="text-xs font-semibold text-[var(--teal)] tracking-wide mt-1">
+                    Semua misi selesai — luar biasa!
+                  </p>
+                )}
 
                 {/* Info Rank & Kebutuhan XP */}
                 <div className="mt-3.5 flex items-center justify-center sm:justify-start gap-3 flex-wrap">
@@ -203,9 +203,9 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
               </div>
             </div>
 
-            {/* Sisi Kanan: 4 Kotak HUD Stats (2x2 Grid ala dashboard_hud.jfif) */}
+            {/* Sisi Kanan: HUD Stats — 1 sumber kebenaran, sembunyikan jika masih 0 */}
             <div className="grid grid-cols-2 gap-3 lg:w-72 shrink-0">
-              {/* Card 1: MISI */}
+              {/* Card 1: MISI MODUL (denominator 3 = modul, bukan 16 pertemuan) */}
               <div className="hud-stat-box p-3.5 flex flex-col justify-between">
                 <div className="flex items-center justify-between text-[var(--teal)]">
                   <IconBook size={18} />
@@ -218,6 +218,8 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 </p>
               </div>
 
+              {hasStats ? (
+                <>
               {/* Card 2: AKURASI */}
               <div className="hud-stat-box p-3.5 flex flex-col justify-between">
                 <div className="flex items-center justify-between text-[var(--teal)]">
@@ -242,7 +244,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <div className="flex items-center gap-1.5 mt-2">
                   <IconTimer size={13} className="text-[var(--cyan)]" />
                   <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)]">
-                    WPM TERBAIK
+                    WPM
                   </p>
                 </div>
               </div>
@@ -256,11 +258,19 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                   </span>
                 </div>
                 <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
-                  COMBO MAKS
+                  COMBO
                 </p>
               </div>
+                </>
+              ) : (
+              <div className="hud-stat-box p-3.5 flex flex-col justify-center">
+                <p className="text-xs font-bold text-[var(--dim)] leading-relaxed">
+                  Selesaikan Misi 01 untuk membuka statistik.
+                </p>
+              </div>
+              )}
 
-              {/* Card 5: AKSES CEPAT — Materi HTML dokumen .md per pertemuan (P1-P6) */}
+              {/* Card: akses cepat Materi HTML */}
               {onMateriHtml && (
                 <button
                   type="button"
@@ -275,7 +285,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                     </span>
                   </div>
                   <p className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-[var(--faint)] mt-2">
-                    MATERI HTML (.md)
+                    MATERI HTML
                   </p>
                 </button>
               )}
@@ -283,7 +293,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
           </div>
         </section>
 
-        {/* ============ PETA MISI HUD (gaya konsep Gemini) ============ */}
+        {/* ============ PETA MISI HUD ============ */}
         <section className="mt-8 reveal">
           <div className="flex items-center gap-4 mb-4">
             <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
@@ -291,15 +301,12 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             </h2>
             <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
             <span className="chip shrink-0 hidden sm:inline-flex">
-              🗺️ 16 pertemuan • UTS 8 • UAS 16
+              🗺️ 16 pertemuan
             </span>
           </div>
           <HudMap
             save={save}
-            subGame={subGame}
             onNode={() => { sfx.click(); onPeta?.(); }}
-            onPlayShark={() => { sfx.click(); onSelectSubGame?.("shark"); onPeta?.(); }}
-            onPlayTower={() => { sfx.click(); onSelectSubGame?.("tower"); onPeta?.(); }}
           />
         </section>
 
@@ -354,12 +361,12 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                         type="button"
                         disabled={active && !onPeta}
                         onClick={() => { sfx.click(); onSelectSubGame?.(id); if (!active) return; onPeta?.(); }}
-                        className={`mt-3.5 w-full sm:w-auto px-6 py-2.5 text-sm justify-center ${active ? "btn btn-primary" : "hud-btn-practice"}`}
+                        className="mt-3.5 w-full sm:w-auto px-6 py-2.5 text-sm justify-center hud-btn-practice"
                       >
-                        {active ? <>Main {g.short} <IconArrowR size={15} /></> : g.cta}
+                        {active ? <>Lanjut ke Peta <IconArrowR size={15} /></> : g.cta}
                       </button>
                       {!active && onPeta && (
-                        <p className="text-[11px] text-[var(--faint)] font-semibold mt-1.5">Pilih lalu ketuk lagi untuk masuk peta.</p>
+                        <p className="text-[11px] text-[var(--faint)] font-semibold mt-1.5">Ketuk untuk pilih.</p>
                       )}
                     </div>
                   </div>
@@ -368,11 +375,11 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             })}
           </div>
           <p className="text-[11px] text-[var(--faint)] font-semibold mt-2.5">
-            Satu kurikulum 16 pertemuan, dua cara main — progres XP, koin &amp; bintang berlaku untuk keduanya.
+            Progres berlaku untuk dua mode.
           </p>
         </section>
 
-        {/* ============ PETA PERTEMUAN 16× ============ */}
+        {/* ============ KURIKULUM 16 PERTEMUAN ============ */}
         {onPeta && (
           <section className="mt-10 reveal">
             <button
@@ -384,10 +391,10 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 <IconKeyboard size={26} />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--amber)]">Kurikulum • 16 pertemuan • Arena {SUBGAMES[subGame].name}</p>
-                <h2 className="font-display font-extrabold text-xl md:text-2xl text-white">Peta Pertemuan 16×</h2>
+                <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--amber)]">Kurikulum • 16 pertemuan • {SUBGAMES[subGame].name}</p>
+                <h2 className="font-display font-extrabold text-xl md:text-2xl text-white">Kurikulum 16 Pertemuan</h2>
                 <p className="text-xs md:text-sm text-[var(--dim)] mt-0.5">
-                  Tiap pertemuan: materi → <strong>Quest</strong> (kode utuh) → <strong>Drill</strong> (sintaks inti) → <strong>Juggling</strong> (anyam dua materi) — dimainkan sebagai <strong>{subGame === "tower" ? "Susun Menara 🧱" : "Shark Typer ⌨️"}</strong>.
+                  Belajar berurutan: materi → praktik sebagai <strong>{subGame === "tower" ? "Susun Menara 🧱" : "Shark Typer ⌨️"}</strong>.
                 </p>
               </div>
               <span className="btn btn-primary !py-2.5 !px-5 shrink-0 justify-center">Buka Peta <IconArrowR size={15} /></span>
@@ -395,16 +402,16 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
           </section>
         )}
 
-        {/* ============ PETA MISI SAMUDRA ============ */}
+        {/* ============ DAFTAR MISI ============ */}
         <section className="mt-12">
-          {/* Section Header */}
+          {/* Section Header — satu-satunya CTA primer adalah Pelajari Materi di bawah */}
           <div className="flex items-center gap-4 mb-7 reveal">
             <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
-              Peta Misi Samudra
+              Daftar Misi
             </h2>
             <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
             <span className="text-xs font-bold text-[var(--dim)] tracking-wide shrink-0 hidden sm:inline">
-              Alur: Materi → {subGame === "tower" ? "Susun Menara" : "Praktik Ketik"} → Preview
+              Alur: Materi → Praktik
             </span>
           </div>
 
@@ -517,29 +524,16 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                                 </>
                               )}
 
-                              {!unlocked && (
-                                <span className="hud-chip !text-[var(--faint)]">
-                                  <IconLock size={13} /> Selesaikan Misi 0{m.num - 1} dulu.
-                                </span>
-                              )}
+                              {/* status terkunci hanya di tombol aksi, bukan ganda di chips */}
                             </div>
                           </div>
                         </div>
 
-                        {/* Tengah/Kanan Khusus Misi Terkunci: Gembok Cyan Neon */}
-                        {!unlocked && (
-                          <div className="hidden md:flex items-center justify-center px-6">
-                            <div className="hud-lock-glow">
-                              <IconLock size={26} />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Kanan: Tombol-Tombol Aksi Sesuai Status */}
+                        {/* Kanan: aksi sesuai status — primer hanya Pelajari Materi */}
                         <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 justify-center">
                           {!unlocked ? (
                             <span className="hud-chip !py-2.5 !px-5 !rounded-xl !bg-[rgba(8,24,40,0.6)] !border-[rgba(126,196,236,0.18)] !text-[var(--faint)] font-bold justify-center">
-                              <IconLock size={15} /> Terkunci
+                              <IconLock size={15} /> Terkunci — Selesaikan Misi 0{m.num - 1} dulu
                             </span>
                           ) : !prog.materiDone ? (
                             /* Belum buka materi -> Tombol Emas Pelajari Materi */
@@ -589,7 +583,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
 
         {/* Footer info progres */}
         <p className="text-center text-xs text-[var(--faint)] mt-16 font-medium reveal">
-          latihan.my.id v0.9 — progres tersimpan di localStorage perangkatmu.
+          Otomatis tersimpan di perangkat ini.
         </p>
       </main>
 

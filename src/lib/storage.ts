@@ -171,7 +171,7 @@ export interface Rank {
 }
 
 export const RANKS: Rank[] = [
-  { xp: 0, name: "Plankton" },
+  { xp: 0, name: "Kadet Baru" },
   { xp: 120, name: "Ikan Kecil" },
   { xp: 280, name: "Kuda Laut" },
   { xp: 500, name: "Lumba-Lumba" },
