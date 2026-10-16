@@ -247,6 +247,15 @@ export const IconAward = make(
   </>
 );
 
+export const IconChevronDown = make(<path d="M6 9l6 6 6-6" />);
+export const IconChevronUp = make(<path d="M18 15l-6-6-6 6" />);
+export const IconCode = make(
+  <>
+    <path d="M16 18l6-6-6-6" />
+    <path d="M8 6l-6 6 6 6" />
+  </>
+);
+
 
 
 

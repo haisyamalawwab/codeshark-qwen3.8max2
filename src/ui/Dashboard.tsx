@@ -6,10 +6,9 @@ import { MODULES } from "../data/modules";
 import { HTML_DOCS } from "../data/materiHtml";
 import { sfx } from "../lib/audio";
 import {
-  IconFin, IconBolt, IconCoin, IconBook, IconKeyboard, IconStar, IconStarLine,
-  IconLock, IconCheck, IconArrowR, IconEye, IconRetry, IconSound, IconMute,
-   IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
-  IconTower, IconFlame,
+  IconFin, IconBolt, IconCoin, IconBook, IconKeyboard,
+  IconCheck, IconArrowR, IconSound, IconMute,
+  IconTarget, IconTimer, IconX, IconFlame, IconHome,
 } from "./icons";
 import { SUBGAMES, SUBGAME_ORDER } from "../data/subgames";
 import type { SubGameId } from "../data/subgames";
@@ -20,6 +19,9 @@ import MiniSpeedometer from "./MiniSpeedometer";
 import HudMap from "./HudMap";
 import DailyChallengeCard from "./DailyChallengeCard";
 import AchievementsSection from "./AchievementsSection";
+import RankEmblemArt from "./RankEmblemArt";
+import SubGameArtwork from "./SubGameArtwork";
+import DaftarMisiSection from "./DaftarMisiSection";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
 
@@ -41,12 +43,6 @@ interface Props {
   onToggleSound: () => void;
   onResetProfile: () => void;
 }
-
-const MOD_ICON = {
-  tag: IconTag,
-  brush: IconBrush,
-  bolt: IconBolt,
-} as const;
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -187,10 +183,29 @@ export default function Dashboard({
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center gap-7 relative z-10">
-            {/* Sisi Kiri: Avatar Kapten + Sapaan & Progress Rank */}
+            {/* Sisi Kiri: Avatar Kapten dengan Bingkai Hologram Cyber + Sapaan & Progress Rank */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-5 flex-1 min-w-0">
-              <div className="relative shrink-0">
-                <CaptainAvatar size={124} className="drop-shadow-[0_0_24px_rgba(46,230,200,0.35)]" />
+              <div className="relative shrink-0 p-2">
+                {/* Cincin Sonar Hologram Berputar */}
+                <div
+                  className="absolute inset-0 rounded-full border border-[rgba(46,230,200,0.4)] pointer-events-none animate-spin"
+                  style={{ animationDuration: "28s", borderStyle: "dashed" }}
+                  aria-hidden="true"
+                />
+                <div
+                  className="absolute inset-1 rounded-full border border-[rgba(69,198,255,0.25)] pointer-events-none"
+                  aria-hidden="true"
+                />
+                <div className="relative rounded-full p-1 bg-gradient-to-b from-[rgba(46,230,200,0.3)] via-[rgba(6,24,42,0.85)] to-[rgba(10,36,60,0.9)] shadow-[0_0_28px_rgba(46,230,200,0.35)]">
+                  <CaptainAvatar size={120} className="drop-shadow-[0_8px_20px_rgba(0,0,0,0.65)]" />
+                  {/* Badge Lambang Pangkat Mini di Sudut Bawah Avatar */}
+                  <div
+                    className="absolute -bottom-1 -right-1 p-0.5 rounded-full bg-[rgba(6,22,38,0.95)] border border-[rgba(255,194,71,0.7)] shadow-[0_2px_10px_rgba(0,0,0,0.6)] cursor-pointer hover:scale-110 transition-transform"
+                    title={`Pangkat Samudra: ${rank.cur.name}`}
+                  >
+                    <RankEmblemArt rank={rank.cur.name} size={36} animated={false} />
+                  </div>
+                </div>
               </div>
 
               <div className="flex-1 min-w-0 text-center sm:text-left">
@@ -210,8 +225,9 @@ export default function Dashboard({
 
                 {/* Info Rank & Kebutuhan XP */}
                 <div className="mt-3.5 flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(255,194,71,0.12)] border border-[rgba(255,194,71,0.4)] text-[var(--amber)] text-xs font-bold">
-                    <IconTrophy size={14} /> Rank: {rank.cur.name}
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[rgba(255,194,71,0.14)] border border-[rgba(255,194,71,0.5)] text-[var(--amber)] text-xs font-extrabold shadow-[0_0_14px_rgba(255,194,71,0.2)]">
+                    <RankEmblemArt rank={rank.cur.name} size={18} animated={false} />
+                    <span>Rank: {rank.cur.name}</span>
                   </span>
 
                   {/* Lencana 'Daily Streak' */}
@@ -441,16 +457,13 @@ export default function Dashboard({
               const g = SUBGAMES[id];
               const active = subGame === id;
               const recommended = isTouch && id === "tower";
-              const GIcon = id === "tower" ? IconTower : IconKeyboard;
               return (
                 <article
                   key={id}
                   className={`arena-card ${active ? "arena-active" : ""}`}
                 >
-                  <div className="flex items-start gap-3.5">
-                    <span className={`w-14 h-14 shrink-0 rounded-2xl grid place-items-center border ${active ? "bg-[rgba(46,230,200,0.14)] border-[rgba(46,230,200,0.55)] text-[var(--teal)]" : "bg-[rgba(10,30,48,0.6)] border-[rgba(126,196,236,0.2)] text-[var(--dim)]"}`}>
-                      <GIcon size={27} />
-                    </span>
+                  <div className="flex items-start gap-4">
+                    <SubGameArtwork id={id} active={active} size={58} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-display font-extrabold text-xl text-white leading-tight">{g.name}</h3>
@@ -518,183 +531,14 @@ export default function Dashboard({
         )}
 
         {/* ============ DAFTAR MISI ============ */}
-        <section className="mt-12">
-          {/* Section Header — satu-satunya CTA primer adalah Pelajari Materi di bawah */}
-          <div className="flex items-center gap-4 mb-7 reveal">
-            <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
-              Daftar Misi
-            </h2>
-            <span className="h-[1px] flex-1 bg-[rgba(69,198,255,0.2)]" />
-            <span className="text-xs font-bold text-[var(--dim)] tracking-wide shrink-0 hidden sm:inline">
-              Alur: Materi → Praktik
-            </span>
-          </div>
-
-          {/* Timeline Wrapper */}
-          <div className="relative pl-9 md:pl-12">
-            <div className="space-y-6">
-              {MODULES.map((m, idx) => {
-                const prog = save.modules[m.id] ?? { materiDone: false, quizXp: 0, completions: 0 };
-                const prevDone = idx === 0 || (save.modules[MODULES[idx - 1].id]?.completions ?? 0) > 0;
-                const unlocked = prevDone;
-                const done = prog.completions > 0;
-                const isCurrentActive = unlocked && !done;
-                const MIcon = MOD_ICON[m.icon];
-                
-                const isLast = idx === MODULES.length - 1;
-
-                return (
-                  <article key={m.id} className="cv-auto reveal relative" style={{ transitionDelay: `${idx * 0.08}s` }}>
-                    {/* Garis Vertikal Antar-Node */}
-                    {!isLast && (
-                      <div className={done ? "hud-timeline-line" : "hud-timeline-dashed"} />
-                    )}
-
-                    {/* Node Nomor / Centang di Timeline */}
-                    <span
-                      className={`absolute -left-9 md:-left-12 top-7 w-8 h-8 md:w-9 md:h-9 rounded-full grid place-items-center font-display font-extrabold text-xs md:text-sm z-10 transition-all ${
-                        done
-                          ? "bg-[var(--teal)] text-[#04222b] shadow-[0_0_18px_rgba(46,230,200,0.85)] border-2 border-[var(--teal)]"
-                          : isCurrentActive
-                            ? "bg-[rgba(9,28,46,0.95)] text-[var(--amber)] border-2 border-[var(--amber)] shadow-[0_0_20px_rgba(255,194,71,0.65)]"
-                            : "bg-[rgba(5,16,28,0.95)] text-[var(--faint)] border border-[rgba(126,196,236,0.2)]"
-                      }`}
-                    >
-                      {done ? <IconCheck size={16} /> : m.num}
-                    </span>
-
-                    {/* Kartu Misi */}
-                    <div
-                      className={`p-5 md:p-6 transition-all duration-200 ${
-                        done
-                          ? "hud-card-done"
-                          : isCurrentActive
-                            ? "hud-card-active"
-                            : "hud-card-locked"
-                      }`}
-                    >
-                      <div className="flex flex-col lg:flex-row lg:items-center gap-5 justify-between">
-                        {/* Kiri: Icon & Info Misi */}
-                        <div className="flex items-start md:items-center gap-4 flex-1 min-w-0">
-                          {/* Box Ikon Kotak Rounded */}
-                          <span
-                            className={`w-14 h-14 shrink-0 rounded-2xl grid place-items-center transition-all ${
-                              done
-                                ? "bg-[rgba(46,230,200,0.12)] border border-[rgba(46,230,200,0.5)] text-[var(--teal)] shadow-[0_0_15px_rgba(46,230,200,0.2)]"
-                                : isCurrentActive
-                                  ? "bg-[rgba(255,194,71,0.12)] border border-[rgba(255,194,71,0.5)] text-[var(--amber)] shadow-[0_0_15px_rgba(255,194,71,0.2)]"
-                                  : "bg-[rgba(10,30,48,0.5)] border border-[rgba(126,196,236,0.15)] text-[var(--faint)]"
-                            }`}
-                          >
-                            <MIcon size={26} />
-                          </span>
-
-                          <div className="flex-1 min-w-0">
-                            {/* Tag Misi */}
-                            <p
-                              className="text-[11px] font-extrabold tracking-[0.2em] uppercase"
-                              style={{ color: done ? "var(--teal)" : isCurrentActive ? "var(--amber)" : "var(--faint)" }}
-                            >
-                              MISI 0{m.num} • {m.lang.toUpperCase()}
-                            </p>
-
-                            {/* Judul & Subjudul */}
-                            <h3 className="font-display font-extrabold text-xl md:text-2xl text-white leading-tight mt-0.5">
-                              {m.title}
-                            </h3>
-                            <p className="text-xs md:text-sm text-[var(--dim)] mt-0.5 font-medium">
-                              {m.subtitle}
-                            </p>
-
-                            {/* Chips Status */}
-                            <div className="flex items-center gap-2 flex-wrap mt-3">
-                              {/* Chip Materi */}
-                              <span className={`hud-chip ${prog.materiDone ? "hud-chip-done" : ""}`}>
-                                {prog.materiDone ? <IconCheck size={13} /> : <IconBook size={13} />} Materi {prog.materiDone ? "✓" : ""}
-                              </span>
-
-                              {/* Chip Praktik */}
-                              <span className={`hud-chip ${done ? "hud-chip-done" : ""}`}>
-                                <IconKeyboard size={13} /> Praktik {done ? "✓" : ""}
-                              </span>
-
-                              {/* Bintang & Skor bila selesai */}
-                              {done && (
-                                <>
-                                  <span className="hud-chip !text-[var(--amber)]" title="Bintang Misi">
-                                    {Array.from({ length: 3 }, (_, i) =>
-                                      i < (prog.best?.stars ?? 0) ? (
-                                        <IconStar key={i} size={13} />
-                                      ) : (
-                                        <IconStarLine key={i} size={13} className="opacity-40" />
-                                      )
-                                    )}
-                                  </span>
-                                  <span className="hud-chip text-white font-semibold">
-                                    {prog.best?.score ?? 0} poin
-                                  </span>
-                                  <span className="hud-chip !text-[var(--teal)] font-bold">
-                                    {prog.best?.wpm ?? 0} WPM
-                                  </span>
-                                </>
-                              )}
-
-                              {/* status terkunci hanya di tombol aksi, bukan ganda di chips */}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Kanan: aksi sesuai status — primer hanya Pelajari Materi */}
-                        <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 justify-center">
-                          {!unlocked ? (
-                            <span className="hud-chip !py-2.5 !px-5 !rounded-xl !bg-[rgba(8,24,40,0.6)] !border-[rgba(126,196,236,0.18)] !text-[var(--faint)] font-bold justify-center">
-                              <IconLock size={15} /> Terkunci — Selesaikan Misi 0{m.num - 1} dulu
-                            </span>
-                          ) : !prog.materiDone ? (
-                            /* Belum buka materi -> Tombol Emas Pelajari Materi */
-                            <button
-                              className="hud-btn-learn py-3 px-6 flex items-center justify-center gap-2 text-sm shadow-md"
-                              onClick={() => { sfx.click(); onMateri(m.id); }}
-                            >
-                              <span>Pelajari Materi</span> <IconArrowR size={16} />
-                            </button>
-                          ) : (
-                            /* Selesai / Siap Praktik */
-                            <>
-                              <button
-                                className="hud-btn-practice py-2.5 px-6 flex items-center justify-center gap-2 text-sm"
-                                onClick={() => { sfx.click(); onPractice(m.id); }}
-                              >
-                                {subGame === "tower" ? <IconTower size={16} /> : <IconKeyboard size={16} />} {done ? (subGame === "tower" ? "Ulangi Susun" : "Ulangi Ketik") : (subGame === "tower" ? "Mulai Susun" : "Mulai Praktik Ketik")}
-                              </button>
-
-                              <div className="flex gap-2">
-                                <button
-                                  className="btn btn-ghost !py-1.5 !px-3.5 !rounded-full !bg-[rgba(9,30,50,0.7)] !border-[rgba(126,196,236,0.25)] flex-1 text-xs text-[var(--dim)] font-bold hover:text-white"
-                                  onClick={() => { sfx.click(); onMateri(m.id); }}
-                                >
-                                  <IconRetry size={13} /> Materi
-                                </button>
-                                {done && (
-                                  <button
-                                    className="hud-btn-preview py-1.5 px-4 flex-1 text-xs flex items-center justify-center gap-1 font-bold"
-                                    onClick={() => { sfx.click(); setPreview(m); }}
-                                  >
-                                    <IconEye size={13} /> Preview
-                                  </button>
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <DaftarMisiSection
+          save={save}
+          subGame={subGame}
+          onMateri={onMateri}
+          onPractice={onPractice}
+          onSelectSubGame={onSelectSubGame}
+          onPreview={(m) => setPreview(m)}
+        />
 
         {/* Footer info progres */}
         <p className="text-center text-xs text-[var(--faint)] mt-16 font-medium reveal">

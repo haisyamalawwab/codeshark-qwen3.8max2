@@ -17,6 +17,7 @@ import {
   IconCoin,
   IconX,
 } from "./icons";
+import AchievementBadgeArt from "./AchievementBadgeArt";
 
 interface Props {
   save: SaveData;
@@ -215,24 +216,20 @@ export default function AchievementsSection({ save, onClaim }: Props) {
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
                     {/* Medallion / Badge Avatar */}
-                    <div
-                      className={`relative w-13 h-13 rounded-2xl grid place-items-center text-2xl shrink-0 transition-transform group-hover:scale-105 border ${
-                        isUnlocked
-                          ? "shadow-[0_0_18px_rgba(46,230,200,0.3)]"
-                          : "grayscale opacity-60"
-                      }`}
-                      style={{
-                        background: isUnlocked ? tier.bgBadge : "rgba(10,25,40,0.6)",
-                        borderColor: isUnlocked ? tier.border : "rgba(126,196,236,0.2)",
-                      }}
-                    >
-                      <span>{def.icon}</span>
+                    {/* Medallion / Badge Art High-Fidelity */}
+                    <div className="relative shrink-0 transition-transform group-hover:scale-105">
+                      <AchievementBadgeArt
+                        def={def}
+                        tier={def.tier}
+                        size={52}
+                        isUnlocked={isUnlocked}
+                      />
                       {isUnlocked ? (
-                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--teal)] text-[#031d24] grid place-items-center text-[10px] font-bold shadow-md">
+                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--teal)] text-[#031d24] grid place-items-center text-[10px] font-bold shadow-md border border-white/60">
                           <IconCheck size={11} />
                         </span>
                       ) : (
-                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgba(6,19,33,0.95)] text-[var(--faint)] border border-[rgba(126,196,236,0.2)] grid place-items-center text-[10px]">
+                        <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgba(6,19,33,0.95)] text-[var(--faint)] border border-[rgba(126,196,236,0.3)] grid place-items-center text-[10px] shadow">
                           <IconLock size={10} />
                         </span>
                       )}
@@ -354,26 +351,20 @@ export default function AchievementsSection({ save, onClaim }: Props) {
             {/* Badge Medallion Besar */}
             <div className="text-center pt-2 pb-4">
               <div className="relative inline-block mx-auto mb-4">
-                <div
-                  className="w-24 h-24 rounded-3xl grid place-items-center text-5xl shadow-[0_0_35px_rgba(46,230,200,0.4)] border-2"
-                  style={{
-                    background: selectedBadge.isUnlocked
-                      ? TIER_CONFIG[selectedBadge.def.tier].bgBadge
-                      : "rgba(10,25,40,0.6)",
-                    borderColor: selectedBadge.isUnlocked
-                      ? TIER_CONFIG[selectedBadge.def.tier].border
-                      : "rgba(126,196,236,0.2)",
-                  }}
-                >
-                  <span className={selectedBadge.isUnlocked ? "" : "grayscale opacity-50"}>
-                    {selectedBadge.def.icon}
-                  </span>
+                <div className="relative inline-block">
+                  <AchievementBadgeArt
+                    def={selectedBadge.def}
+                    tier={selectedBadge.def.tier}
+                    size={96}
+                    isUnlocked={selectedBadge.isUnlocked}
+                    showRays={selectedBadge.isUnlocked}
+                  />
+                  {selectedBadge.isUnlocked && (
+                    <span className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[var(--teal)] text-[#031d24] grid place-items-center shadow-lg border-2 border-white/80">
+                      <IconCheck size={18} />
+                    </span>
+                  )}
                 </div>
-                {selectedBadge.isUnlocked && (
-                  <span className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[var(--teal)] text-[#031d24] grid place-items-center shadow-lg">
-                    <IconCheck size={18} />
-                  </span>
-                )}
               </div>
 
               {/* Rarity & Judul */}

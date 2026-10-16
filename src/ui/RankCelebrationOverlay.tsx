@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { sfx } from "../lib/audio";
 import { CaptainAvatar } from "../characters";
+import RankEmblemArt from "./RankEmblemArt";
 import { IconTrophy, IconSparkles, IconX, IconArrowR, IconBolt } from "./icons";
 
 interface Props {
@@ -208,12 +209,20 @@ export default function RankCelebrationOverlay({ rank, onClose }: Props) {
             aria-hidden="true"
           />
 
-          {/* Frame Emblem Bulat */}
+          {/* Frame Emblem Bulat Megah dengan Lambang Pangkat Custom */}
           <div
-            className="relative anim-rank-badge p-3 rounded-full border-2 border-[rgba(255,194,71,0.6)] shadow-[0_0_35px_rgba(255,194,71,0.45)]"
+            className="relative anim-rank-badge p-2 sm:p-3 rounded-full border-2 border-[rgba(255,194,71,0.65)] shadow-[0_0_40px_rgba(255,194,71,0.5)]"
             style={{ background: meta.badgeBg }}
           >
-            <CaptainAvatar size={118} className="drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]" />
+            <RankEmblemArt rank={rank} size={132} animated={true} />
+
+            {/* Avatar Kapten Mini di Sudut Lambang Pangkat */}
+            <div
+              className="absolute -bottom-1 -left-1 p-1 rounded-full bg-[rgba(5,18,32,0.92)] border border-[rgba(46,230,200,0.6)] shadow-[0_4px_14px_rgba(0,0,0,0.6)] flex items-center gap-1"
+              title="Kapten Samudra"
+            >
+              <CaptainAvatar size={38} className="drop-shadow-md" />
+            </div>
 
             {/* Pin Trofi Mengkilap di Sudut Avatar */}
             <span

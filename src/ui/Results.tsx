@@ -5,9 +5,10 @@ import type { GameResult } from "./TypingGame";
 import { sfx } from "../lib/audio";
 import { CodePanel } from "./Dashboard";
 import RankCelebrationOverlay from "./RankCelebrationOverlay";
+import RankEmblemArt from "./RankEmblemArt";
 import {
   IconBolt, IconCoin, IconRetry, IconMap, IconStar, IconStarLine, IconTarget,
-  IconTimer, IconBolt as IconCombo, IconCheck, IconX, IconConsole, IconEye, IconKeyboard, IconTrophy,
+  IconTimer, IconBolt as IconCombo, IconCheck, IconX, IconConsole, IconEye, IconKeyboard,
   IconFlame, IconSparkles,
 } from "./icons";
 
@@ -129,12 +130,12 @@ export default function Results({
                   sfx.click();
                   setShowRankModal(true);
                 }}
-                className="chip !text-[var(--amber)] !border-[rgba(255,194,71,0.55)] anim-pop hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-[0_0_14px_rgba(255,194,71,0.25)] flex items-center gap-1.5"
+                className="chip !text-[var(--amber)] !border-[rgba(255,194,71,0.55)] anim-pop hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-[0_0_16px_rgba(255,194,71,0.3)] flex items-center gap-2"
                 title="Klik untuk membuka kembali perayaan kenaikan pangkat!"
               >
-                <IconTrophy size={14} className="text-amber-300 animate-bounce" />
+                <RankEmblemArt rank={rankUp} size={22} animated={false} />
                 <span>Rank naik: <strong className="text-amber-200">{rankUp}</strong>!</span>
-                <IconSparkles size={12} className="text-amber-300" />
+                <IconSparkles size={13} className="text-amber-300 animate-spin" />
               </button>
             )}
             {isDaily && (

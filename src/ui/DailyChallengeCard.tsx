@@ -4,7 +4,7 @@ import { getTimeUntilMidnight } from "../data/dailyChallenges";
 import type { DailyChallengeRecord } from "../lib/storage";
 import { sfx } from "../lib/audio";
 import {
-  IconSparkles, IconTimer, IconCheck, IconArrowR,
+  IconTimer, IconCheck, IconArrowR,
   IconBolt, IconCoin, IconFlame, IconTarget, IconRetry,
 } from "./icons";
 
@@ -57,16 +57,58 @@ export default function DailyChallengeCard({ challenge, isCompleted, record, sub
         {/* Header bar: Kategori + Countdown timer */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[rgba(126,196,236,0.15)]">
           <div className="flex items-center gap-3">
-            <span
-              className="w-11 h-11 rounded-xl grid place-items-center shrink-0 shadow-[0_0_16px_rgba(245,158,11,0.25)]"
+            {/* Lambang Chronometer Harian Samudra */}
+            <div
+              className="relative w-12 h-12 rounded-2xl grid place-items-center shrink-0 select-none shadow-[0_0_20px_rgba(245,158,11,0.25)]"
               style={{
-                background: isCompleted ? "rgba(46, 230, 200, 0.14)" : "rgba(245, 158, 11, 0.14)",
-                border: isCompleted ? "1px solid rgba(46, 230, 200, 0.45)" : "1px solid rgba(245, 158, 11, 0.45)",
-                color: isCompleted ? "var(--teal)" : "#f59e0b",
+                background: isCompleted
+                  ? "linear-gradient(135deg, rgba(46,230,200,0.22) 0%, rgba(6,22,38,0.9) 100%)"
+                  : "linear-gradient(135deg, rgba(255,194,71,0.22) 0%, rgba(6,22,38,0.9) 100%)",
+                border: isCompleted
+                  ? "1.5px solid rgba(46, 230, 200, 0.55)"
+                  : "1.5px solid rgba(245, 158, 11, 0.55)",
               }}
             >
-              {isCompleted ? <IconCheck size={22} /> : <IconSparkles size={22} />}
-            </span>
+              <svg className="w-8 h-8 overflow-visible" viewBox="0 0 32 32" fill="none">
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="14"
+                  stroke={isCompleted ? "#2ee6c8" : "#f59e0b"}
+                  strokeWidth="1.2"
+                  strokeDasharray="2.5 2"
+                  className="animate-spin"
+                  style={{ transformOrigin: "16px 16px", animationDuration: "22s" }}
+                />
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="10.5"
+                  fill={isCompleted ? "rgba(46,230,200,0.18)" : "rgba(245,158,11,0.18)"}
+                  stroke={isCompleted ? "#2ee6c8" : "#fef08a"}
+                  strokeWidth="1"
+                />
+                {isCompleted ? (
+                  <path
+                    d="M11 16 L14.5 19.5 L21 13"
+                    stroke="#2ee6c8"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ) : (
+                  <>
+                    <path
+                      d="M16 8 L17.6 13.2 L22.8 14.8 L17.6 16.4 L16 21.6 L14.4 16.4 L9.2 14.8 L14.4 13.2 Z"
+                      fill="#fef08a"
+                      stroke="#f59e0b"
+                      strokeWidth="0.6"
+                    />
+                    <circle cx="16" cy="14.8" r="1.6" fill="#ffffff" />
+                  </>
+                )}
+              </svg>
+            </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-[var(--amber)]">
