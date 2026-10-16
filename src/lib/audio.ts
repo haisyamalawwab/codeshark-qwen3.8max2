@@ -61,6 +61,10 @@ class SFX {
     [440, 554, 659, 880, 1108, 1318].forEach((f, i) => this.tone(f, 0.22, "triangle", 0.14, i * 0.075));
     this.tone(1760, 0.4, "sine", 0.16, 0.5);
   }
+  badge() {
+    [587, 740, 880, 1175].forEach((f, i) => this.tone(f, 0.16, "triangle", 0.13, i * 0.08));
+    this.tone(1480, 0.35, "sine", 0.15, 0.35);
+  }
 }
 
 export const sfx = new SFX();

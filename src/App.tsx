@@ -168,6 +168,8 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     enqueueAttempt(rec);
     pushOutbox(save.deviceId, save.profile?.name ?? null, save).catch(() => {});
 
+    const linesAwarded = r.linesCompleted ?? (r.won ? Math.max(1, Math.round(r.correct / 20)) : 0);
+
     setSave((s) => ({
       ...s,
       xp: s.xp + totalXpAward,
@@ -187,6 +189,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
         bestCombo: Math.max(s.stats.bestCombo, r.maxCombo),
         keystrokes: s.stats.keystrokes + r.correct + r.errors,
         correct: s.stats.correct + r.correct,
+        linesTyped: (s.stats.linesTyped ?? Math.max(0, Math.floor((s.stats.correct || 0) / 18))) + linesAwarded,
       },
     }));
     setScreen({
@@ -198,6 +201,23 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       isDaily,
       dailyBonusXp,
       dailyBonusCoins,
+    });
+  };
+
+  const claimAchievement = (badgeId: string, rewardXp: number, rewardCoins: number) => {
+    sfx.badge();
+    setSave((s) => {
+      const prevClaimed = s.claimedAchievements ?? {};
+      if (prevClaimed[badgeId]) return s;
+      return {
+        ...s,
+        xp: s.xp + rewardXp,
+        coins: s.coins + rewardCoins,
+        claimedAchievements: {
+          ...prevClaimed,
+          [badgeId]: Date.now(),
+        },
+      };
     });
   };
 
@@ -245,6 +265,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             }
             onPractice={enterPractice}
             onDailyChallenge={enterPractice}
+            onClaimAchievement={claimAchievement}
             onMateriHtml={() => setScreen({ s: "materi-html" })}
             onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
             subGame={subGame}

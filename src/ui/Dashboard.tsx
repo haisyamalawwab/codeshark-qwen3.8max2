@@ -19,6 +19,7 @@ import { SharkSprite } from "../graphics/stations";
 import MiniSpeedometer from "./MiniSpeedometer";
 import HudMap from "./HudMap";
 import DailyChallengeCard from "./DailyChallengeCard";
+import AchievementsSection from "./AchievementsSection";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
 
@@ -28,6 +29,7 @@ interface Props {
   onMateri: (id: string) => void;
   onPractice: (id: string) => void;
   onDailyChallenge?: (challengeId: string) => void;
+  onClaimAchievement?: (badgeId: string, rewardXp: number, rewardCoins: number) => void;
   /** buka Materi HTML berbasis dokumen .md per pertemuan */
   onMateriHtml?: () => void;
   /** buka Peta Pertemuan 16× (quest · drill · juggling) */
@@ -68,7 +70,7 @@ function useReveal() {
 }
 
 export default function Dashboard({
-  save, cfg, onMateri, onPractice, onDailyChallenge, onMateriHtml, onPeta,
+  save, cfg, onMateri, onPractice, onDailyChallenge, onClaimAchievement, onMateriHtml, onPeta,
   subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile,
 }: Props) {
   const revealRef = useReveal();
@@ -269,8 +271,8 @@ export default function Dashboard({
                   </div>
                 </div>
 
-                {/* Kalimat Motivasi Daily Streak */}
-                <div className="mt-2.5 text-xs flex items-center justify-center sm:justify-start gap-2 font-medium">
+                {/* Kalimat Motivasi Daily Streak & Total Baris Kode */}
+                <div className="mt-2.5 text-xs flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1.5 font-medium">
                   {streakStatus.practicedToday ? (
                     <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
@@ -286,6 +288,10 @@ export default function Dashboard({
                       <IconFlame size={13} className="text-[#f97316]" /> Selesaikan 1 misi latihan hari ini untuk menyalakan Daily Streak!
                     </span>
                   )}
+
+                  <span className="inline-flex items-center gap-1 text-[var(--teal)] font-mono text-[11px] bg-[rgba(46,230,200,0.08)] px-2.5 py-0.5 rounded-full border border-[rgba(46,230,200,0.25)]">
+                    <IconKeyboard size={12} /> {(save.stats.linesTyped || 0).toLocaleString()} baris kode
+                  </span>
                 </div>
               </div>
             </div>
@@ -393,6 +399,14 @@ export default function Dashboard({
             }}
           />
         </section>
+
+        {/* ============ PRESTASI & LENCANA (ACHIEVEMENTS) ============ */}
+        <div id="achievements-section">
+          <AchievementsSection
+            save={save}
+            onClaim={onClaimAchievement ?? (() => {})}
+          />
+        </div>
 
         {/* ============ PETA MISI HUD ============ */}
         <section className="mt-8 reveal">

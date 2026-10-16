@@ -24,6 +24,8 @@ export interface GameResult {
   errors: number;
   /** karakter target yang paling sering salah diketik (karakter → jumlah) */
   missed: Record<string, number>;
+  /** Jumlah baris kode yang berhasil diketik pada sesi ini */
+  linesCompleted?: number;
 }
 
 interface Props {
@@ -110,7 +112,13 @@ export default function TypingGame({ mod, cfg, onDone, onExit }: Props) {
     const t = Math.max(5, elapsedSec());
     const wpm = Math.round(gg.correct / 5 / (t / 60));
     const stars = won ? (acc >= 95 ? 3 : acc >= 85 ? 2 : 1) : 0;
-    return { won, score: gg.score, accuracy: acc, wpm, maxCombo: gg.maxCombo, stars, timeSec: Math.round(t), correct: gg.correct, errors: gg.errors, missed: { ...gg.missed } };
+    const linesCompleted = won ? lines.length : Math.max(0, gg.lineIdx);
+    return {
+      won, score: gg.score, accuracy: acc, wpm, maxCombo: gg.maxCombo,
+      stars, timeSec: Math.round(t), correct: gg.correct, errors: gg.errors,
+      missed: { ...gg.missed },
+      linesCompleted,
+    };
   };
 
   const hurt = () => {

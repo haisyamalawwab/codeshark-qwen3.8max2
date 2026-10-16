@@ -37,6 +37,8 @@ export interface Stats {
   bestCombo: number;
   keystrokes: number;
   correct: number;
+  /** Total baris kode yang berhasil diketik sepanjang sesi */
+  linesTyped: number;
 }
 
 export interface DailyStreak {
@@ -65,6 +67,8 @@ export interface SaveData {
   stats: Stats;
   streak: DailyStreak;
   dailyChallenge: DailyChallengeRecord;
+  /** Lencana prestasi yang sudah diklaim hadiahnya (id -> timestamp klaim) */
+  claimedAchievements?: Record<string, number>;
   /** identitas perangkat untuk sync NeonDB (stabil antar sesi) */
   deviceId: string;
   updatedAt: number;
@@ -111,12 +115,13 @@ export const defaultSave = (): SaveData => ({
   xp: 0,
   coins: 0,
   modules: {},
-  stats: { games: 0, wins: 0, bestWpm: 0, bestCombo: 0, keystrokes: 0, correct: 0 },
+  stats: { games: 0, wins: 0, bestWpm: 0, bestCombo: 0, keystrokes: 0, correct: 0, linesTyped: 0 },
   streak: { current: 0, best: 0, lastActiveDate: null },
   dailyChallenge: {
     lastCompletedDate: null,
     totalCompleted: 0,
   },
+  claimedAchievements: {},
   deviceId: deviceId(),
   updatedAt: Date.now(),
 });
@@ -144,7 +149,11 @@ export function loadSaveFor(userId?: string | null): SaveData {
 }
 
 function parseSave(raw: string): SaveData {
-  const d = JSON.parse(raw) as Partial<SaveData> & { streak?: Partial<DailyStreak>; dailyChallenge?: Partial<DailyChallengeRecord> };
+  const d = JSON.parse(raw) as Partial<SaveData> & {
+    streak?: Partial<DailyStreak>;
+    dailyChallenge?: Partial<DailyChallengeRecord>;
+    claimedAchievements?: Record<string, number>;
+  };
   const base = defaultSave();
   const rawStreak = d.streak;
   const streak: DailyStreak = {
@@ -159,13 +168,30 @@ function parseSave(raw: string): SaveData {
     todayAccuracy: typeof rawDaily?.todayAccuracy === "number" ? rawDaily.todayAccuracy : undefined,
     totalCompleted: typeof rawDaily?.totalCompleted === "number" ? Math.max(0, rawDaily.totalCompleted) : 0,
   };
+  const rawStats = d.stats;
+  const stats: Stats = {
+    games: typeof rawStats?.games === "number" ? rawStats.games : 0,
+    wins: typeof rawStats?.wins === "number" ? rawStats.wins : 0,
+    bestWpm: typeof rawStats?.bestWpm === "number" ? rawStats.bestWpm : 0,
+    bestCombo: typeof rawStats?.bestCombo === "number" ? rawStats.bestCombo : 0,
+    keystrokes: typeof rawStats?.keystrokes === "number" ? rawStats.keystrokes : 0,
+    correct: typeof rawStats?.correct === "number" ? rawStats.correct : 0,
+    linesTyped: typeof rawStats?.linesTyped === "number"
+      ? Math.max(0, rawStats.linesTyped)
+      : Math.max(0, Math.floor((rawStats?.correct ?? 0) / 18)),
+  };
+  const claimedAchievements = (d.claimedAchievements && typeof d.claimedAchievements === "object")
+    ? { ...d.claimedAchievements }
+    : {};
+
   return {
     ...base,
     ...d,
-    stats: { ...base.stats, ...(d.stats || {}) },
+    stats,
     modules: { ...(d.modules || {}) },
     streak,
     dailyChallenge,
+    claimedAchievements,
     deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };

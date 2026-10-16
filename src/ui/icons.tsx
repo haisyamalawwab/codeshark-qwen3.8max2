@@ -232,5 +232,21 @@ export const IconSparkles = make(
   />
 );
 
+export const IconMedal = make(
+  <>
+    <circle cx="12" cy="14" r="5" />
+    <path d="M8.2 9.5L6 3h4l2 4 2-4h4l-2.2 6.5" />
+    <path d="M12 12v4M10 14h4" />
+  </>
+);
+
+export const IconAward = make(
+  <>
+    <circle cx="12" cy="9" r="6" />
+    <path d="M15.5 14L18 21l-6-3-6 3 2.5-7" />
+  </>
+);
+
+
 
 

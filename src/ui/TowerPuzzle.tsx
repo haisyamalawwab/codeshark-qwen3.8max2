@@ -233,6 +233,7 @@ export default function TowerPuzzle({ mod, cfg, onDone, onExit }: Props) {
     const r: GameResult = {
       won: true, score: finalScore, accuracy: acc, wpm, maxCombo: Math.max(maxCombo, combo),
       stars, timeSec: Math.round(t), correct: finalCorrect, errors, missed: { ...missed },
+      linesCompleted: finalPlaced.length,
     };
     window.setTimeout(() => onDoneRef.current(r), 1600);
   };
