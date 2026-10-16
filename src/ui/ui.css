@@ -730,6 +730,64 @@
   animation: dangerPulse 1.1s ease-in-out infinite;
 }
 
+/* ===== CELEBRATION / RANK UP ANIMATIONS ===== */
+@keyframes sunburstRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.anim-sunburst {
+  animation: sunburstRotate 26s linear infinite;
+}
+
+@keyframes rankBadgeFloat {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 25px rgba(255, 194, 71, 0.45)); }
+  50% { transform: translateY(-8px) scale(1.05); filter: drop-shadow(0 0 45px rgba(255, 194, 71, 0.85)); }
+}
+.anim-rank-badge {
+  animation: rankBadgeFloat 3s ease-in-out infinite;
+}
+
+@keyframes rankCardEntry {
+  0% { transform: scale(0.7) translateY(30px); opacity: 0; }
+  65% { transform: scale(1.04) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.anim-rank-card {
+  animation: rankCardEntry 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes confettiDrop {
+  0% {
+    transform: translate3d(0, -20px, 0) rotate(0deg) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(var(--drift, 40px), 105vh, 0) rotate(var(--rot, 540deg)) scale(1);
+    opacity: 0;
+  }
+}
+.confetti-piece {
+  position: absolute;
+  top: -24px;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: confettiDrop var(--duration, 3.2s) cubic-bezier(0.25, 0.46, 0.45, 0.94) var(--delay, 0s) infinite;
+}
+
+@keyframes sparkleGlow {
+  0%, 100% { transform: scale(0.7) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1.25) rotate(45deg); opacity: 1; }
+}
+.anim-sparkle {
+  animation: sparkleGlow 2s ease-in-out infinite;
+}
+
 /* ===== HUB SUB-GAME: kartu arena Coding Tower vs CodeShark ===== */
 .arena-card {
   border-radius: 20px;

@@ -4,6 +4,7 @@ import type { Session } from "../data/quests";
 import type { GameResult } from "./TypingGame";
 import { sfx } from "../lib/audio";
 import { CodePanel } from "./Dashboard";
+import RankCelebrationOverlay from "./RankCelebrationOverlay";
 import {
   IconBolt, IconCoin, IconRetry, IconMap, IconStar, IconStarLine, IconTarget,
   IconTimer, IconBolt as IconCombo, IconCheck, IconX, IconConsole, IconEye, IconKeyboard, IconTrophy,
@@ -60,6 +61,7 @@ export default function Results({
   const coins = useCountUp(coinsGained, 900, 1000);
   const [logs, setLogs] = useState<{ type: string; text: string }[]>([]);
   const [tab, setTab] = useState<"preview" | "kode" | "konsol">("preview");
+  const [showRankModal, setShowRankModal] = useState<boolean>(() => Boolean(rankUp));
   const showConsole = mod.lang === "js";
   const hardest = Object.entries(r.missed ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 4);
 
@@ -90,6 +92,14 @@ export default function Results({
 
   return (
     <div className="relative z-10 min-h-screen">
+      {/* ===== OVERLAY PERAYAAN NAIK PANGKAT (RANK UP CELEBRATION) ===== */}
+      {showRankModal && rankUp && (
+        <RankCelebrationOverlay
+          rank={rankUp}
+          onClose={() => setShowRankModal(false)}
+        />
+      )}
+
       <main className="max-w-5xl mx-auto px-4 py-10 pb-24">
         {/* ===== kepala hasil ===== */}
         <section className="text-center screen-in">
@@ -113,9 +123,19 @@ export default function Results({
               )
             )}
             {rankUp && (
-              <span className="chip !text-[var(--amber)] anim-pop">
-                <IconTrophy size={14} /> Rank naik: {rankUp}!
-              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.click();
+                  setShowRankModal(true);
+                }}
+                className="chip !text-[var(--amber)] !border-[rgba(255,194,71,0.55)] anim-pop hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-[0_0_14px_rgba(255,194,71,0.25)] flex items-center gap-1.5"
+                title="Klik untuk membuka kembali perayaan kenaikan pangkat!"
+              >
+                <IconTrophy size={14} className="text-amber-300 animate-bounce" />
+                <span>Rank naik: <strong className="text-amber-200">{rankUp}</strong>!</span>
+                <IconSparkles size={12} className="text-amber-300" />
+              </button>
             )}
             {isDaily && (
               <span className="chip !text-[var(--amber)] !border-[rgba(245,158,11,0.5)] anim-pop flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.25)]">

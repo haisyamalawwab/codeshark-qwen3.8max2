@@ -57,6 +57,10 @@ class SFX {
   coin() { this.tone(988, 0.07, "square", 0.08); this.tone(1319, 0.13, "square", 0.08, 0.06); }
   star() { this.tone(1568, 0.12, "triangle", 0.11); }
   quizOk() { this.tone(660, 0.1, "triangle", 0.11); this.tone(880, 0.14, "triangle", 0.11, 0.08); }
+  rankUp() {
+    [440, 554, 659, 880, 1108, 1318].forEach((f, i) => this.tone(f, 0.22, "triangle", 0.14, i * 0.075));
+    this.tone(1760, 0.4, "sine", 0.16, 0.5);
+  }
 }
 
 export const sfx = new SFX();
