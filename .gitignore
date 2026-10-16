@@ -1,2 +1,178 @@
-dist/
+# ========================================
+# CODESHARK ACADEMY .gitignore
+# Vite + React + TypeScript + PWA
+# ========================================
+
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Build output
+dist/
+dist-ssr/
+build/
+*.local
+
+# Cache directories
+.vite/
+.turbo/
+.cache/
+.parcel-cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+.project
+.classpath
+.settings/
+.history/
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+
+# PWA service worker cache (dev)
+dev-dist/
+sw.js
+workbox-*.js
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Package manager lock files (keep only one)
+# Uncomment the one you DON'T use:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Debug files
+debug.log
+trace.log
+
+# Sentry CLI
+.sentryclirc
+
+# Local Netlify folder
+.netlify/
+
+# Vercel
+.vercel
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+
+# Screenshots & recordings (test artifacts)
+screenshots/
+videos/
+test-results/
+playwright-report/
+
+# Large media files that should be in CDN
+# (uncomment if you want to exclude)
+# *.mp4
+# *.mov
+# *.avi
+# *.webm
+
+# Generated documentation
+docs-dist/
+storybook-static/
+
+# Backup files from editors
+*~
+*.bak
+*.backup
+
+# ========================================
+# Project-specific ignores
+# ========================================
+
+# Temporary markdown drafts
+*_draft.md
+*_temp.md
+
+# Analysis and planning docs (keep these tracked)
+!ANALISIS*.md
+!SPESIFIKASI*.md
+!KURIKULUM*.md
+!MASTER-PROMPT*.md
+
+# Generated curriculum content (if auto-generated)
+# content/generated/
+
+# Local testing HTML files
+test.html
+demo.html
+playground.html
