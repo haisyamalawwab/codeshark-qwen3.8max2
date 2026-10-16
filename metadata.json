@@ -1,0 +1,6 @@
+{
+  "name": "latihan.my.id — Belajar Koding Sambil Main Game",
+  "description": "latihan.my.id — agregat belajar koding berbasis game: CodeShark (ketik kode) & Coding Tower (susun blok). Pilih sub-game dan mulai main.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

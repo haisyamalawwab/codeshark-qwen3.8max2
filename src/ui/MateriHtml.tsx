@@ -173,7 +173,7 @@ function PracticeCard({ l, no, save, onPractice }: { l: Lesson; no: number; save
         })}
       </div>
       <p className="text-[11px] text-[var(--faint)] mt-2.5">
-        Quest = kode pertemuan ini (akurasi ≥ 90%). Drill = hiu per baris sintaks inti, hancur +100 / lolos -50 (≥ 90%). Juggling = drill dianyam dengan pertemuan sebelumnya (≥ 85%).
+        Quest = kode pertemuan ini (akurasi ≥ 90%). Drill = baris sintaks inti (≥ 90%). Juggling = drill dianyam dengan pertemuan sebelumnya (≥ 85%).
         {locked && " Selesaikan Perak di pertemuan sebelumnya untuk membuka."}
       </p>
     </section>
