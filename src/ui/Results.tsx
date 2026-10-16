@@ -7,6 +7,7 @@ import { CodePanel } from "./Dashboard";
 import {
   IconBolt, IconCoin, IconRetry, IconMap, IconStar, IconStarLine, IconTarget,
   IconTimer, IconBolt as IconCombo, IconCheck, IconX, IconConsole, IconEye, IconKeyboard, IconTrophy,
+  IconFlame,
 } from "./icons";
 
 interface Props {
@@ -19,6 +20,8 @@ interface Props {
   xpGained: number;
   coinsGained: number;
   rankUp: string | null;
+  /** Jumlah hari berturut-turut streak aktif */
+  streakCount?: number;
   onRetry: () => void;
   onMap: () => void;
 }
@@ -42,7 +45,7 @@ function useCountUp(target: number, dur = 950, delay = 0) {
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
-export default function Results({ mod, cfg, result, passed, xpGained, coinsGained, rankUp, onRetry, onMap }: Props) {
+export default function Results({ mod, cfg, result, passed, xpGained, coinsGained, rankUp, streakCount, onRetry, onMap }: Props) {
   const r = result;
   const score = useCountUp(r.score, 1100, 300);
   const xp = useCountUp(xpGained, 900, 800);
@@ -201,9 +204,23 @@ export default function Results({ mod, cfg, result, passed, xpGained, coinsGaine
             </span>
             <div>
               <p className="font-display font-extrabold text-3xl leading-none text-[var(--amber)] tabular-nums">+{coins}</p>
-              <p className="text-xs font-bold text-[var(--dim)] mt-1">Koin • bisa untuk skin di versi berikutnya</p>
+              <p className="text-xs font-bold text-[var(--dim)] mt-1">Koin • simpan untuk reward samudra</p>
             </div>
           </div>
+          {typeof streakCount === "number" && streakCount > 0 && (
+            <>
+              <div className="hidden sm:block w-px h-12 bg-[var(--line-soft)]" />
+              <div className="flex items-center gap-4 flex-1">
+                <span className="w-12 h-12 rounded-xl grid place-items-center bg-[rgba(249,115,22,0.12)] text-[#f97316] border border-[rgba(249,115,22,0.35)] shadow-[0_0_14px_rgba(249,115,22,0.25)]">
+                  <IconFlame size={24} />
+                </span>
+                <div>
+                  <p className="font-display font-extrabold text-3xl leading-none text-[#fdba74] tabular-nums">{streakCount} Hari</p>
+                  <p className="text-xs font-bold text-[var(--dim)] mt-1">Daily Streak • Api latihan menyala!</p>
+                </div>
+              </div>
+            </>
+          )}
         </section>
 
         {/* ===== preview hasil ===== */}

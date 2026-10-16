@@ -44,11 +44,25 @@ export default defineConfig({
       },
       devOptions: { enabled: false },
     }),
+    {
+      name: "mock-api-sync",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url === "/api/sync-progress" && req.method === "POST") {
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ ok: true, synced: 0, mock: true }));
+            return;
+          }
+          next();
+        });
+      },
+    },
   ],
-  // dev server di belakang preview proxy (host *.e2b.app) harus diizinkan; tidak memengaruhi build
+  // dev server di belakang preview proxy harus diizinkan dan berjalan di port 3000
   server: {
     host: "0.0.0.0",
-    allowedHosts: [".e2b.app"],
+    port: 3000,
+    allowedHosts: true,
   },
   resolve: {
     alias: {

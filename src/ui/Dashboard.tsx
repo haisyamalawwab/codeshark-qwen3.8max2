@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { SaveData } from "../lib/storage";
-import { rankOf, RANKS } from "../lib/storage";
+import { rankOf, RANKS, evaluateStreak } from "../lib/storage";
 import type { AgeCfg, ModuleDef } from "../data/modules";
 import { MODULES } from "../data/modules";
 import { HTML_DOCS } from "../data/materiHtml";
@@ -9,7 +9,7 @@ import {
   IconFin, IconBolt, IconCoin, IconBook, IconKeyboard, IconStar, IconStarLine,
   IconLock, IconCheck, IconArrowR, IconEye, IconRetry, IconSound, IconMute,
    IconTarget, IconTimer, IconTrophy, IconX, IconTag, IconBrush, IconHome,
-  IconTower,
+  IconTower, IconFlame,
 } from "./icons";
 import { SUBGAMES, SUBGAME_ORDER } from "../data/subgames";
 import type { SubGameId } from "../data/subgames";
@@ -69,6 +69,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
   const [confirmReset, setConfirmReset] = useState(false);
   const profile = save.profile!;
   const rank = rankOf(save.xp);
+  const streakStatus = evaluateStreak(save.streak);
   const doneCount = MODULES.filter((m) => (save.modules[m.id]?.completions ?? 0) > 0).length;
   const avgAcc = (() => {
     const bests = MODULES.map((m) => save.modules[m.id]?.best).filter(
@@ -130,6 +131,29 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             <IconCoin size={15} /> {save.coins}
           </div>
 
+          {/* Chip Daily Streak */}
+          <div
+            className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(249,115,22,0.4)] !text-[#fdba74] shadow-[0_2px_10px_rgba(249,115,22,0.2)] flex items-center gap-1.5"
+            title={
+              streakStatus.practicedToday
+                ? `Daily Streak: ${streakStatus.current} hari berturut-turut! Target hari ini sudah selesai.`
+                : streakStatus.current > 0
+                  ? `Daily Streak: ${streakStatus.current} hari aktif! Latihan sekarang agar streak tidak putus.`
+                  : "Mulai Daily Streak pertamamu hari ini!"
+            }
+          >
+            <IconFlame
+              size={15}
+              className={streakStatus.current > 0 ? "text-[#f97316] animate-pulse" : "text-slate-400 opacity-60"}
+            />
+            <span className="font-extrabold text-xs tabular-nums text-white">
+              {streakStatus.current}
+            </span>
+            <span className="text-[10px] uppercase font-bold text-amber-200/80 hidden xs:inline">
+              Hari
+            </span>
+          </div>
+
           {/* Tombol Suara & Profil */}
           <button className="btn btn-ghost !p-2 !rounded-xl !bg-[rgba(10,34,56,0.5)] !border-[rgba(126,196,236,0.2)]" onClick={onToggleSound} aria-label="Suara">
             {profile.sound ? <IconSound size={17} /> : <IconMute size={17} />}
@@ -174,10 +198,45 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                 )}
 
                 {/* Info Rank & Kebutuhan XP */}
-                <div className="mt-3.5 flex items-center justify-center sm:justify-start gap-3 flex-wrap">
+                <div className="mt-3.5 flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(255,194,71,0.12)] border border-[rgba(255,194,71,0.4)] text-[var(--amber)] text-xs font-bold">
                     <IconTrophy size={14} /> Rank: {rank.cur.name}
                   </span>
+
+                  {/* Lencana 'Daily Streak' */}
+                  <div
+                    className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[rgba(249,115,22,0.12)] border border-[rgba(249,115,22,0.45)] text-[#fed7aa] text-xs font-bold shadow-[0_0_14px_rgba(249,115,22,0.18)]"
+                    title={
+                      streakStatus.practicedToday
+                        ? `Luar biasa! Kamu telah latihan ${streakStatus.current} hari berturut-turut.`
+                        : streakStatus.current > 0
+                          ? `Streak aktif ${streakStatus.current} hari. Selesaikan 1 latihan hari ini untuk menjaga streak!`
+                          : "Selesaikan 1 misi latihan hari ini untuk menyalakan Daily Streak pertamamu!"
+                    }
+                  >
+                    <IconFlame
+                      size={15}
+                      className={streakStatus.current > 0 ? "text-[#f97316] animate-pulse" : "text-slate-400 opacity-60"}
+                    />
+                    <span>
+                      Daily Streak: <strong className="text-white font-extrabold tabular-nums">{streakStatus.current} Hari</strong>
+                    </span>
+                    {streakStatus.practicedToday ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
+                        <IconCheck size={11} /> Aktif
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">
+                        ⚡ Hari Ini
+                      </span>
+                    )}
+                    {streakStatus.best > 0 && (
+                      <span className="text-[11px] text-amber-200/70 font-semibold hidden md:inline">
+                        (Rekor: {streakStatus.best})
+                      </span>
+                    )}
+                  </div>
+
                   {rank.next ? (
                     <span className="text-xs text-[var(--dim)] font-semibold">
                       <strong className="text-white">{rank.next.xp - save.xp} XP</strong> lagi menuju <span className="text-[var(--teal)] font-bold">{rank.next.name}</span>
@@ -199,6 +258,25 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
                       }}
                     />
                   </div>
+                </div>
+
+                {/* Kalimat Motivasi Daily Streak */}
+                <div className="mt-2.5 text-xs flex items-center justify-center sm:justify-start gap-2 font-medium">
+                  {streakStatus.practicedToday ? (
+                    <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                      Target hari ini selesai! Daily Streak kamu bertambah {streakStatus.current} hari berturut-turut.
+                    </span>
+                  ) : streakStatus.current > 0 ? (
+                    <span className="inline-flex items-center gap-1.5 text-amber-300 font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      Api latihan masih menyala! Selesaikan 1 misi hari ini agar streak {streakStatus.current} hari tidak putus.
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-[var(--dim)]">
+                      <IconFlame size={13} className="text-[#f97316]" /> Selesaikan 1 misi latihan hari ini untuk menyalakan Daily Streak!
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -310,10 +388,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
           />
         </section>
 
-        {/* ============ HUB SUB-GAME: pilih arena dulu ============
-            Disembunyikan di entry terkunci (/codingshark, /codingtower) karena
-            navigasi antar-arena sudah ada di top menu. */}
-        {onSelectSubGame && (
+        {/* ============ HUB SUB-GAME: pilih arena dulu ============ */}
         <section className="mt-10 reveal">
           <div className="flex items-center gap-4 mb-5">
             <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
@@ -381,7 +456,6 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             Progres berlaku untuk dua mode.
           </p>
         </section>
-        )}
 
         {/* ============ KURIKULUM 16 PERTEMUAN ============ */}
         {onPeta && (

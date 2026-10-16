@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import type { AgeId, SaveData } from "./lib/storage";
-import { clearSave, defaultSave, loadSave, persist, rankOf } from "./lib/storage";
+import { clearSave, defaultSave, loadSave, persist, rankOf, recordDailyStreak } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
 import type { Session } from "./data/quests";
@@ -16,7 +16,6 @@ import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
 import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
-import SharkDrillGame from "./ui/SharkDrillGame";
 import type { GameResult } from "./ui/TypingGame";
 import { isTouchDevice } from "./lib/device";
 import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
@@ -44,7 +43,7 @@ type Screen =
   | { s: "materi"; id: string }
   | { s: "materi-html"; no?: number }
   | { s: "game"; id: string; k: number }
-  | { s: "result"; id: string; r: GameResult; xp: number; coins: number; rankUp: string | null; passed: boolean };
+  | { s: "result"; id: string; r: GameResult; xp: number; coins: number; rankUp: string | null; passed: boolean; streakCount?: number };
 
 export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
   const [save, setSave] = useState<SaveData>(() => loadSave());
@@ -102,11 +101,13 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     const firstRead = !prev.materiDone;
     const firstQuiz = prev.quizXp === 0 && quizXp > 0;
     const gained = (firstRead ? 20 : 0) + (firstQuiz ? quizXp : 0);
+    const { nextStreak } = recordDailyStreak(save.streak);
     setSave((s) => {
       const p = s.modules[id] ?? { materiDone: false, quizXp: 0, completions: 0 };
       return {
         ...s,
         xp: s.xp + gained,
+        streak: nextStreak,
         modules: {
           ...s.modules,
           [id]: { ...p, materiDone: true, quizXp: Math.max(p.quizXp, quizXp) },
@@ -134,6 +135,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     const { next, passed, xpAward, coinsAward } = applyAttempt(save.modules[id], sess, r, xpSession, coinsSession);
     const newRankName = rankOf(save.xp + xpAward).cur.name;
     const rankUp = newRankName !== prevRankName ? newRankName : null;
+    const { nextStreak } = recordDailyStreak(save.streak);
 
     const rec = logAttempt({
       sessionId: id, won: r.won, stars: r.stars, score: r.score,
@@ -147,6 +149,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       ...s,
       xp: s.xp + xpAward,
       coins: s.coins + coinsAward,
+      streak: nextStreak,
       modules: { ...s.modules, [id]: next },
       stats: {
         games: s.stats.games + 1,
@@ -157,7 +160,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
         correct: s.stats.correct + r.correct,
       },
     }));
-    setScreen({ s: "result", id, r, xp: xpAward, coins: coinsAward, rankUp, passed });
+    setScreen({ s: "result", id, r, xp: xpAward, coins: coinsAward, rankUp, passed, streakCount: nextStreak.current });
   };
 
   /* pertemuan dibuka dari peta / materi HTML → sesi pertemuan itu */
@@ -288,15 +291,6 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               onDone={(r) => finishPractice(screen.id, r)}
               onExit={() => setScreen({ s: "dash" })}
             />
-          ) : sessionOf(screen.id).kind === "drill" ? (
-            /* CodingShark mode Drill = Shark Typer per-hiu:
-               hancur +poin, menyerang -poin (lihat SharkDrillGame) */
-            <SharkDrillGame
-              key={`drill-${screen.id}-${screen.k}-${gameKey}`}
-              mod={sessionOf(screen.id)}
-              onDone={(r) => finishPractice(screen.id, r)}
-              onExit={() => setScreen({ s: "dash" })}
-            />
           ) : (
             <TypingGame
               key={`ketik-${screen.id}-${screen.k}-${gameKey}`}
@@ -317,6 +311,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
           xpGained={screen.xp}
           coinsGained={screen.coins}
           rankUp={screen.rankUp}
+          streakCount={screen.streakCount}
           onRetry={() => enterPractice(screen.id)}
           onMap={() => setScreen(meetingScreenOf(screen.id))}
         />
