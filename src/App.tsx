@@ -16,6 +16,7 @@ import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
 import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
+import SharkDrillGame from "./ui/SharkDrillGame";
 import type { GameResult } from "./ui/TypingGame";
 import { isTouchDevice } from "./lib/device";
 import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
@@ -284,6 +285,15 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               key={`susun-${screen.id}-${screen.k}-${gameKey}`}
               mod={sessionOf(screen.id)}
               cfg={cfg}
+              onDone={(r) => finishPractice(screen.id, r)}
+              onExit={() => setScreen({ s: "dash" })}
+            />
+          ) : sessionOf(screen.id).kind === "drill" ? (
+            /* CodingShark mode Drill = Shark Typer per-hiu:
+               hancur +poin, menyerang -poin (lihat SharkDrillGame) */
+            <SharkDrillGame
+              key={`drill-${screen.id}-${screen.k}-${gameKey}`}
+              mod={sessionOf(screen.id)}
               onDone={(r) => finishPractice(screen.id, r)}
               onExit={() => setScreen({ s: "dash" })}
             />

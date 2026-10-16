@@ -7,145 +7,351 @@
    - characters/ : shark-captain, shark-cyber (webp + png fallback)
    Arsip mentah AI ada di docs/reference-images/ (tidak dibundel). */
 
-.hudmap { display: flex; flex-direction: column; gap: 14px; }
+.hudmap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
 /* ---- progres tunggal pengganti strip 5-stat duplikat ---- */
 .hudmap-progress {
-  display: flex; align-items: center; gap: 8px;
-  margin: 0; padding: 10px 14px;
-  font-size: 12px; font-weight: 700; color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dim);
   border: 1.5px solid rgba(69, 198, 255, 0.35);
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(10, 34, 58, 0.88), rgba(5, 18, 33, 0.94));
 }
-.hudmap-progress strong { color: var(--amber); }
-.hudmap-progress .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ---- panggung peta ---- */
+.hudmap-progress strong {
+  color: var(--amber);
+}
+
+.hudmap-progress .truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- panggung peta: menyatu dengan background (tanpa box) ----
+   Responsif via .hudmap-scroll (geser horizontal saat layar < 720px). */
 .hudmap-stage {
-  border: 1.5px solid rgba(69, 198, 255, 0.35);
-  border-radius: 20px; overflow: hidden;
-  background: linear-gradient(180deg, #07263f 0%, #051627 55%, #030d1a 100%);
-  box-shadow: 0 24px 60px rgba(1, 8, 17, 0.55), 0 0 28px rgba(69, 198, 255, 0.1);
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: none;
+  box-shadow: none;
 }
-.hudmap-scroll { overflow-x: auto; }
-.hudmap-canvas { position: relative; min-width: 720px; aspect-ratio: 1000 / 560; }
+
+.hudmap-scroll {
+  overflow-x: auto;
+}
+
+.hudmap-canvas {
+  position: relative;
+  min-width: 720px;
+  aspect-ratio: 1000 / 560;
+}
+
 .hudmap-concept {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: 0.22; pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.22;
+  pointer-events: none;
 }
+
 .hudmap-shade {
-  position: absolute; inset: 0; pointer-events: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background:
     radial-gradient(60% 45% at 20% 40%, rgba(255, 194, 71, 0.12), transparent 70%),
     radial-gradient(55% 50% at 75% 65%, rgba(217, 70, 239, 0.14), transparent 70%),
     linear-gradient(180deg, rgba(3, 13, 26, 0.05), rgba(3, 13, 26, 0.55));
 }
-.hudmap-wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.hudmap-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
 
 /* ---- bangunan checkpoint (cutout tunggal, bukan sheet) ---- */
-.hudmap-base { position: absolute; margin: 0; z-index: 1; }
-.hudmap-base img { display: block; width: 100%; height: auto; }
-.hudmap-base figcaption { text-align: center; margin-top: 2px; }
+.hudmap-base {
+  position: absolute;
+  margin: 0;
+  z-index: 1;
+}
+
+.hudmap-base img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hudmap-base figcaption {
+  text-align: center;
+  margin-top: 2px;
+}
+
 .hudmap-base .t1 {
-  display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   color: var(--amber);
 }
-.hudmap-base .t2 { display: block; font-size: 15px; font-weight: 800; color: #fff; }
-.hudmap-base .t3 { display: block; font-size: 11px; font-weight: 600; color: var(--dim); }
-.hudmap-base-m1 { left: 1%; top: 16%; width: 27%; }
+
+.hudmap-base .t2 {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.hudmap-base .t3 {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dim);
+}
+
+.hudmap-base-m1 {
+  left: 1%;
+  top: 16%;
+  width: 27%;
+}
+
 .hudmap-base-m1 img {
   filter: sepia(0.55) saturate(1.6) hue-rotate(-12deg) drop-shadow(0 0 22px rgba(255, 194, 71, 0.45));
 }
-.hudmap-base-m2 { left: 50%; top: 50%; width: 31%; }
-.hudmap-base-m2 img { filter: drop-shadow(0 0 24px rgba(217, 70, 239, 0.5)); }
-.hudmap-base-uas { left: 64%; top: 0%; width: 33%; }
-.hudmap-base-uas .crop {
-  display: block; overflow: hidden; aspect-ratio: 1 / 0.82;
+
+.hudmap-base-m2 {
+  left: 40%;
+  top: 40%;
+  width: 31%;
 }
+
+.hudmap-base-m2 img {
+  filter: drop-shadow(0 0 24px rgba(217, 70, 239, 0.5));
+}
+
+.hudmap-base-uas {
+  left: 64%;
+  top: 0%;
+  width: 33%;
+}
+
+.hudmap-base-uas .crop {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1 / 0.82;
+}
+
 .hudmap-base-uas img {
-  width: 100%; height: 100%; object-fit: cover; object-position: left center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
   filter: drop-shadow(0 0 24px rgba(69, 198, 255, 0.45));
 }
+
 .hudmap-tag {
-  display: inline-block; margin-top: 3px; padding: 1px 8px; border-radius: 999px;
-  font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
-  border: 1px solid rgba(217, 70, 239, 0.6); color: #f0abfc;
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(217, 70, 239, 0.6);
+  color: #f0abfc;
   background: rgba(20, 8, 30, 0.7);
 }
 
 /* ---- node pertemuan (tombol ≥44px, ramah sentuh) ---- */
 .hudmap-node {
-  position: absolute; z-index: 2; transform: translate(-50%, -50%);
-  min-width: 44px; min-height: 44px; padding: 0 6px;
-  display: grid; place-items: center;
-  border-radius: 999px; cursor: pointer;
-  font-family: var(--font-d); font-weight: 800; font-size: 15px;
-  color: #eaf6ff; background: rgba(8, 24, 40, 0.95);
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: 17px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+  background: rgba(8, 24, 40, 0.95);
   border: 2px solid rgba(126, 196, 236, 0.65);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(69, 198, 255, 0.25);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.hudmap-node:hover { transform: translate(-50%, -50%) scale(1.12); }
-.hudmap-node .lock { font-size: 11px; line-height: 1; }
-.hudmap-node.done {
-  color: #04222b; background: linear-gradient(160deg, #7ee4ff, #2ee6c8);
-  border-color: #2ee6c8; box-shadow: 0 0 18px rgba(46, 230, 200, 0.65);
+
+.hudmap-node:hover {
+  transform: translate(-50%, -50%) scale(1.12);
 }
+
+/* node terkunci: nomor tetap tampil + lencana gembok kontras di sudut */
+.hudmap-node.lock {
+  border-style: dashed;
+  border-color: rgba(244, 114, 182, 0.65);
+  background: rgba(10, 22, 38, 0.95);
+}
+
+.hudmap-node .lock-badge {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(160deg, #f472b6, #e11d48);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 12px rgba(244, 114, 182, 0.8), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.hudmap-node .lock-badge svg {
+  display: block;
+}
+
+.hudmap-node.done {
+  color: #04222b;
+  background: linear-gradient(160deg, #7ee4ff, #2ee6c8);
+  border-color: #2ee6c8;
+  box-shadow: 0 0 18px rgba(46, 230, 200, 0.65);
+}
+
 .hudmap-node.now {
-  color: #fff; background: linear-gradient(160deg, #ffc247, #f59e0b);
-  border-color: #ffd88a; box-shadow: 0 0 22px rgba(255, 194, 71, 0.8);
+  color: #fff;
+  background: linear-gradient(160deg, #ffc247, #f59e0b);
+  border-color: #ffd88a;
+  box-shadow: 0 0 22px rgba(255, 194, 71, 0.8);
   animation: hudmap-ping 1.8s ease-out infinite;
 }
-.hudmap-node.big { font-size: 20px; }
-.hudmap-node.uts { border-color: #d946ef; box-shadow: 0 0 22px rgba(217, 70, 239, 0.7); }
-.hudmap-node.uas { border-color: #f472b6; box-shadow: 0 0 22px rgba(244, 114, 182, 0.7); }
+
+.hudmap-node.big {
+  font-size: 22px;
+}
+
+.hudmap-node.uts {
+  border-color: #d946ef;
+  box-shadow: 0 0 22px rgba(217, 70, 239, 0.7);
+}
+
+.hudmap-node.uas {
+  border-color: #f472b6;
+  box-shadow: 0 0 22px rgba(244, 114, 182, 0.7);
+}
+
 @keyframes hudmap-ping {
-  0% { box-shadow: 0 0 0 0 rgba(255, 194, 71, 0.55); }
-  100% { box-shadow: 0 0 0 14px rgba(255, 194, 71, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 194, 71, 0.55);
+  }
+
+  100% {
+    box-shadow: 0 0 0 14px rgba(255, 194, 71, 0);
+  }
 }
 
 /* ---- sprite kecil dari sheet (image matrix) ---- */
-.spr { display: block; background-repeat: no-repeat; }
+.spr {
+  display: block;
+  background-repeat: no-repeat;
+}
+
 .spr-shark {
-  position: absolute; z-index: 1; width: 11%; aspect-ratio: 2.4 / 1;
-  background-image: image-set(
-    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
-  background-size: 400% 300%; background-position: 100% 0%;
+  position: absolute;
+  z-index: 1;
+  width: 11%;
+  aspect-ratio: 2.4 / 1;
+  background-image: image-set(url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+      url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
+  background-size: 400% 300%;
+  background-position: 100% 0%;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
   animation: spr-drift 7s ease-in-out infinite alternate;
 }
-.spr-shark.s1 { left: 30%; top: 30%; }
-.spr-shark.s2 { left: 82%; top: 52%; width: 9%; animation-delay: -3s; }
-@keyframes spr-drift {
-  from { transform: translateX(-8px) translateY(3px); }
-  to { transform: translateX(10px) translateY(-4px); }
+
+.spr-shark.s1 {
+  left: 30%;
+  top: 30%;
 }
-.spr-logo {  width: 44px; height: 44px; border-radius: 12px; flex: none;
-  background-image: image-set(
-    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
-  background-size: 400% 300%; background-position: 33.333% 100%;
+
+.spr-shark.s2 {
+  left: 82%;
+  top: 52%;
+  width: 9%;
+  animation-delay: -3s;
+}
+
+@keyframes spr-drift {
+  from {
+    transform: translateX(-8px) translateY(3px);
+  }
+
+  to {
+    transform: translateX(10px) translateY(-4px);
+  }
+}
+
+.spr-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex: none;
+  background-image: image-set(url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+      url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
+  background-size: 400% 300%;
+  background-position: 33.333% 100%;
   border: 1px solid rgba(46, 230, 200, 0.5);
   box-shadow: 0 0 16px rgba(46, 230, 200, 0.3);
 }
+
 .spr-lock {
-  width: 30px; height: 30px; flex: none;
-  background-image: image-set(
-    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
-  background-size: 400% 300%; background-position: 0% 50%;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  background-image: image-set(url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+      url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
+  background-size: 400% 300%;
+  background-position: 0% 50%;
   filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.8));
 }
-.spr-lock.sm { width: 16px; height: 12px; }
+
+.spr-lock.sm {
+  width: 16px;
+  height: 12px;
+}
+
 /* sel B3 sheet wide (3×3): gugus karang hias sudut panggung */
 .spr-reef {
-  position: absolute; z-index: 1; right: 1%; bottom: 2%; width: 16%; aspect-ratio: 1 / 1;
-  background-image: image-set(
-    url("../assets/hud/hud-sprite-wide.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-wide.png") type("image/png"));
-  background-size: 300% 300%; background-position: 50% 50%;
+  position: absolute;
+  z-index: 1;
+  right: 1%;
+  bottom: 2%;
+  width: 16%;
+  aspect-ratio: 1 / 1;
+  background-image: image-set(url("../assets/hud/hud-sprite-wide.webp") type("image/webp"),
+      url("../assets/hud/hud-sprite-wide.png") type("image/png"));
+  background-size: 300% 300%;
+  background-position: 50% 50%;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
@@ -155,56 +361,148 @@
    Pakai: <span class="spr-iso spr-iso-a1" role="img" aria-label="…" />
    Ukuran default mengikuti sel; lebar diatur konteks (lihat varian di bawah). */
 .spr-iso {
-  display: block; background-repeat: no-repeat;
-  background-image: image-set(
-    url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
-    url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
+  display: block;
+  background-repeat: no-repeat;
+  background-image: image-set(url("../assets/hud/hud-sprite-isolated.webp") type("image/webp"),
+      url("../assets/hud/hud-sprite-isolated.png") type("image/png"));
   background-size: 400% 300%;
 }
-.spr-iso-a1 { background-position: 0% 0%; }
-.spr-iso-b1 { background-position: 33.333% 0%; }
-.spr-iso-c1 { background-position: 66.666% 0%; }
-.spr-iso-d1 { background-position: 100% 0%; }
-.spr-iso-a2 { background-position: 0% 50%; }
-.spr-iso-b2 { background-position: 33.333% 50%; }
-.spr-iso-c2 { background-position: 66.666% 50%; }
-.spr-iso-d2 { background-position: 100% 50%; }
-.spr-iso-a3 { background-position: 0% 100%; }
-.spr-iso-b3 { background-position: 33.333% 100%; }
-.spr-iso-c3 { background-position: 66.666% 100%; }
-.spr-iso-d3 { background-position: 100% 100%; }
+
+.spr-iso-a1 {
+  background-position: 0% 0%;
+}
+
+.spr-iso-b1 {
+  background-position: 33.333% 0%;
+}
+
+.spr-iso-c1 {
+  background-position: 66.666% 0%;
+}
+
+.spr-iso-d1 {
+  background-position: 100% 0%;
+}
+
+.spr-iso-a2 {
+  background-position: 0% 50%;
+}
+
+.spr-iso-b2 {
+  background-position: 33.333% 50%;
+}
+
+.spr-iso-c2 {
+  background-position: 66.666% 50%;
+}
+
+.spr-iso-d2 {
+  background-position: 100% 50%;
+}
+
+.spr-iso-a3 {
+  background-position: 0% 100%;
+}
+
+.spr-iso-b3 {
+  background-position: 33.333% 100%;
+}
+
+.spr-iso-c3 {
+  background-position: 66.666% 100%;
+}
+
+.spr-iso-d3 {
+  background-position: 100% 100%;
+}
+
 /* alias semantik = nama sel sesuai peta */
-.spr-iso-dome-gold { background-position: 0% 0%; }
-.spr-iso-dome-neon { background-position: 33.333% 0%; }
-.spr-iso-station { background-position: 66.666% 0%; }
-.spr-iso-shark { background-position: 100% 0%; }
-.spr-iso-lock { background-position: 0% 50%; }
-.spr-iso-badge-1 { background-position: 33.333% 50%; }
-.spr-iso-badge-12 { background-position: 66.666% 50%; }
-.spr-iso-badge-16 { background-position: 100% 50%; }
-.spr-iso-badge-8 { background-position: 0% 100%; }
-.spr-iso-logo { background-position: 33.333% 100%; }
-.spr-iso-btn-shark { background-position: 66.666% 100%; }
-.spr-iso-btn-tower { background-position: 100% 100%; }
+.spr-iso-dome-gold {
+  background-position: 0% 0%;
+}
+
+.spr-iso-dome-neon {
+  background-position: 33.333% 0%;
+}
+
+.spr-iso-station {
+  background-position: 66.666% 0%;
+}
+
+.spr-iso-shark {
+  background-position: 100% 0%;
+}
+
+.spr-iso-lock {
+  background-position: 0% 50%;
+}
+
+.spr-iso-badge-1 {
+  background-position: 33.333% 50%;
+}
+
+.spr-iso-badge-12 {
+  background-position: 66.666% 50%;
+}
+
+.spr-iso-badge-16 {
+  background-position: 100% 50%;
+}
+
+.spr-iso-badge-8 {
+  background-position: 0% 100%;
+}
+
+.spr-iso-logo {
+  background-position: 33.333% 100%;
+}
+
+.spr-iso-btn-shark {
+  background-position: 66.666% 100%;
+}
+
+.spr-iso-btn-tower {
+  background-position: 100% 100%;
+}
+
 /* varian tampilan siap pakai di HUD (sel asli 4:3 = 344×256 px, jadi
    kontainer ikut 4/3 agar tidak melar; sel berisi padding transparan) */
-.spr-iso.building { width: 100%; aspect-ratio: 4 / 3; }
-.spr-iso.badge { width: 100%; aspect-ratio: 4 / 3; }
+.spr-iso.building {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.spr-iso.badge {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
 .spr-iso.btn-art {
-  width: 100%; aspect-ratio: 4 / 3;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   border-radius: 10px;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
 }
+
 .spr-iso.logo-chip {
-  width: 58px; aspect-ratio: 4 / 3; flex: none;
+  width: 58px;
+  aspect-ratio: 4 / 3;
+  flex: none;
   border: 1px solid rgba(46, 230, 200, 0.5);
   border-radius: 12px;
   box-shadow: 0 0 16px rgba(46, 230, 200, 0.3);
 }
-.spr-iso.lock-chip { width: 26px; aspect-ratio: 4 / 3; flex: none; }
-.hudmap-iso-row { display: flex; align-items: center; gap: 8px; }
-.hudmap-iso-row .spr-iso.badge { width: 40px; flex: none; }
+
+.spr-iso.lock-chip {
+  width: 26px;
+  aspect-ratio: 4 / 3;
+  flex: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .hudmap-node.now, .spr-shark { animation: none; }
+
+  .hudmap-node.now,
+  .spr-shark {
+    animation: none;
+  }
 }

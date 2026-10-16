@@ -310,7 +310,10 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
           />
         </section>
 
-        {/* ============ HUB SUB-GAME: pilih arena dulu ============ */}
+        {/* ============ HUB SUB-GAME: pilih arena dulu ============
+            Disembunyikan di entry terkunci (/codingshark, /codingtower) karena
+            navigasi antar-arena sudah ada di top menu. */}
+        {onSelectSubGame && (
         <section className="mt-10 reveal">
           <div className="flex items-center gap-4 mb-5">
             <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight shrink-0">
@@ -378,6 +381,7 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
             Progres berlaku untuk dua mode.
           </p>
         </section>
+        )}
 
         {/* ============ KURIKULUM 16 PERTEMUAN ============ */}
         {onPeta && (

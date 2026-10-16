@@ -17,8 +17,14 @@
   3) Konfigurasi via query string:
        ?mission=1..16   misi awal (default 1)
        ?speed=0.7..1.6  pengali kecepatan ikan (default 1)
+       ?kill=100         poin dasar per hiu hancur (default 100, +combo*10)
+       ?penalty=50       poin dikurangi per hiu menyerang/lolos (default 50)
        ?embed=1          sembunyikan tombol "tutup", cocok untuk iframe
        ?sound=0          bisukan suara awal
+
+  SISTEM POIN (CodingShark mode Drill):
+    - HIU HANCUR (kata selesai diketik) → +kill + combo*10. Combo naik tiap kill beruntun.
+    - HIU MENYERANG (lolos ke kiri) → -penalty (skor min 0), combo reset, nyawa -1.
 
   4) Dengarkan hasil game dari parent (iframe):
        window.addEventListener("message", (e) => {
@@ -101,6 +107,16 @@
     font-family:var(--mono);font-weight:900;font-size:24px;color:var(--amber);text-shadow:0 2px 14px rgba(0,0,0,.6);display:none}
   #combo.show{display:block;animation:combo .45s cubic-bezier(.2,1.6,.4,1) both}
   @keyframes combo{0%{transform:translateX(-50%) scale(.4) rotate(-8deg);opacity:0}60%{transform:translateX(-50%) scale(1.2) rotate(2deg);opacity:1}100%{transform:translateX(-50%) scale(1)}}
+  #feed{position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:25;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .pop{font-family:var(--mono);font-weight:900;font-size:15px;padding:2px 12px;border-radius:999px;background:rgba(2,12,20,.82);border:1px solid var(--line);animation:floatup 1s ease-out forwards}
+  .pop.plus{color:#6ee7b7;border-color:rgba(110,231,183,.5)}
+  .pop.minus{color:#fda4af;border-color:rgba(253,164,175,.5)}
+  @keyframes floatup{0%{opacity:0;transform:translateY(8px) scale(.8)}15%{opacity:1;transform:translateY(0) scale(1.05)}100%{opacity:0;transform:translateY(-26px) scale(1)}}
+  .killbar{position:relative;z-index:20;display:flex;gap:8px;align-items:center;justify-content:center;padding:0 12px 8px;font-size:11px;color:var(--dim);flex-wrap:wrap}
+  .kpill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+  .kpill b{font-family:var(--mono)}
+  .kpill.good b{color:#6ee7b7}
+  .kpill.bad b{color:#fda4af}
   /* overlays */
   .overlay{position:absolute;inset:0;z-index:40;display:grid;place-items:center;padding:20px;background:rgba(2,10,17,.55);backdrop-filter:blur(3px)}
   .card{width:100%;max-width:440px;text-align:center;border-radius:22px;padding:26px 22px;
@@ -176,14 +192,20 @@
     <button class="tbtn" id="btnHint" title="Petunjuk: tampilkan huruf berikutnya">💡 Hint</button>
     <button class="tbtn" id="btnSound" title="Suara">🔊</button>
   </div>
+  <div class="killbar" aria-label="Poin hiu">
+    <span class="kpill good">🦈 Hancur <b id="kKillPts">+100</b> × <b id="kKills">0</b></span>
+    <span class="kpill bad">💥 Serang <b id="kPenPts">-50</b> × <b id="kEsc">0</b></span>
+  </div>
 
   <div id="arena">
     <div id="combo">COMBO x5</div>
+    <div id="feed"></div>
     <div class="overlay" id="ovStart">
       <div class="card">
         <div class="big">🦈</div>
         <h1>SHARK <span class="gold">TYPER</span></h1>
         <p id="startDesc">Ketik kata yang berenang sebelum lolos ke kiri. <kbd>Backspace</kbd> untuk undo, <kbd>Esc</kbd> untuk ulang.</p>
+        <p style="font-size:12px" id="pointDesc">🦈 Hiu hancur = <b>+100</b> (+bonus combo) · 💥 Hiu menyerang/lolos = <b>-50</b> + nyawa -1.</p>
         <p style="font-size:12px">Fokus ke kolom ketik di bawah (atau ketik langsung di keyboard). Di HP, ketuk kolom ketik agar keyboard muncul.</p>
         <button class="start" id="btnStart">Mulai Misi ▶</button>
         <button class="ghost" id="btnHow">Skor terbaik tersimpan otomatis di perangkat ini</button>
@@ -197,6 +219,8 @@
         <div class="res">
           <div><i>SKOR</i><b id="rScore">0</b></div>
           <div><i>WPM</i><b id="rWpm">0</b></div>
+          <div><i>HIU HANCUR 🦈</i><b id="rKills">0</b></div>
+          <div><i>HIU MENYERANG 💥</i><b id="rEsc">0</b></div>
           <div><i>AKURASI</i><b id="rAcc">0%</b></div>
           <div><i>MAX COMBO</i><b id="rCombo">x0</b></div>
         </div>
@@ -215,7 +239,7 @@
       </div>
       <button class="iconbtn" id="btnHint2" title="Petunjuk">💡</button>
     </div>
-    <div class="tip">Ketik langsung di keyboard · <kbd>Backspace</kbd> undo · <kbd>Esc</kbd> ulang · skor dikirim ke website induk via <kbd>postMessage</kbd></div>
+    <div class="tip">🦈 +poin hancur · 💥 -poin diserang · <kbd>Backspace</kbd> undo · <kbd>Esc</kbd> ulang · skor dikirim ke website induk via <kbd>postMessage</kbd></div>
   </footer>
 </div>
 
@@ -244,6 +268,11 @@ const MISSIONS = [
 /* ============================== KONFIG ============================== */
 const qs = new URLSearchParams(location.search);
 const LIVES = 3, WAVE_SIZE = 6, MAX_WAVE = 3;
+/* SISTEM POIN Drill: hancur (+) vs menyerang (-) — bisa dioverride via ?kill=&penalty= */
+function qInt(v, d){ v=parseInt(v,10); return isNaN(v)?d:v; }
+const KILL_BASE = Math.max(1, qInt(qs.get("kill") || "100", 100));
+const KILL_COMBO_BONUS = 10;
+const PENALTY = Math.max(0, qInt(qs.get("penalty") || "50", 50));
 const state = {
   missionId: clampInt(parseInt(qs.get("mission") || "1", 10) || 1, 1, 16),
   speedMul: parseFloat(qs.get("speed") || "1") || 1,
@@ -251,6 +280,7 @@ const state = {
   muted: qs.get("sound") === "0",
   started:false, done:false, fish:[], lives:LIVES, wave:1,
   score:0, combo:0, maxCombo:0, typed:0, correct:0,
+  kills:0, escapes:0,
   activeId:null, cursor:0, words:[], nextId:1, startAt:0, hint:false
 };
 function clampInt(v,a,b){ v=Math.round(v); if(isNaN(v)) return a; return Math.min(b,Math.max(a,v)); }
@@ -313,6 +343,18 @@ function refreshHeader(){
   $("missionTitle").textContent=m.title;
   $("missionSub").textContent=`${m.sub} · ${m.track} · Misi ${m.id}/16`;
   $("startDesc").innerHTML=`Ketik kata <b>${esc(m.track)}</b> yang berenang sebelum lolos ke kiri. <kbd>Backspace</kbd> untuk undo, <kbd>Esc</kbd> untuk ulang.`;
+  const pd=$("pointDesc");
+  if(pd) pd.innerHTML=`🦈 Hiu hancur = <b>+${KILL_BASE}</b> (+${KILL_COMBO_BONUS}×combo) · 💥 Hiu menyerang/lolos = <b>-${PENALTY}</b> + nyawa -1.`;
+  $("kKillPts").textContent="+"+KILL_BASE;
+  $("kPenPts").textContent="-"+PENALTY;
+}
+function feed(txt,good){
+  const box=$("feed"); if(!box) return;
+  const d=document.createElement("div");
+  d.className="pop "+(good?"plus":"minus"); d.textContent=txt;
+  box.appendChild(d);
+  while(box.children.length>3) box.removeChild(box.firstChild);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); },1000);
 }
 function renderStats(wpm){
   $("sScore").textContent=state.score;
@@ -322,6 +364,8 @@ function renderStats(wpm){
   $("sWave").textContent=state.wave+" / "+MAX_WAVE;
   if(wpm!==undefined) $("sWpm").textContent=wpm;
   $("lives").innerHTML=[0,1,2].map(i=>`<span class="${i<state.lives?"":"off"}">❤️</span>`).join("");
+  $("kKills").textContent=state.kills;
+  $("kEsc").textContent=state.escapes;
   const c=$("combo");
   if(state.combo>=5){ c.textContent="COMBO x"+state.combo; c.classList.remove("show"); void c.offsetWidth; c.classList.add("show"); }
   else c.classList.remove("show");
@@ -340,7 +384,8 @@ function liveWpm(){
 /* ============================== GAME CORE ============================== */
 function resetRun(){
   document.querySelectorAll(".fish").forEach(e=>e.remove());
-  Object.assign(state,{started:false,done:false,fish:[],lives:LIVES,wave:1,score:0,combo:0,maxCombo:0,typed:0,correct:0,activeId:null,cursor:0,nextId:1,startAt:0});
+  const fb=$("feed"); if(fb) fb.innerHTML="";
+  Object.assign(state,{started:false,done:false,fish:[],lives:LIVES,wave:1,score:0,combo:0,maxCombo:0,typed:0,correct:0,kills:0,escapes:0,activeId:null,cursor:0,nextId:1,startAt:0});
   state.words=shuffle([...mission().typer,...mission().typer]);
   $("ovEnd").classList.add("hidden"); $("ovStart").classList.remove("hidden");
   renderStats(0); renderDisplay(); refreshHeader();
@@ -353,7 +398,8 @@ function startRun(){
 }
 function resetRunSilent(){
   document.querySelectorAll(".fish").forEach(e=>e.remove());
-  Object.assign(state,{started:false,done:false,fish:[],lives:LIVES,wave:1,score:0,combo:0,maxCombo:0,typed:0,correct:0,activeId:null,cursor:0,nextId:1,startAt:0});
+  const fb=$("feed"); if(fb) fb.innerHTML="";
+  Object.assign(state,{started:false,done:false,fish:[],lives:LIVES,wave:1,score:0,combo:0,maxCombo:0,typed:0,correct:0,kills:0,escapes:0,activeId:null,cursor:0,nextId:1,startAt:0});
   state.words=shuffle([...mission().typer,...mission().typer]);
   $("ovEnd").classList.add("hidden");
 }
@@ -365,8 +411,13 @@ function spawn(n){
   }
 }
 function loseLife(n){
+  // HIU MENYERANG: kurangi poin, reset combo, kurangi nyawa
   sfx.err(); state.combo=0;
   arena.classList.remove("shake"); void arena.offsetWidth; arena.classList.add("shake");
+  const penalty=PENALTY*n;
+  state.score=Math.max(0,state.score-penalty);
+  state.escapes+=n;
+  feed(`- ${penalty} · hiu menyerang!`, false);
   state.lives=Math.max(0,state.lives-n);
   renderStats(liveWpm());
   if(state.lives<=0) endRun(false);
@@ -375,7 +426,7 @@ function endRun(passed){
   if(state.done) return; state.done=true;
   const wpm=liveWpm(), acc=state.typed===0?0:state.correct/state.typed;
   if(passed) sfx.win(); else sfx.err();
-  const payload={mode:"typer",missionId:state.missionId,accuracy:+acc.toFixed(4),wpm,combo:state.maxCombo,score:state.score,passed,at:new Date().toISOString()};
+  const payload={mode:"typer-drill",missionId:state.missionId,accuracy:+acc.toFixed(4),wpm,combo:state.maxCombo,score:state.score,passed,kills:state.kills,escapes:state.escapes,typed:state.typed,correct:state.correct,killPoints:KILL_BASE,attackPenalty:PENALTY,at:new Date().toISOString()};
   try{
     const k="sharktyper-best-"+state.missionId, prev=+(localStorage.getItem(k)||0);
     if(state.score>prev) localStorage.setItem(k,String(state.score));
@@ -386,8 +437,9 @@ function endRun(passed){
   setTimeout(()=>{
     $("endEmoji").textContent=passed?"🏆":"💥";
     $("endTitle").textContent=passed?"Misi Selesai!":"Nyawa Habis!";
-    $("endDesc").textContent=passed?`Misi ${state.missionId} — ${mission().title} tuntas. Gelombang ${MAX_WAVE} dilewati!`:`Jangan menyerah! Hiu-hiu itu lolos ${LIVES-state.lives+1}x. Coba lagi.`;
+    $("endDesc").textContent=passed?`Misi ${state.missionId} — ${mission().title} tuntas. 🦈 ${state.kills} hancur (+poin) · 💥 ${state.escapes} menyerang (-poin).`:`Jangan menyerah! 🦈 ${state.kills} hancur · 💥 ${state.escapes} lolos menyerang. Coba lagi.`;
     $("rScore").textContent=state.score; $("rWpm").textContent=wpm;
+    $("rKills").textContent="🦈 "+state.kills; $("rEsc").textContent="💥 "+state.escapes;
     $("rAcc").textContent=Math.round(acc*100)+"%"; $("rCombo").textContent="x"+state.maxCombo;
     $("rBest").textContent=`Skor terbaik misi ini di perangkat ini: ${payload.best}`;
     $("ovEnd").classList.remove("hidden"); renderDisplay();
@@ -475,8 +527,10 @@ function handleKey(raw){
     sfx.type(); state.correct++;
     target.typed++;
     if(target.typed>=target.text.length){
+      // HIU HANCUR: dapat poin + bonus combo
       state.combo++; state.maxCombo=Math.max(state.maxCombo,state.combo);
-      const gain=80+state.combo*12; state.score+=gain;
+      const gain=KILL_BASE+state.combo*KILL_COMBO_BONUS; state.score+=gain; state.kills++;
+      feed(`+ ${gain} · hiu hancur!`, true);
       if(state.combo>0&&state.combo%5===0) sfx.combo(); else sfx.ok();
       const el=document.querySelector(`.fish[data-id="${target.id}"]`);
       if(el){ el.classList.add("pop"); setTimeout(()=>el.remove(),180); }

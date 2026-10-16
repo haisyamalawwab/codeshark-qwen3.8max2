@@ -28,7 +28,7 @@ interface Props {
 
 const KINDS: { kind: Exclude<SessionKind, "misi">; label: string; hint: string }[] = [
   { kind: "quest", label: "Quest", hint: "Kode utuh pertemuan ini" },
-  { kind: "drill", label: "Drill", hint: "Baris pendek sintaks inti" },
+  { kind: "drill", label: "Drill", hint: "Hiu per baris: hancur +100, lolos -50" },
   { kind: "juggle", label: "Juggling", hint: "Drill dianyam dengan pertemuan sebelumnya" },
 ];
 

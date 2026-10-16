@@ -9,8 +9,6 @@ import checkpointPng from "../assets/hud/hud-checkpoint.png";
 import checkpointWebp from "../assets/hud/hud-checkpoint.webp";
 import stationPng from "../assets/hud/hud-station-uas.png";
 import stationWebp from "../assets/hud/hud-station-uas.webp";
-import conceptJpg from "../assets/hud/hud-concept.jpg";
-import conceptWebp from "../assets/hud/hud-concept.webp";
 
 /* posisi node di kanvas 1000×560 — alur S seperti konsep:
    1 (emas, kiri) → 2..7 → 8 (UTS, kubah neon) → 9..15 → 16 (UAS, stasiun) */
@@ -63,15 +61,6 @@ export default function HudMap({ save, onNode }: Props) {
       <div className="hudmap-stage">
         <div className="hudmap-scroll">
           <div className="hudmap-canvas">
-            {/* backdrop referensi konsep — samar, di bawah elemen main */}
-            <picture>
-              <source srcSet={conceptWebp} type="image/webp" />
-              <img
-                src={conceptJpg} alt="" aria-hidden="true"
-                className="hudmap-concept" loading="lazy" decoding="async"
-                width={1280} height={715}
-              />
-            </picture>
             <div className="hudmap-shade" aria-hidden="true" />
 
             {/* kabel jalur antar-node (16 titik → 15 segmen) */}
@@ -101,10 +90,6 @@ export default function HudMap({ save, onNode }: Props) {
                 <span className="t1">MISI 01</span>
                 <span className="t2">{lessonTitle(1)}</span>
                 <span className="t3">Misi Abjad</span>
-                <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
-                  <span className="spr-iso spr-iso-badge-1 badge" style={{ width: 46 }} role="img" aria-label="Badge pertemuan 1" />
-                  <span className="spr-iso spr-iso-shark" style={{ width: 70, aspectRatio: "4 / 3" }} aria-hidden="true" />
-                </span>
               </figcaption>
             </figure>
 
@@ -120,10 +105,6 @@ export default function HudMap({ save, onNode }: Props) {
                 <span className="t1">MISI 02 · UTS</span>
                 <span className="t2">{lessonTitle(8)}</span>
                 <span className="t3">Seni Gaya Web</span>
-                <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
-                  <span className="spr-iso spr-iso-dome-neon building" style={{ width: 96 }} role="img" aria-label="Kubah neon UTS pertemuan 8" />
-                  <span className="spr-iso spr-iso-badge-8 badge" style={{ width: 54 }} role="img" aria-label="Badge 8 UTS terkunci" />
-                </span>
               </figcaption>
             </figure>
 
@@ -138,15 +119,11 @@ export default function HudMap({ save, onNode }: Props) {
                 </picture>
               </span>
               <figcaption>
-                <span className="hudmap-tag hudmap-iso-row" style={{ display: "inline-flex" }}>
+                <span className="hudmap-tag" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                   <span className="spr-iso spr-iso-lock lock-chip" aria-hidden="true" />
                   UAS 03 · JAVASCRIPT
                 </span>
                 <span className="t3">{lessonTitle(16)}</span>
-                <span className="hudmap-iso-row" style={{ justifyContent: "center", marginTop: 4 }}>
-                  <span className="spr-iso spr-iso-station building" style={{ width: 112 }} role="img" aria-label="Stasiun teknologi UAS pertemuan 16" />
-                  <span className="spr-iso spr-iso-badge-16 badge" style={{ width: 54 }} role="img" aria-label="Badge 16 UAS terkunci" />
-                </span>
               </figcaption>
             </figure>
 
@@ -164,7 +141,7 @@ export default function HudMap({ save, onNode }: Props) {
                 <button
                   key={n.no}
                   type="button"
-                  className={`hudmap-node${n.big ? " big" : ""}${n.cls ? ` ${n.cls}` : ""}${state === "done" ? " done" : ""}${state === "now" ? " now" : ""}`}
+                  className={`hudmap-node${n.big ? " big" : ""}${n.cls ? ` ${n.cls}` : ""}${state === "done" ? " done" : ""}${state === "now" ? " now" : ""}${state === "lock" ? " lock" : ""}`}
                   style={{ left: `${n.x}%`, top: `${n.y}%` }}
                   disabled={!open}
                   onClick={() => onNode(n.no)}
@@ -175,7 +152,17 @@ export default function HudMap({ save, onNode }: Props) {
                   }
                   title={open ? `${lessonTitle(n.no)} (${["Belum", "Perunggu", "Perak", "Emas"][lvl]})` : "Selesaikan pertemuan sebelumnya hingga Perak"}
                 >
-                  {state === "lock" ? <span className="spr spr-lock sm" aria-label="Terkunci" /> : n.no}
+                  {state === "lock" ? (
+                    <>
+                      <span aria-hidden="true">{n.no}</span>
+                      <span className="lock-badge" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                          <rect x="5" y="10" width="14" height="10" rx="2.5" fill="currentColor" />
+                          <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    </>
+                  ) : n.no}
                 </button>
               );
             })}

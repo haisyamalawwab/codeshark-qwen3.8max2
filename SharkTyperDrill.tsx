@@ -29,8 +29,17 @@
  *   sound?: boolean      suara WebAudio, default true
  *   autoStart?: boolean  langsung mulai tanpa overlay, default false
  *   compact?: boolean    sembunyikan tombol keluar (mode embed), default false
+ *   killPoints?: number  poin dasar per hiu hancur, default 100
+ *   attackPenalty?: number poin dikurangi per hiu yang menyerang/lolos, default 50
  *   onFinish?: (r: DrillResult) => void  dipanggil SEKALI saat run berakhir
  *   onExit?: () => void  tombol kembali ditekan
+ *
+ * SISTEM POIN (CodingShark mode Drill):
+ *   - HIU HANCUR (kata selesai diketik) → +killPoints + combo*10.
+ *     Contoh: killPoints=100, combo ke-3 → +130. Combo naik tiap kill beruntun.
+ *   - HIU MENYERANG (lolos ke kiri) → -attackPenalty (min skor 0), combo reset,
+ *     nyawa -1. Contoh: -50 per hiu yang lolos.
+ *   - Salah ketik → combo reset, tanpa penalti poin (akurasi yang turun).
  * ============================================================================
  */
 
@@ -51,6 +60,13 @@ export interface DrillResult {
   accuracy: number; // 0 - 1
   maxCombo: number;
   passed: boolean;
+  /** jumlah hiu yang berhasil dihancurkan (kill) */
+  kills: number;
+  /** jumlah hiu yang lolos & menyerang */
+  escapes: number;
+  /** total ketikan & ketikan benar (untuk mapping ke GameResult) */
+  typed: number;
+  correct: number;
 }
 
 export interface SharkTyperDrillProps {
@@ -64,6 +80,10 @@ export interface SharkTyperDrillProps {
   sound?: boolean;
   autoStart?: boolean;
   compact?: boolean;
+  /** poin dasar per hiu hancur (total = killPoints + combo*10). Default 100. */
+  killPoints?: number;
+  /** poin dikurangi per hiu yang menyerang/lolos (skor min 0). Default 50. */
+  attackPenalty?: number;
   onFinish?: (r: DrillResult) => void;
   onExit?: () => void;
 }
@@ -124,6 +144,16 @@ const CSS = `
 .stdrill-fish.on .stdrill-word .ok{color:#0f766e}
 .stdrill-fish.pop{opacity:0;scale:1.25}
 .stdrill-combo{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:25;pointer-events:none;font-family:ui-monospace,Consolas,monospace;font-weight:900;font-size:22px;color:#fbbf24;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+.stdrill-feed{position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:25;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px}
+.stdrill-pop{font-family:ui-monospace,Consolas,monospace;font-weight:900;font-size:16px;padding:2px 12px;border-radius:999px;animation:stdrill-float 1s ease-out forwards;background:rgba(2,12,20,.8);border:1px solid rgba(103,232,249,.3)}
+.stdrill-pop.plus{color:#6ee7b7;border-color:rgba(110,231,183,.5)}
+.stdrill-pop.minus{color:#fda4af;border-color:rgba(253,164,175,.5)}
+@keyframes stdrill-float{0%{opacity:0;transform:translateY(8px) scale(.8)}15%{opacity:1;transform:translateY(0) scale(1.05)}100%{opacity:0;transform:translateY(-26px) scale(1)}}
+.stdrill-killbar{position:relative;z-index:20;display:flex;gap:8px;align-items:center;justify-content:center;padding:0 12px 8px;font-size:11px;color:rgba(207,250,254,.7)}
+.stdrill-killbar b{font-family:ui-monospace,Consolas,monospace}
+.stdrill-killbar .kpill{background:rgba(6,28,44,.78);border:1px solid rgba(103,232,249,.18);border-radius:999px;padding:3px 10px}
+.stdrill-killbar .kpill.good b{color:#6ee7b7}
+.stdrill-killbar .kpill.bad b{color:#fda4af}
 .stdrill-ov{position:absolute;inset:0;z-index:40;display:grid;place-items:center;padding:20px;background:rgba(2,10,17,.55)}
 .stdrill-card{width:100%;max-width:420px;text-align:center;border-radius:22px;padding:26px 22px;background:linear-gradient(180deg,rgba(8,32,52,.94),rgba(4,18,32,.96));border:1px solid rgba(103,232,249,.22)}
 .stdrill-card .big{font-size:60px}
@@ -211,6 +241,8 @@ export default function SharkTyperDrill({
   sound = true,
   autoStart = false,
   compact = false,
+  killPoints = 100,
+  attackPenalty = 50,
   onFinish,
   onExit,
 }: SharkTyperDrillProps) {
@@ -223,6 +255,9 @@ export default function SharkTyperDrill({
   const [lives, setLives] = useState(maxLives);
   const [combo, setCombo] = useState(0);
   const [score, setScore] = useState(0);
+  const [kills, setKills] = useState(0);
+  const [escapes, setEscapes] = useState(0);
+  const [feed, setFeed] = useState<{ id: number; txt: string; good: boolean }[]>([]);
   const [typedCount, setTypedCount] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [wave, setWave] = useState(1);
@@ -232,11 +267,12 @@ export default function SharkTyperDrill({
 
   const activeId = useRef<number | null>(null);
   const nextId = useRef(1);
+  const feedId = useRef(1);
   const cursor = useRef(0);
   const startAt = useRef(autoStart ? performance.now() : 0);
   const finished = useRef(false);
   const fishRef = useRef<Fish[]>([]);
-  const stats = useRef({ typed: 0, correct: 0, score: 0, maxCombo: 0 });
+  const stats = useRef({ typed: 0, correct: 0, score: 0, maxCombo: 0, kills: 0, escapes: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const finishCb = useRef(onFinish);
   finishCb.current = onFinish;
@@ -282,6 +318,10 @@ export default function SharkTyperDrill({
         maxCombo: stats.current.maxCombo,
         score: stats.current.score,
         passed: ok,
+        kills: stats.current.kills,
+        escapes: stats.current.escapes,
+        typed: stats.current.typed,
+        correct: stats.current.correct,
       };
       setTimeout(() => finishCb.current?.(result), 500);
     },
@@ -293,11 +333,14 @@ export default function SharkTyperDrill({
     cursor.current = 0;
     nextId.current = 1;
     finished.current = false;
-    stats.current = { typed: 0, correct: 0, score: 0, maxCombo: 0 };
+    stats.current = { typed: 0, correct: 0, score: 0, maxCombo: 0, kills: 0, escapes: 0 };
     setFish([]);
+    setFeed([]);
     setLives(maxLives);
     setCombo(0);
     setScore(0);
+    setKills(0);
+    setEscapes(0);
     setTypedCount(0);
     setCorrectCount(0);
     setWave(1);
@@ -319,6 +362,12 @@ export default function SharkTyperDrill({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started]);
 
+  const pushFeed = useCallback((txt: string, good: boolean) => {
+    const id = feedId.current++;
+    setFeed((f) => [...f.slice(-3), { id, txt, good }]);
+    window.setTimeout(() => setFeed((f) => f.filter((q) => q.id !== id)), 1000);
+  }, []);
+
   useEffect(() => {
     if (!started || done) return;
     let raf = 0;
@@ -335,10 +384,17 @@ export default function SharkTyperDrill({
           } else next.push(f);
         }
         if (missed) {
+          // HIU MENYERANG: kurangi poin, reset combo, kurangi nyawa
           sfx.err();
           setShake(true);
           setTimeout(() => setShake(false), 400);
           setCombo(0);
+          const penalty = attackPenalty * missed;
+          stats.current.score = Math.max(0, stats.current.score - penalty);
+          stats.current.escapes += missed;
+          setScore(stats.current.score);
+          setEscapes((n) => n + missed);
+          pushFeed(`- ${penalty} · hiu menyerang!`, false);
           setLives((l) => {
             const nl = Math.max(0, l - missed);
             if (nl <= 0) endRun(false);
@@ -352,7 +408,7 @@ export default function SharkTyperDrill({
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, done]);
+  }, [started, done, attackPenalty]);
 
   useEffect(() => {
     if (!started || done) return;
@@ -406,12 +462,16 @@ export default function SharkTyperDrill({
       setCorrectCount((n) => n + 1);
       const typed = target.typed + 1;
       if (typed >= target.text.length) {
+        // HIU HANCUR: dapat poin + bonus combo
         const nc = combo + 1;
         setCombo(nc);
         stats.current.maxCombo = Math.max(stats.current.maxCombo, nc);
-        const gain = 80 + nc * 12;
+        const gain = killPoints + nc * 10;
         stats.current.score += gain;
+        stats.current.kills += 1;
         setScore((s) => s + gain);
+        setKills((n) => n + 1);
+        pushFeed(`+ ${gain} · hiu hancur!`, true);
         if (nc > 0 && nc % 5 === 0) sfx.combo();
         else sfx.ok();
         activeId.current = null;
@@ -434,7 +494,7 @@ export default function SharkTyperDrill({
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, done, combo, bankWords]);
+  }, [started, done, combo, bankWords, killPoints]);
 
   const acc = typedCount === 0 ? 100 : Math.round((correctCount / typedCount) * 100);
   const activeFish = fish.find((f) => f.id === activeId.current);
@@ -479,15 +539,27 @@ export default function SharkTyperDrill({
         <div className="stdrill-stat"><i>AKURASI</i><b>{acc}%</b></div>
         <div className="stdrill-stat"><i>GELOMBANG</i><b>{wave}/{maxWave}</b></div>
       </div>
+      <div className="stdrill-killbar" aria-label="Poin hiu">
+        <span className="kpill good">🦈 Hancur <b>+{killPoints}</b> × {kills}</span>
+        <span className="kpill bad">💥 Serang <b>-{attackPenalty}</b> × {escapes}</span>
+      </div>
 
       <div className={`stdrill-arena${shake ? " shake" : ""}`}>
         {combo >= 5 && <div className="stdrill-combo">COMBO x{combo}</div>}
+        {feed.length > 0 && (
+          <div className="stdrill-feed">
+            {feed.map((p) => (
+              <div key={p.id} className={`stdrill-pop${p.good ? " plus" : " minus"}`}>{p.txt}</div>
+            ))}
+          </div>
+        )}
         {!started && !done && (
           <div className="stdrill-ov">
             <div className="stdrill-card">
               <div className="big">🦈</div>
               <h2>Shark Typer Drill</h2>
               <p>Ketik kata yang berenang sebelum lolos ke kiri. Backspace untuk undo, Esc untuk ulang.</p>
+              <p style={{ fontSize: 12 }}>🦈 Hiu hancur = <b>+{killPoints}</b> (+bonus combo) · 💥 Hiu menyerang/lolos = <b>-{attackPenalty}</b> + nyawa -1.</p>
               <button className="stdrill-start" onClick={begin}>Mulai Drill ▶</button>
             </div>
           </div>
@@ -503,6 +575,8 @@ export default function SharkTyperDrill({
               <div className="stdrill-res">
                 <div><i>SKOR</i><b>{score}</b></div>
                 <div><i>AKURASI</i><b>{acc}%</b></div>
+                <div><i>HIU HANCUR</i><b>🦈 {kills}</b></div>
+                <div><i>HIU MENYERANG</i><b>💥 {escapes}</b></div>
                 <div><i>MAX COMBO</i><b>x{stats.current.maxCombo}</b></div>
                 <div><i>STATUS</i><b>{passed ? "LULUS" : "GAGAL"}</b></div>
               </div>
@@ -538,7 +612,7 @@ export default function SharkTyperDrill({
             />
           )}
         </div>
-        <div className="stdrill-tip">Ketik langsung · Backspace undo · Esc ulang</div>
+        <div className="stdrill-tip">🦈 +{killPoints} hancur · 💥 -{attackPenalty} menyerang · Backspace undo · Esc ulang</div>
       </div>
     </div>
   );
