@@ -46,6 +46,17 @@ export interface DailyStreak {
   lastActiveDate: string | null;
 }
 
+export interface DailyChallengeRecord {
+  /** Tanggal tantangan terakhir yang diselesaikan (YYYY-MM-DD) */
+  lastCompletedDate: string | null;
+  /** Skor terbaik tantangan hari ini */
+  todayScore?: number;
+  /** Akurasi terbaik tantangan hari ini */
+  todayAccuracy?: number;
+  /** Total tantangan harian yang telah diselesaikan */
+  totalCompleted: number;
+}
+
 export interface SaveData {
   profile: Profile | null;
   xp: number;
@@ -53,6 +64,7 @@ export interface SaveData {
   modules: Record<string, ModProg>;
   stats: Stats;
   streak: DailyStreak;
+  dailyChallenge: DailyChallengeRecord;
   /** identitas perangkat untuk sync NeonDB (stabil antar sesi) */
   deviceId: string;
   updatedAt: number;
@@ -101,6 +113,10 @@ export const defaultSave = (): SaveData => ({
   modules: {},
   stats: { games: 0, wins: 0, bestWpm: 0, bestCombo: 0, keystrokes: 0, correct: 0 },
   streak: { current: 0, best: 0, lastActiveDate: null },
+  dailyChallenge: {
+    lastCompletedDate: null,
+    totalCompleted: 0,
+  },
   deviceId: deviceId(),
   updatedAt: Date.now(),
 });
@@ -128,7 +144,7 @@ export function loadSaveFor(userId?: string | null): SaveData {
 }
 
 function parseSave(raw: string): SaveData {
-  const d = JSON.parse(raw) as Partial<SaveData> & { streak?: Partial<DailyStreak> };
+  const d = JSON.parse(raw) as Partial<SaveData> & { streak?: Partial<DailyStreak>; dailyChallenge?: Partial<DailyChallengeRecord> };
   const base = defaultSave();
   const rawStreak = d.streak;
   const streak: DailyStreak = {
@@ -136,12 +152,20 @@ function parseSave(raw: string): SaveData {
     best: typeof rawStreak?.best === "number" ? Math.max(0, rawStreak.best) : 0,
     lastActiveDate: typeof rawStreak?.lastActiveDate === "string" ? rawStreak.lastActiveDate : null,
   };
+  const rawDaily = d.dailyChallenge;
+  const dailyChallenge: DailyChallengeRecord = {
+    lastCompletedDate: typeof rawDaily?.lastCompletedDate === "string" ? rawDaily.lastCompletedDate : null,
+    todayScore: typeof rawDaily?.todayScore === "number" ? rawDaily.todayScore : undefined,
+    todayAccuracy: typeof rawDaily?.todayAccuracy === "number" ? rawDaily.todayAccuracy : undefined,
+    totalCompleted: typeof rawDaily?.totalCompleted === "number" ? Math.max(0, rawDaily.totalCompleted) : 0,
+  };
   return {
     ...base,
     ...d,
     stats: { ...base.stats, ...(d.stats || {}) },
     modules: { ...(d.modules || {}) },
     streak,
+    dailyChallenge,
     deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };
@@ -335,4 +359,11 @@ export function recordDailyStreak(streak?: DailyStreak | null, now: number = Dat
   const status = evaluateStreak(nextStreak, now);
   return { nextStreak, increased: true, status };
 }
+
+/** Cek apakah tantangan harian hari ini sudah diselesaikan */
+export function isDailyCompletedToday(save: SaveData, now: number = Date.now()): boolean {
+  const today = getLocalDateString(now);
+  return save.dailyChallenge?.lastCompletedDate === today;
+}
+
 

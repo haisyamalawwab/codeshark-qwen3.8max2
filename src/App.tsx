@@ -1,9 +1,10 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import type { AgeId, SaveData } from "./lib/storage";
-import { clearSave, defaultSave, loadSave, persist, rankOf, recordDailyStreak } from "./lib/storage";
+import { clearSave, defaultSave, loadSave, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
 import type { Session } from "./data/quests";
+import { getDailyChallenge } from "./data/dailyChallenges";
 import { applyAttempt, meetingLevel, meetingUnlocked } from "./lib/progress";
 import { logAttempt } from "./lib/history";
 import { enqueueAttempt, pushOutbox } from "./lib/sync";
@@ -43,7 +44,19 @@ type Screen =
   | { s: "materi"; id: string }
   | { s: "materi-html"; no?: number }
   | { s: "game"; id: string; k: number }
-  | { s: "result"; id: string; r: GameResult; xp: number; coins: number; rankUp: string | null; passed: boolean; streakCount?: number };
+  | {
+      s: "result";
+      id: string;
+      r: GameResult;
+      xp: number;
+      coins: number;
+      rankUp: string | null;
+      passed: boolean;
+      streakCount?: number;
+      isDaily?: boolean;
+      dailyBonusXp?: number;
+      dailyBonusCoins?: number;
+    };
 
 export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
   const [save, setSave] = useState<SaveData>(() => loadSave());
@@ -129,27 +142,43 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   const finishPractice = (id: string, r: GameResult) => {
     const sess = getSession(id);
     if (!sess) return setScreen({ s: "dash" });
-    const prevRankName = rankOf(save.xp).cur.name;
+
+    const isDaily = id.startsWith("daily:");
+    const alreadyDoneToday = isDaily && isDailyCompletedToday(save);
+    const daily = isDaily ? getDailyChallenge() : null;
+    const dailyBonusXp = isDaily && r.won && !alreadyDoneToday ? (daily?.bonusXp ?? 150) : 0;
+    const dailyBonusCoins = isDaily && r.won && !alreadyDoneToday ? (daily?.bonusCoins ?? 35) : 0;
+
     const xpSession = r.won ? 50 + r.stars * 25 + Math.round(r.accuracy / 5) : Math.round(r.score / 25);
     const coinsSession = r.won ? 10 + r.stars * 10 + Math.round(r.accuracy / 10) : 0;
     const { next, passed, xpAward, coinsAward } = applyAttempt(save.modules[id], sess, r, xpSession, coinsSession);
-    const newRankName = rankOf(save.xp + xpAward).cur.name;
+    const totalXpAward = xpAward + dailyBonusXp;
+    const totalCoinsAward = coinsAward + dailyBonusCoins;
+
+    const prevRankName = rankOf(save.xp).cur.name;
+    const newRankName = rankOf(save.xp + totalXpAward).cur.name;
     const rankUp = newRankName !== prevRankName ? newRankName : null;
     const { nextStreak } = recordDailyStreak(save.streak);
 
     const rec = logAttempt({
       sessionId: id, won: r.won, stars: r.stars, score: r.score,
       accuracy: r.accuracy, wpm: r.wpm, maxCombo: r.maxCombo,
-      xpAward, coinsAward, passed,
+      xpAward: totalXpAward, coinsAward: totalCoinsAward, passed,
     });
     enqueueAttempt(rec);
     pushOutbox(save.deviceId, save.profile?.name ?? null, save).catch(() => {});
 
     setSave((s) => ({
       ...s,
-      xp: s.xp + xpAward,
-      coins: s.coins + coinsAward,
+      xp: s.xp + totalXpAward,
+      coins: s.coins + totalCoinsAward,
       streak: nextStreak,
+      dailyChallenge: isDaily && r.won ? {
+        lastCompletedDate: getLocalDateString(),
+        todayScore: Math.max(s.dailyChallenge?.todayScore ?? 0, r.score),
+        todayAccuracy: Math.max(s.dailyChallenge?.todayAccuracy ?? 0, r.accuracy),
+        totalCompleted: (s.dailyChallenge?.totalCompleted ?? 0) + (alreadyDoneToday ? 0 : 1),
+      } : s.dailyChallenge,
       modules: { ...s.modules, [id]: next },
       stats: {
         games: s.stats.games + 1,
@@ -160,7 +189,16 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
         correct: s.stats.correct + r.correct,
       },
     }));
-    setScreen({ s: "result", id, r, xp: xpAward, coins: coinsAward, rankUp, passed, streakCount: nextStreak.current });
+    setScreen({
+      s: "result", id, r,
+      xp: totalXpAward,
+      coins: totalCoinsAward,
+      rankUp, passed,
+      streakCount: nextStreak.current,
+      isDaily,
+      dailyBonusXp,
+      dailyBonusCoins,
+    });
   };
 
   /* pertemuan dibuka dari peta / materi HTML → sesi pertemuan itu */
@@ -206,6 +244,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               id === "html" ? setScreen({ s: "materi-html" }) : setScreen({ s: "materi", id })
             }
             onPractice={enterPractice}
+            onDailyChallenge={enterPractice}
             onMateriHtml={() => setScreen({ s: "materi-html" })}
             onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
             subGame={subGame}

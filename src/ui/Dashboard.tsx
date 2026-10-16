@@ -18,12 +18,16 @@ import { CaptainAvatar } from "../characters";
 import { SharkSprite } from "../graphics/stations";
 import MiniSpeedometer from "./MiniSpeedometer";
 import HudMap from "./HudMap";
+import DailyChallengeCard from "./DailyChallengeCard";
+import { getDailyChallenge } from "../data/dailyChallenges";
+import { isDailyCompletedToday } from "../lib/storage";
 
 interface Props {
   save: SaveData;
   cfg: AgeCfg;
   onMateri: (id: string) => void;
   onPractice: (id: string) => void;
+  onDailyChallenge?: (challengeId: string) => void;
   /** buka Materi HTML berbasis dokumen .md per pertemuan */
   onMateriHtml?: () => void;
   /** buka Peta Pertemuan 16× (quest · drill · juggling) */
@@ -63,13 +67,18 @@ function useReveal() {
   return ref;
 }
 
-export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtml, onPeta, subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile }: Props) {
+export default function Dashboard({
+  save, cfg, onMateri, onPractice, onDailyChallenge, onMateriHtml, onPeta,
+  subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile,
+}: Props) {
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const profile = save.profile!;
   const rank = rankOf(save.xp);
   const streakStatus = evaluateStreak(save.streak);
+  const dailyChallenge = getDailyChallenge();
+  const isDailyDone = isDailyCompletedToday(save);
   const doneCount = MODULES.filter((m) => (save.modules[m.id]?.completions ?? 0) > 0).length;
   const avgAcc = (() => {
     const bests = MODULES.map((m) => save.modules[m.id]?.best).filter(
@@ -369,6 +378,20 @@ export default function Dashboard({ save, cfg, onMateri, onPractice, onMateriHtm
               )}
             </div>
           </div>
+        </section>
+
+        {/* ============ TANTANGAN HARIAN (DAILY CHALLENGE) ============ */}
+        <section className="mt-8 reveal">
+          <DailyChallengeCard
+            challenge={dailyChallenge}
+            isCompleted={isDailyDone}
+            record={save.dailyChallenge}
+            subGameName={SUBGAMES[subGame].name}
+            onStart={() => {
+              if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
+              else onPractice(dailyChallenge.id);
+            }}
+          />
         </section>
 
         {/* ============ PETA MISI HUD ============ */}

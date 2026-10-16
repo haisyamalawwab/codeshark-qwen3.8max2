@@ -12,6 +12,7 @@ import type { Lang } from "../lib/highlight";
 import type { ModuleDef } from "./modules";
 import { getModule } from "./modules";
 import { CURRICULUM, getLesson } from "./curriculum";
+import { getDailyChallengeById, dailyChallengeToSession } from "./dailyChallenges";
 
 export type SessionKind = "misi" | "quest" | "drill" | "juggle";
 
@@ -292,8 +293,12 @@ const modIdOf = (lang: Lang) => lang;
 
 export const questId = (no: number, kind: Exclude<SessionKind, "misi">) => `q:${no}:${kind}`;
 
-/** Ambil sesi dari id: "html"/"css"/"js" = misi lama; "q:<no>:<kind>" = sesi pertemuan. */
+/** Ambil sesi dari id: "html"/"css"/"js" = misi lama; "q:<no>:<kind>" = sesi pertemuan; "daily:..." = tantangan harian. */
 export function getSession(id: string): Session | null {
+  if (id.startsWith("daily:")) {
+    const dc = getDailyChallengeById(id);
+    return dc ? dailyChallengeToSession(dc) : null;
+  }
   if (!id.startsWith("q:")) {
     const m: ModuleDef = getModule(id);
     return {

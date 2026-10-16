@@ -212,4 +212,25 @@ export const IconFlame = make(
   />
 );
 
+export const IconCalendar = make(
+  <>
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" />
+    <circle cx="8" cy="14" r="1" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="14" r="1" fill="currentColor" stroke="none" />
+    <circle cx="16" cy="14" r="1" fill="currentColor" stroke="none" />
+    <circle cx="8" cy="17.5" r="1" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="17.5" r="1" fill="currentColor" stroke="none" />
+  </>
+);
+
+export const IconSparkles = make(
+  <path
+    d="M12 2.5l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2z M18.5 16l1.2 3.3 3.3 1.2-3.3 1.2-1.2 3.3-1.2-3.3-3.3-1.2 3.3-1.2z"
+    fill="currentColor"
+    stroke="none"
+  />
+);
+
+
 
