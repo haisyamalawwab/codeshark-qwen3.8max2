@@ -77,7 +77,8 @@ export type Block =
   | { t: "list"; items: string[] }
   | { t: "code"; lang: Lang; code: string; caption?: string }
   | { t: "callout"; tone: "tip" | "warn" | "fun"; title: string; text: string }
-  | { t: "quiz"; q: string; options: string[]; answer: number; explain: string };
+  | { t: "quiz"; q: string; options: string[]; answer: number; explain: string }
+  | { t: "diagram"; kind: "trio" | "html-dom" | "css-flexbox" | "js-events"; caption?: string };
 
 export interface Slide {
   kicker: string;
@@ -191,6 +192,11 @@ export const MODULES: ModuleDef[] = [
             title: "Analogi mudah",
             text: "Kalau website adalah tubuh manusia: HTML itu tulangnya, CSS itu kulit dan bajunya, JavaScript itu otot yang membuatnya bergerak.",
           },
+          {
+            t: "diagram",
+            kind: "trio",
+            caption: "Analogi Cyber: HTML (Tulang) vs CSS (Estetika) vs JS (Otak)",
+          },
         ],
       },
       {
@@ -200,6 +206,11 @@ export const MODULES: ModuleDef[] = [
           {
             t: "p",
             text: "Setiap halaman HTML punya bentuk dasar yang sama. <!DOCTYPE html> memberi tahu browser bahwa ini halaman HTML modern, <html> membungkus segalanya, <head> menyimpan info yang tak terlihat seperti judul tab, dan <body> berisi semua yang tampil di layar.",
+          },
+          {
+            t: "diagram",
+            kind: "html-dom",
+            caption: "Diagram Pohon Hirarki Dokumen HTML & DOM",
           },
           {
             t: "code",
@@ -387,6 +398,11 @@ export const MODULES: ModuleDef[] = [
               "text-align → rata kiri, tengah, atau kanan.",
             ],
           },
+          {
+            t: "diagram",
+            kind: "css-flexbox",
+            caption: "Simulator Interaktif CSS Flexbox: Main Axis vs Cross Axis",
+          },
         ],
       },
       {
@@ -488,6 +504,11 @@ export const MODULES: ModuleDef[] = [
             lang: "js",
             code: `const tombol = document.querySelector("button");\n\ntombol.addEventListener("click", function () {\n  console.log("Tombol diklik!");\n});`,
             caption: "querySelector mencari elemen, addEventListener mendengarkan",
+          },
+          {
+            t: "diagram",
+            kind: "js-events",
+            caption: "Diagram Alur Sinyal Event-Driven & Manipulasi DOM",
           },
           {
             t: "quiz",

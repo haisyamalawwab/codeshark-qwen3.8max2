@@ -28,6 +28,17 @@ interface Props {
   isDaily?: boolean;
   dailyBonusXp?: number;
   dailyBonusCoins?: number;
+  /** Pengali Streak permanen aktif */
+  streakMultiplier?: number;
+  streakTierName?: string;
+  streakBonusXp?: number;
+  streakBonusCoins?: number;
+  /** Tier pengali yang baru saja terbuka di sesi ini */
+  newStreakTierUnlocked?: {
+    tier: number;
+    name: string;
+    multiplier: number;
+  } | null;
   onRetry: () => void;
   onMap: () => void;
 }
@@ -54,6 +65,8 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${Str
 export default function Results({
   mod, cfg, result, passed, xpGained, coinsGained, rankUp, streakCount,
   isDaily = false, dailyBonusXp = 0, dailyBonusCoins = 0,
+  streakMultiplier = 1, streakTierName, streakBonusXp = 0, streakBonusCoins = 0,
+  newStreakTierUnlocked,
   onRetry, onMap,
 }: Props) {
   const r = result;
@@ -144,6 +157,31 @@ export default function Results({
               </span>
             )}
           </p>
+
+          {/* Banner Pengali Baru Terbuka Permanen */}
+          {newStreakTierUnlocked && (
+            <div className="max-w-xl mx-auto mt-4 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[rgba(245,158,11,0.25)] via-[rgba(46,230,200,0.25)] to-[rgba(56,189,248,0.25)] border-2 border-[rgba(245,158,11,0.7)] shadow-[0_0_30px_rgba(245,158,11,0.35)] anim-pop flex items-center gap-3.5 text-left">
+              <span className="w-11 h-11 rounded-2xl bg-[rgba(255,194,71,0.3)] text-amber-300 border border-amber-400 grid place-items-center text-2xl shrink-0 shadow">
+                ⚡
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-[var(--amber)]">
+                    PENGALI STREAK BARU TERBUKA PERMANEN!
+                  </span>
+                  <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-200 border border-amber-400/50">
+                    Tier {newStreakTierUnlocked.tier}
+                  </span>
+                </div>
+                <h3 className="font-display font-extrabold text-base md:text-lg text-white mt-0.5">
+                  {newStreakTierUnlocked.name} ({newStreakTierUnlocked.multiplier}× Multiplier)
+                </h3>
+                <p className="text-xs text-slate-200 mt-0.5">
+                  Mulai sekarang, setiap misi yang kamu selesaikan mendapatkan bonus pengali {newStreakTierUnlocked.multiplier}× selamanya!
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* bintang */}
           <div className="flex justify-center items-end gap-3 mt-6">
@@ -259,6 +297,30 @@ export default function Results({
                 <div>
                   <p className="font-display font-extrabold text-3xl leading-none text-[#fdba74] tabular-nums">{streakCount} Hari</p>
                   <p className="text-xs font-bold text-[var(--dim)] mt-1">Daily Streak • Api latihan menyala!</p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {streakMultiplier > 1 && (
+            <>
+              <div className="hidden sm:block w-px h-12 bg-[var(--line-soft)]" />
+              <div className="flex items-center gap-4 flex-1">
+                <span className="w-12 h-12 rounded-xl grid place-items-center bg-[rgba(245,158,11,0.15)] text-[var(--amber)] border border-[rgba(245,158,11,0.4)] shadow-[0_0_16px_rgba(245,158,11,0.25)] shrink-0">
+                  <IconSparkles size={24} />
+                </span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-display font-extrabold text-3xl leading-none text-[var(--amber)] tabular-nums">
+                      {streakMultiplier}×
+                    </p>
+                    <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[rgba(245,158,11,0.2)] text-[var(--amber)] border border-[rgba(245,158,11,0.4)]">
+                      Permanen
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-[var(--dim)] mt-1">
+                    {streakTierName ? `${streakTierName} • ` : ""}Bonus (+{streakBonusXp} XP · +{streakBonusCoins} Koin)
+                  </p>
                 </div>
               </div>
             </>

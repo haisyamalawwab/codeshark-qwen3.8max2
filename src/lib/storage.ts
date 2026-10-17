@@ -90,6 +90,12 @@ export interface SaveData {
   stats: Stats;
   streak: DailyStreak;
   dailyChallenge: DailyChallengeRecord;
+  /** Riwayat login harian beruntun */
+  loginStreak?: DailyStreak;
+  /** Milestone streak permanen yang telah dibuka (daftar tier index: 0, 1, 2, ...) */
+  unlockedStreakMilestones?: number[];
+  /** Timestamp buka tier streak (tier -> timestamp) */
+  unlockedStreakTiers?: Record<number, number>;
   /** Lencana prestasi yang sudah diklaim hadiahnya (id -> timestamp klaim) */
   claimedAchievements?: Record<string, number>;
   /** identitas perangkat untuk sync NeonDB (stabil antar sesi) */
@@ -145,6 +151,9 @@ export const defaultSave = (): SaveData => ({
     totalCompleted: 0,
     history: [],
   },
+  loginStreak: { current: 1, best: 1, lastActiveDate: null },
+  unlockedStreakMilestones: [0],
+  unlockedStreakTiers: { 0: Date.now() },
   claimedAchievements: {},
   deviceId: deviceId(),
   updatedAt: Date.now(),
@@ -226,6 +235,18 @@ function parseSave(raw: string): SaveData {
   const claimedAchievements = (d.claimedAchievements && typeof d.claimedAchievements === "object")
     ? { ...d.claimedAchievements }
     : {};
+  const rawLoginStreak = d.loginStreak;
+  const loginStreak: DailyStreak = {
+    current: typeof rawLoginStreak?.current === "number" ? Math.max(0, rawLoginStreak.current) : 1,
+    best: typeof rawLoginStreak?.best === "number" ? Math.max(0, rawLoginStreak.best) : 1,
+    lastActiveDate: typeof rawLoginStreak?.lastActiveDate === "string" ? rawLoginStreak.lastActiveDate : null,
+  };
+  const unlockedStreakMilestones: number[] = Array.isArray(d.unlockedStreakMilestones) && d.unlockedStreakMilestones.length > 0
+    ? [...d.unlockedStreakMilestones]
+    : [0];
+  const unlockedStreakTiers: Record<number, number> = (d.unlockedStreakTiers && typeof d.unlockedStreakTiers === "object")
+    ? { ...d.unlockedStreakTiers }
+    : { 0: Date.now() };
 
   return {
     ...base,
@@ -234,6 +255,9 @@ function parseSave(raw: string): SaveData {
     modules: { ...(d.modules || {}) },
     streak,
     dailyChallenge,
+    loginStreak,
+    unlockedStreakMilestones,
+    unlockedStreakTiers,
     claimedAchievements,
     deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,

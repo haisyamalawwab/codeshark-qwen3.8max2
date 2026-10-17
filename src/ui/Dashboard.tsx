@@ -24,6 +24,8 @@ import SubGameArtwork from "./SubGameArtwork";
 import DaftarMisiSection from "./DaftarMisiSection";
 import MissionHistoryModal from "./MissionHistoryModal";
 import StreakTrendsVisualizer from "./StreakTrendsVisualizer";
+import StreakMultiplierModal from "./StreakMultiplierModal";
+import { getPermanentStreakTier } from "../lib/streakMultiplier";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
 
@@ -75,9 +77,11 @@ export default function Dashboard({
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showMultiplierModal, setShowMultiplierModal] = useState(false);
   const profile = save.profile!;
   const rank = rankOf(save.xp);
   const streakStatus = evaluateStreak(save.streak);
+  const multiplierTier = getPermanentStreakTier(save);
   const dailyChallenge = getDailyChallenge();
   const isDailyDone = isDailyCompletedToday(save);
   const doneCount = MODULES.filter((m) => (save.modules[m.id]?.completions ?? 0) > 0).length;
@@ -142,14 +146,19 @@ export default function Dashboard({
           </div>
 
           {/* Chip Daily Streak */}
-          <div
-            className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(249,115,22,0.4)] !text-[#fdba74] shadow-[0_2px_10px_rgba(249,115,22,0.2)] flex items-center gap-1.5"
+          <button
+            type="button"
+            onClick={() => {
+              sfx.click();
+              setShowMultiplierModal(true);
+            }}
+            className="chip !bg-[rgba(7,24,42,0.85)] !border-[rgba(249,115,22,0.4)] !text-[#fdba74] shadow-[0_2px_10px_rgba(249,115,22,0.2)] flex items-center gap-1.5 cursor-pointer hover:border-amber-400/80 hover:scale-105 active:scale-95 transition-all"
             title={
               streakStatus.practicedToday
-                ? `Daily Streak: ${streakStatus.current} hari berturut-turut! Target hari ini sudah selesai.`
+                ? `Daily Streak: ${streakStatus.current} hari berturut-turut! Target hari ini sudah selesai. Klik untuk melihat sistem Streak Multiplier.`
                 : streakStatus.current > 0
-                  ? `Daily Streak: ${streakStatus.current} hari aktif! Latihan sekarang agar streak tidak putus.`
-                  : "Mulai Daily Streak pertamamu hari ini!"
+                  ? `Daily Streak: ${streakStatus.current} hari aktif! Latihan sekarang agar streak tidak putus. Klik untuk melihat sistem Streak Multiplier.`
+                  : "Mulai Daily Streak pertamamu hari ini! Klik untuk melihat sistem Streak Multiplier."
             }
           >
             <IconFlame
@@ -162,7 +171,32 @@ export default function Dashboard({
             <span className="text-[10px] uppercase font-bold text-amber-200/80 hidden xs:inline">
               Hari
             </span>
-          </div>
+          </button>
+
+          {/* Chip Streak Multiplier Permanen */}
+          <button
+            type="button"
+            onClick={() => {
+              sfx.click();
+              setShowMultiplierModal(true);
+            }}
+            className="chip flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 active:scale-95"
+            style={{
+              background: multiplierTier.tier > 0 ? multiplierTier.badgeBg : "rgba(7,24,42,0.85)",
+              borderColor: multiplierTier.color,
+              boxShadow: `0 0 12px ${multiplierTier.glowColor}`,
+              color: multiplierTier.color,
+            }}
+            title={`Streak Multiplier: ${multiplierTier.multiplier}× (${multiplierTier.name}) - Klik untuk rincian bonus permanen`}
+          >
+            <span className="text-xs leading-none">{multiplierTier.iconChar}</span>
+            <span className="font-extrabold text-xs tabular-nums text-white">
+              {multiplierTier.multiplier}×
+            </span>
+            <span className="text-[10px] uppercase font-bold text-amber-200/90 hidden xs:inline">
+              XP
+            </span>
+          </button>
 
           {/* Tombol Suara & Profil */}
           <button className="btn btn-ghost !p-2 !rounded-xl !bg-[rgba(10,34,56,0.5)] !border-[rgba(126,196,236,0.2)]" onClick={onToggleSound} aria-label="Suara">
@@ -234,13 +268,18 @@ export default function Dashboard({
                   </span>
 
                   {/* Lencana 'Daily Streak' */}
-                  <div
-                    className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[rgba(249,115,22,0.12)] border border-[rgba(249,115,22,0.45)] text-[#fed7aa] text-xs font-bold shadow-[0_0_14px_rgba(249,115,22,0.18)]"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sfx.click();
+                      setShowMultiplierModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[rgba(249,115,22,0.12)] border border-[rgba(249,115,22,0.45)] text-[#fed7aa] text-xs font-bold shadow-[0_0_14px_rgba(249,115,22,0.18)] cursor-pointer hover:scale-105 active:scale-95 transition-all"
                     title={
                       streakStatus.practicedToday
-                        ? `Luar biasa! Kamu telah latihan ${streakStatus.current} hari berturut-turut.`
+                        ? `Luar biasa! Kamu telah latihan ${streakStatus.current} hari berturut-turut. Klik untuk melihat sistem Streak Multiplier.`
                         : streakStatus.current > 0
-                          ? `Streak aktif ${streakStatus.current} hari. Selesaikan 1 latihan hari ini untuk menjaga streak!`
+                          ? `Streak aktif ${streakStatus.current} hari. Selesaikan 1 latihan hari ini untuk menjaga streak! Klik untuk melihat sistem Streak Multiplier.`
                           : "Selesaikan 1 misi latihan hari ini untuk menyalakan Daily Streak pertamamu!"
                     }
                   >
@@ -265,7 +304,32 @@ export default function Dashboard({
                         (Rekor: {streakStatus.best})
                       </span>
                     )}
-                  </div>
+                  </button>
+
+                  {/* Lencana 'Streak Multiplier' Permanen */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sfx.click();
+                      setShowMultiplierModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-md"
+                    style={{
+                      background: multiplierTier.badgeBg,
+                      border: `1px solid ${multiplierTier.color}`,
+                      boxShadow: `0 0 16px ${multiplierTier.glowColor}`,
+                      color: multiplierTier.color,
+                    }}
+                    title={`Buka rincian Streak Multiplier (${multiplierTier.multiplier}×)`}
+                  >
+                    <span className="text-sm leading-none">{multiplierTier.iconChar}</span>
+                    <span>
+                      Bonus: <strong className="text-white font-extrabold">{multiplierTier.multiplier}×</strong>
+                    </span>
+                    <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-200 border border-amber-400/40">
+                      Permanen
+                    </span>
+                  </button>
 
                   {rank.next ? (
                     <span className="text-xs text-[var(--dim)] font-semibold">
@@ -430,6 +494,7 @@ export default function Dashboard({
               else onPractice(dailyChallenge.id);
             }}
             onOpenHistory={() => setShowHistoryModal(true)}
+            onOpenMultiplier={() => setShowMultiplierModal(true)}
           />
         </section>
 
@@ -556,6 +621,7 @@ export default function Dashboard({
           onSelectSubGame={onSelectSubGame}
           onPreview={(m) => setPreview(m)}
           onOpenHistory={() => setShowHistoryModal(true)}
+          onOpenMultiplier={() => setShowMultiplierModal(true)}
         />
 
         {/* Footer info progres */}
@@ -623,6 +689,23 @@ export default function Dashboard({
             setShowHistoryModal(false);
             if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
             else onPractice(dailyChallenge.id);
+          }}
+        />
+      )}
+
+      {/* ============ MODAL STREAK MULTIPLIER ============ */}
+      {showMultiplierModal && (
+        <StreakMultiplierModal
+          save={save}
+          onClose={() => setShowMultiplierModal(false)}
+          onStartPractice={() => {
+            setShowMultiplierModal(false);
+            if (!isDailyDone) {
+              if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
+              else onPractice(dailyChallenge.id);
+            } else {
+              onPractice(MODULES[0]?.id || "html");
+            }
           }}
         />
       )}

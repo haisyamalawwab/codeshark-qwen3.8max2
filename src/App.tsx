@@ -23,6 +23,13 @@ import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
 import type { SubGameId } from "./data/subgames";
 import Results from "./ui/Results";
 
+import {
+  getPermanentStreakTier,
+  applyStreakMultiplier,
+  recordDailyLoginStreak,
+  checkStreakMilestoneUnlocked,
+} from "./lib/streakMultiplier";
+
 /* Heavy arena di-lazy agar hub & first-paint HP tetap cepat (code-split per sub-game). */
 const TypingGame = lazy(() => import("./ui/TypingGame"));
 const TowerPuzzle = lazy(() => import("./ui/TowerPuzzle"));
@@ -56,6 +63,15 @@ type Screen =
       isDaily?: boolean;
       dailyBonusXp?: number;
       dailyBonusCoins?: number;
+      streakMultiplier?: number;
+      streakTierName?: string;
+      streakBonusXp?: number;
+      streakBonusCoins?: number;
+      newStreakTierUnlocked?: {
+        tier: number;
+        name: string;
+        multiplier: number;
+      } | null;
     };
 
 export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
@@ -80,6 +96,19 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   useEffect(() => {
     sfx.enabled = sound;
   }, [sound]);
+
+  // Cek login harian saat aplikasi dibuka dan evaluasi streak login serta multiplier permanen
+  useEffect(() => {
+    if (!save.profile) return;
+    const { nextSave } = recordDailyLoginStreak(save);
+    if (
+      nextSave.loginStreak?.current !== save.loginStreak?.current ||
+      nextSave.loginStreak?.lastActiveDate !== save.loginStreak?.lastActiveDate ||
+      (nextSave.unlockedStreakMilestones?.length ?? 0) !== (save.unlockedStreakMilestones?.length ?? 0)
+    ) {
+      setSave(nextSave);
+    }
+  }, []);
 
   const profile = save.profile;
   const cfg = AGE_GROUPS[profile?.age ?? "teen"];
@@ -113,14 +142,26 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     const prev = save.modules[id] ?? { materiDone: false, quizXp: 0, completions: 0 };
     const firstRead = !prev.materiDone;
     const firstQuiz = prev.quizXp === 0 && quizXp > 0;
-    const gained = (firstRead ? 20 : 0) + (firstQuiz ? quizXp : 0);
+    const baseGained = (firstRead ? 20 : 0) + (firstQuiz ? quizXp : 0);
     const { nextStreak } = recordDailyStreak(save.streak);
+    const highestStreak = Math.max(
+      nextStreak.current,
+      nextStreak.best,
+      save.loginStreak?.current ?? 0,
+      save.loginStreak?.best ?? 0
+    );
+    const { nextSave: saveWithMilestone } = checkStreakMilestoneUnlocked(save, highestStreak);
+    const multiplierTier = getPermanentStreakTier(saveWithMilestone);
+    const gained = Math.round(baseGained * multiplierTier.multiplier);
+
     setSave((s) => {
       const p = s.modules[id] ?? { materiDone: false, quizXp: 0, completions: 0 };
       return {
         ...s,
         xp: s.xp + gained,
         streak: nextStreak,
+        unlockedStreakMilestones: saveWithMilestone.unlockedStreakMilestones,
+        unlockedStreakTiers: saveWithMilestone.unlockedStreakTiers,
         modules: {
           ...s.modules,
           [id]: { ...p, materiDone: true, quizXp: Math.max(p.quizXp, quizXp) },
@@ -152,13 +193,33 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     const xpSession = r.won ? 50 + r.stars * 25 + Math.round(r.accuracy / 5) : Math.round(r.score / 25);
     const coinsSession = r.won ? 10 + r.stars * 10 + Math.round(r.accuracy / 10) : 0;
     const { next, passed, xpAward, coinsAward } = applyAttempt(save.modules[id], sess, r, xpSession, coinsSession);
-    const totalXpAward = xpAward + dailyBonusXp;
-    const totalCoinsAward = coinsAward + dailyBonusCoins;
+
+    // Hitung streak baru
+    const { nextStreak } = recordDailyStreak(save.streak);
+    const highestStreak = Math.max(
+      nextStreak.current,
+      nextStreak.best,
+      save.loginStreak?.current ?? 0,
+      save.loginStreak?.best ?? 0
+    );
+
+    // Evaluasi apakah ada tier Streak Multiplier baru yang terbuka secara permanen!
+    const { nextSave: saveWithMilestone, newlyUnlockedTier } = checkStreakMilestoneUnlocked(save, highestStreak);
+    const multiplierTier = getPermanentStreakTier(saveWithMilestone);
+
+    // Terapkan Streak Multiplier permanen ke seluruh hadiah misi!
+    const baseTotalXp = xpAward + dailyBonusXp;
+    const baseTotalCoins = coinsAward + dailyBonusCoins;
+    const multiplied = applyStreakMultiplier(baseTotalXp, baseTotalCoins, multiplierTier);
+
+    const totalXpAward = multiplied.totalXp;
+    const totalCoinsAward = multiplied.totalCoins;
+    const streakBonusXp = multiplied.bonusXp;
+    const streakBonusCoins = multiplied.bonusCoins;
 
     const prevRankName = rankOf(save.xp).cur.name;
     const newRankName = rankOf(save.xp + totalXpAward).cur.name;
     const rankUp = newRankName !== prevRankName ? newRankName : null;
-    const { nextStreak } = recordDailyStreak(save.streak);
 
     const rec = logAttempt({
       sessionId: id, won: r.won, stars: r.stars, score: r.score,
@@ -175,6 +236,8 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       xp: s.xp + totalXpAward,
       coins: s.coins + totalCoinsAward,
       streak: nextStreak,
+      unlockedStreakMilestones: saveWithMilestone.unlockedStreakMilestones,
+      unlockedStreakTiers: saveWithMilestone.unlockedStreakTiers,
       dailyChallenge: isDaily && r.won ? (() => {
         const todayStr = getLocalDateString();
         const curChallenge = getDailyChallenge();
@@ -219,6 +282,15 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       isDaily,
       dailyBonusXp,
       dailyBonusCoins,
+      streakMultiplier: multiplierTier.multiplier,
+      streakTierName: multiplierTier.name,
+      streakBonusXp,
+      streakBonusCoins,
+      newStreakTierUnlocked: newlyUnlockedTier ? {
+        tier: newlyUnlockedTier.tier,
+        name: newlyUnlockedTier.name,
+        multiplier: newlyUnlockedTier.multiplier,
+      } : null,
     });
   };
 
@@ -390,6 +462,14 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
           coinsGained={screen.coins}
           rankUp={screen.rankUp}
           streakCount={screen.streakCount}
+          isDaily={screen.isDaily}
+          dailyBonusXp={screen.dailyBonusXp}
+          dailyBonusCoins={screen.dailyBonusCoins}
+          streakMultiplier={screen.streakMultiplier}
+          streakTierName={screen.streakTierName}
+          streakBonusXp={screen.streakBonusXp}
+          streakBonusCoins={screen.streakBonusCoins}
+          newStreakTierUnlocked={screen.newStreakTierUnlocked}
           onRetry={() => enterPractice(screen.id)}
           onMap={() => setScreen(meetingScreenOf(screen.id))}
         />

@@ -20,7 +20,10 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconCalendar,
+  IconBolt,
+  IconCoin,
 } from "./icons";
+import { getPermanentStreakTier } from "../lib/streakMultiplier";
 
 interface Props {
   save: SaveData;
@@ -30,6 +33,7 @@ interface Props {
   onSelectSubGame?: (id: SubGameId) => void;
   onPreview: (mod: ModuleDef) => void;
   onOpenHistory?: () => void;
+  onOpenMultiplier?: () => void;
 }
 
 type FilterTab = "all" | "active" | "completed";
@@ -42,10 +46,14 @@ export default function DaftarMisiSection({
   onSelectSubGame,
   onPreview,
   onOpenHistory,
+  onOpenMultiplier,
 }: Props) {
   const [filter, setFilter] = useState<FilterTab>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Status pengali streak permanen saat ini
+  const multiplierTier = getPermanentStreakTier(save);
 
   // Perhitungan statistik progres kurikulum dasar
   const stats = useMemo(() => {
@@ -144,6 +152,37 @@ export default function DaftarMisiSection({
               {(save.dailyChallenge?.history?.length ?? 0) > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full bg-[rgba(46,230,200,0.2)] text-[10px] font-mono font-bold text-[var(--teal)] border border-[rgba(46,230,200,0.35)]">
                   {save.dailyChallenge.history?.length}
+                </span>
+              )}
+            </button>
+          )}
+
+          {/* Tombol Akses Streak Multiplier Permanen */}
+          {onOpenMultiplier && (
+            <button
+              type="button"
+              onClick={() => {
+                sfx.click();
+                onOpenMultiplier();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all cursor-pointer text-xs font-bold shrink-0 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+              style={{
+                background: multiplierTier.tier > 0 ? multiplierTier.badgeBg : "rgba(6,22,38,0.85)",
+                borderColor: multiplierTier.color,
+                color: multiplierTier.color,
+                boxShadow: multiplierTier.tier > 0 ? `0 0 14px ${multiplierTier.glowColor}` : undefined,
+              }}
+              title="Buka Rincian Sistem Streak Multiplier Permanen"
+            >
+              <span className="text-sm leading-none">{multiplierTier.iconChar}</span>
+              <span>{multiplierTier.multiplier}× Multiplier</span>
+              {multiplierTier.tier > 0 ? (
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-[10px] font-extrabold text-amber-200 border border-amber-400/40">
+                  +{multiplierTier.bonusPercent}%
+                </span>
+              ) : (
+                <span className="text-[10px] text-[var(--faint)] font-normal hidden sm:inline">
+                  (Dasar)
                 </span>
               )}
             </button>
@@ -386,6 +425,54 @@ export default function DaftarMisiSection({
                                   <IconTimer size={12} /> {prog.best.wpm} WPM
                                 </span>
                               </div>
+                            )}
+                          </div>
+
+                          {/* Hadiah Misi dengan Streak Multiplier Permanen */}
+                          <div className="flex items-center gap-2 mt-3 flex-wrap">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[rgba(46,230,200,0.1)] text-[var(--teal)] border border-[rgba(46,230,200,0.25)]" title="Hadiah XP jika menyelesaikan misi">
+                              <IconBolt size={12} />
+                              <span>+{Math.round(80 * multiplierTier.multiplier)} XP</span>
+                            </span>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[rgba(255,194,71,0.1)] text-[var(--amber)] border border-[rgba(255,194,71,0.25)]" title="Hadiah Koin jika menyelesaikan misi">
+                              <IconCoin size={12} />
+                              <span>+{Math.round(25 * multiplierTier.multiplier)} Koin</span>
+                            </span>
+                            {multiplierTier.tier > 0 ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  sfx.click();
+                                  onOpenMultiplier?.();
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
+                                style={{
+                                  background: multiplierTier.badgeBg,
+                                  borderColor: multiplierTier.color,
+                                  borderWidth: 1,
+                                  color: multiplierTier.color,
+                                }}
+                                title={`Streak Multiplier ${multiplierTier.multiplier}× aktif permanen! Klik untuk melihat tingkatan bonus`}
+                              >
+                                <span>⚡ {multiplierTier.multiplier}× Multiplier</span>
+                                <span className="text-white/80">(+{multiplierTier.bonusPercent}%)</span>
+                              </button>
+                            ) : (
+                              onOpenMultiplier && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    sfx.click();
+                                    onOpenMultiplier();
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-semibold text-[var(--dim)] hover:text-white bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] hover:border-amber-400/40 transition-colors cursor-pointer"
+                                  title="Buka sistem Streak Multiplier untuk melipatgandakan hadiah misi!"
+                                >
+                                  <span>⚡ Multiplier 1.0×</span>
+                                </button>
+                              )
                             )}
                           </div>
                         </div>

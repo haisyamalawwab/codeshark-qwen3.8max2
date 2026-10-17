@@ -3,8 +3,13 @@ import type { AgeCfg, Block, ModuleDef } from "../data/modules";
 import { sfx } from "../lib/audio";
 import { CodePanel } from "./Dashboard";
 import {
-  IconArrowL, IconArrowR, IconCheck, IconFin, IconInfo, IconKeyboard, IconStar, IconX,
+  IconArrowL, IconArrowR, IconCheck, IconFin, IconInfo, IconKeyboard, IconStar, IconX, IconSparkles,
 } from "./icons";
+import WebTrioAnalogyArt from "./WebTrioAnalogyArt";
+import HtmlStructureDiagram from "./HtmlStructureDiagram";
+import CssFlexboxDiagram from "./CssFlexboxDiagram";
+import JsDomInteractiveDiagram from "./JsDomInteractiveDiagram";
+import ConceptVisualizerModal from "./ConceptVisualizerModal";
 
 interface Props {
   mod: ModuleDef;
@@ -20,6 +25,7 @@ export default function Materi({ mod, cfg, alreadyDone, onComplete, onPractice, 
   const [quizXp, setQuizXp] = useState(0);
   const [awarded, setAwarded] = useState<Record<number, boolean>>({});
   const [solved, setSolved] = useState<Record<number, boolean>>({});
+  const [showConceptModal, setShowConceptModal] = useState(false);
   const slide = mod.slides[idx];
   const isLast = idx === mod.slides.length - 1;
   const blockedByQuiz = slide.blocks.some((b) => b.t === "quiz") && !solved[idx];

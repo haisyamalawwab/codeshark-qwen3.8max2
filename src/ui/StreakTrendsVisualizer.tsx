@@ -21,12 +21,14 @@ import {
   IconCalendar,
   IconTarget,
 } from "./icons";
+import { getPermanentStreakTier } from "../lib/streakMultiplier";
 
 interface Props {
   save: SaveData;
   streakStatus: StreakStatus;
   onStartDaily?: () => void;
   onOpenHistory?: () => void;
+  onOpenMultiplier?: () => void;
 }
 
 export interface DayTrendPoint {
@@ -178,8 +180,10 @@ export default function StreakTrendsVisualizer({
   streakStatus,
   onStartDaily,
   onOpenHistory,
+  onOpenMultiplier,
 }: Props) {
   const trendData = useMemo(() => calculate7DaysTrend(save), [save]);
+  const multiplierTier = useMemo(() => getPermanentStreakTier(save), [save]);
 
   // Hitung jumlah hari aktif dalam 7 hari terakhir
   const completedDaysCount = useMemo(
@@ -475,6 +479,62 @@ export default function StreakTrendsVisualizer({
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* ============ STATUS STREAK MULTIPLIER PERMANEN ============ */}
+        <div
+          className="mt-4 p-3.5 sm:p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all"
+          style={{
+            background: "linear-gradient(135deg, rgba(10, 36, 62, 0.7) 0%, rgba(6, 22, 38, 0.85) 100%)",
+            borderColor: multiplierTier.color,
+            boxShadow: `0 0 16px ${multiplierTier.glowColor}`,
+          }}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <span
+              className="w-10 h-10 rounded-xl grid place-items-center text-xl shrink-0 border shadow-sm"
+              style={{
+                background: multiplierTier.badgeBg,
+                borderColor: multiplierTier.color,
+              }}
+            >
+              {multiplierTier.iconChar}
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] uppercase font-extrabold tracking-wider" style={{ color: multiplierTier.color }}>
+                  Streak Multiplier Permanen
+                </span>
+                <span className="text-[10px] text-[var(--faint)]" aria-hidden="true">•</span>
+                <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-0.5">
+                  <IconCheck size={11} /> Aktif Selamanya
+                </span>
+              </div>
+              <p className="font-display font-extrabold text-sm sm:text-base text-white truncate">
+                {multiplierTier.name} — <span style={{ color: multiplierTier.color }}>{multiplierTier.multiplier}× XP & Koin</span>
+                <span className="text-xs font-sans font-normal text-slate-300 ml-1.5 hidden xs:inline">
+                  (+{multiplierTier.bonusPercent}% di setiap misi)
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+            {onOpenMultiplier && (
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.click();
+                  onOpenMultiplier();
+                }}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold text-amber-300 hover:text-white bg-[rgba(245,158,11,0.15)] hover:bg-[rgba(245,158,11,0.25)] border border-[rgba(245,158,11,0.4)] transition-all cursor-pointer flex items-center gap-1.5"
+                title="Buka rincian semua tingkatan Streak Multiplier"
+              >
+                <span>Tingkatan Pengali</span>
+                <IconArrowR size={13} />
+              </button>
+            )}
           </div>
         </div>
 
