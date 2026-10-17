@@ -23,6 +23,7 @@ import RankEmblemArt from "./RankEmblemArt";
 import SubGameArtwork from "./SubGameArtwork";
 import DaftarMisiSection from "./DaftarMisiSection";
 import MissionHistoryModal from "./MissionHistoryModal";
+import StreakTrendsVisualizer from "./StreakTrendsVisualizer";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
 
@@ -412,6 +413,19 @@ export default function Dashboard({
             record={save.dailyChallenge}
             subGameName={SUBGAMES[subGame].name}
             onStart={() => {
+              if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
+              else onPractice(dailyChallenge.id);
+            }}
+            onOpenHistory={() => setShowHistoryModal(true)}
+          />
+        </section>
+
+        {/* ============ TREN KONSISTENSI & STREAK 7 HARI (STREAK TRENDS) ============ */}
+        <section className="mt-8 reveal">
+          <StreakTrendsVisualizer
+            save={save}
+            streakStatus={streakStatus}
+            onStartDaily={() => {
               if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
               else onPractice(dailyChallenge.id);
             }}
