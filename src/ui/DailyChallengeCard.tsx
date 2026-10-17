@@ -5,7 +5,7 @@ import type { DailyChallengeRecord } from "../lib/storage";
 import { sfx } from "../lib/audio";
 import {
   IconTimer, IconCheck, IconArrowR,
-  IconBolt, IconCoin, IconFlame, IconTarget, IconRetry,
+  IconBolt, IconCoin, IconFlame, IconTarget, IconRetry, IconCalendar,
 } from "./icons";
 
 interface Props {
@@ -14,9 +14,10 @@ interface Props {
   record: DailyChallengeRecord;
   subGameName: string;
   onStart: () => void;
+  onOpenHistory?: () => void;
 }
 
-export default function DailyChallengeCard({ challenge, isCompleted, record, subGameName, onStart }: Props) {
+export default function DailyChallengeCard({ challenge, isCompleted, record, subGameName, onStart, onOpenHistory }: Props) {
   const [timeLeft, setTimeLeft] = useState(() => getTimeUntilMidnight().formatted);
 
   useEffect(() => {
@@ -124,21 +125,44 @@ export default function DailyChallengeCard({ challenge, isCompleted, record, sub
             </div>
           </div>
 
-          {/* Time-bound countdown */}
-          <div
-            className="flex items-center gap-2 self-start sm:self-center px-3 py-1.5 rounded-xl border shrink-0 text-xs font-bold"
-            style={{
-              background: isCompleted ? "rgba(46, 230, 200, 0.08)" : "rgba(245, 158, 11, 0.08)",
-              borderColor: isCompleted ? "rgba(46, 230, 200, 0.25)" : "rgba(245, 158, 11, 0.3)",
-              color: isCompleted ? "var(--teal)" : "#fed7aa",
-            }}
-            title="Waktu tersisa sebelum tantangan harian berganti pada tengah malam"
-          >
-            <IconTimer size={15} className={isCompleted ? "text-[var(--teal)]" : "text-[#f59e0b] animate-pulse"} />
-            <span>
-              {isCompleted ? "Reset dalam:" : "Sisa waktu:"}{" "}
-              <strong className="text-white font-mono tabular-nums text-sm">{timeLeft}</strong>
-            </span>
+          {/* Header Actions: Tombol Riwayat Misi + Countdown Timer */}
+          <div className="flex items-center gap-2.5 self-start sm:self-center flex-wrap">
+            {onOpenHistory && (
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.click();
+                  onOpenHistory();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[rgba(126,196,236,0.25)] bg-[rgba(6,22,38,0.7)] text-[var(--teal)] hover:bg-[rgba(46,230,200,0.12)] hover:border-[rgba(46,230,200,0.5)] transition-all cursor-pointer text-xs font-bold shrink-0 hover:scale-[1.02] active:scale-[0.98]"
+                title="Buka Log Riwayat Tantangan Harian"
+              >
+                <IconCalendar size={14} className="text-[var(--teal)]" />
+                <span>Log Riwayat</span>
+                {((record.history?.length ?? 0) > 0 || record.totalCompleted > 0) && (
+                  <span className="px-1.5 py-0.2 rounded-full bg-[rgba(46,230,200,0.2)] text-[10px] font-mono font-bold text-[var(--teal)] border border-[rgba(46,230,200,0.35)]">
+                    {record.history?.length || record.totalCompleted}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Time-bound countdown */}
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border shrink-0 text-xs font-bold"
+              style={{
+                background: isCompleted ? "rgba(46, 230, 200, 0.08)" : "rgba(245, 158, 11, 0.08)",
+                borderColor: isCompleted ? "rgba(46, 230, 200, 0.25)" : "rgba(245, 158, 11, 0.3)",
+                color: isCompleted ? "var(--teal)" : "#fed7aa",
+              }}
+              title="Waktu tersisa sebelum tantangan harian berganti pada tengah malam"
+            >
+              <IconTimer size={15} className={isCompleted ? "text-[var(--teal)]" : "text-[#f59e0b] animate-pulse"} />
+              <span>
+                {isCompleted ? "Reset dalam:" : "Sisa waktu:"}{" "}
+                <strong className="text-white font-mono tabular-nums text-sm">{timeLeft}</strong>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -154,7 +178,21 @@ export default function DailyChallengeCard({ challenge, isCompleted, record, sub
           {record.totalCompleted > 0 && (
             <>
               <span aria-hidden="true" className="text-slate-600">·</span>
-              <span className="text-slate-300 font-semibold">Tuntas {record.totalCompleted}×</span>
+              {onOpenHistory ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sfx.click();
+                    onOpenHistory();
+                  }}
+                  className="text-slate-300 hover:text-[var(--teal)] font-semibold underline underline-offset-2 decoration-[rgba(46,230,200,0.4)] cursor-pointer transition-colors"
+                  title="Klik untuk membuka riwayat tantangan harian"
+                >
+                  Tuntas {record.totalCompleted}×
+                </button>
+              ) : (
+                <span className="text-slate-300 font-semibold">Tuntas {record.totalCompleted}×</span>
+              )}
             </>
           )}
         </div>
@@ -219,6 +257,21 @@ export default function DailyChallengeCard({ challenge, isCompleted, record, sub
           )}
 
           <div className="flex items-center gap-2">
+            {onOpenHistory && (
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.click();
+                  onOpenHistory();
+                }}
+                className="btn btn-ghost !text-xs !py-2.5 !px-3.5 flex items-center gap-1.5 border border-[rgba(126,196,236,0.25)] bg-[rgba(6,22,38,0.7)] text-[var(--teal)] hover:bg-[rgba(46,230,200,0.12)] hover:border-[rgba(46,230,200,0.5)] rounded-xl transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                title="Buka Log Riwayat Tantangan Harian & Grafik Progres"
+              >
+                <IconCalendar size={14} className="text-[var(--teal)]" />
+                <span>Riwayat Misi</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => {

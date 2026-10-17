@@ -22,6 +22,7 @@ import AchievementsSection from "./AchievementsSection";
 import RankEmblemArt from "./RankEmblemArt";
 import SubGameArtwork from "./SubGameArtwork";
 import DaftarMisiSection from "./DaftarMisiSection";
+import MissionHistoryModal from "./MissionHistoryModal";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
 
@@ -72,6 +73,7 @@ export default function Dashboard({
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const profile = save.profile!;
   const rank = rankOf(save.xp);
   const streakStatus = evaluateStreak(save.streak);
@@ -413,6 +415,7 @@ export default function Dashboard({
               if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
               else onPractice(dailyChallenge.id);
             }}
+            onOpenHistory={() => setShowHistoryModal(true)}
           />
         </section>
 
@@ -538,6 +541,7 @@ export default function Dashboard({
           onPractice={onPractice}
           onSelectSubGame={onSelectSubGame}
           onPreview={(m) => setPreview(m)}
+          onOpenHistory={() => setShowHistoryModal(true)}
         />
 
         {/* Footer info progres */}
@@ -593,6 +597,20 @@ export default function Dashboard({
             </div>
           </div>
         </div>
+      )}
+
+      {/* ============ MODAL RIWAYAT MISI (MISSION HISTORY) ============ */}
+      {showHistoryModal && (
+        <MissionHistoryModal
+          record={save.dailyChallenge}
+          isTodayCompleted={isDailyDone}
+          onClose={() => setShowHistoryModal(false)}
+          onStartToday={() => {
+            setShowHistoryModal(false);
+            if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
+            else onPractice(dailyChallenge.id);
+          }}
+        />
       )}
     </div>
   );

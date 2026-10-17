@@ -19,6 +19,7 @@ import {
   IconCode,
   IconChevronDown,
   IconChevronUp,
+  IconCalendar,
 } from "./icons";
 
 interface Props {
@@ -28,6 +29,7 @@ interface Props {
   onPractice: (id: string) => void;
   onSelectSubGame?: (id: SubGameId) => void;
   onPreview: (mod: ModuleDef) => void;
+  onOpenHistory?: () => void;
 }
 
 type FilterTab = "all" | "active" | "completed";
@@ -39,9 +41,11 @@ export default function DaftarMisiSection({
   onPractice,
   onSelectSubGame,
   onPreview,
+  onOpenHistory,
 }: Props) {
   const [filter, setFilter] = useState<FilterTab>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Perhitungan statistik progres kurikulum dasar
   const stats = useMemo(() => {
@@ -124,6 +128,27 @@ export default function DaftarMisiSection({
 
         {/* Ringkasan Progres & Filter Tabs */}
         <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+          {/* Tombol Akses Riwayat Misi */}
+          {onOpenHistory && (
+            <button
+              type="button"
+              onClick={() => {
+                sfx.click();
+                onOpenHistory();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[rgba(126,196,236,0.25)] bg-[rgba(6,22,38,0.85)] text-[var(--teal)] hover:bg-[rgba(46,230,200,0.12)] hover:border-[rgba(46,230,200,0.5)] transition-all cursor-pointer text-xs font-bold shrink-0 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+              title="Buka Log Riwayat Misi & Tantangan Harian"
+            >
+              <IconCalendar size={14} className="text-[var(--teal)]" />
+              <span>Log Riwayat</span>
+              {(save.dailyChallenge?.history?.length ?? 0) > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-[rgba(46,230,200,0.2)] text-[10px] font-mono font-bold text-[var(--teal)] border border-[rgba(46,230,200,0.35)]">
+                  {save.dailyChallenge.history?.length}
+                </span>
+              )}
+            </button>
+          )}
+
           {/* Progress pill indicator */}
           <div className="px-3.5 py-1.5 rounded-xl bg-[rgba(6,22,38,0.85)] border border-[rgba(126,196,236,0.22)] shadow-inner flex items-center gap-2.5 text-xs font-bold">
             <span className="text-[var(--dim)]">Tuntas:</span>
@@ -512,15 +537,44 @@ export default function DaftarMisiSection({
                                   <span className="w-2 h-2 rounded-full bg-[#ffc247]" />
                                   <span>Contoh Kode ({m.code.split("\n").length} Baris)</span>
                                 </span>
-                                {done && (
+                                <div className="flex items-center gap-2">
                                   <button
                                     type="button"
-                                    onClick={() => onPreview(m)}
-                                    className="text-[10px] text-[var(--amber)] hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                                    onClick={async () => {
+                                      sfx.click();
+                                      try {
+                                        await navigator.clipboard.writeText(m.code);
+                                      } catch {
+                                        /* fallback */
+                                      }
+                                      setCopiedId(m.id);
+                                      setTimeout(() => setCopiedId(null), 2000);
+                                    }}
+                                    className="text-[10px] text-[var(--teal)] hover:text-white flex items-center gap-1 font-bold cursor-pointer transition-colors px-2 py-0.5 rounded bg-[rgba(46,230,200,0.1)] border border-[rgba(46,230,200,0.25)] hover:bg-[rgba(46,230,200,0.2)]"
+                                    title="Salin kode ke papan klip"
                                   >
-                                    <IconEye size={11} /> Lihat Hasil Utuh
+                                    {copiedId === m.id ? (
+                                      <>
+                                        <IconCheck size={11} className="text-emerald-400" />
+                                        <span className="text-emerald-300">Tersalin!</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <IconKeyboard size={11} />
+                                        <span>Salin</span>
+                                      </>
+                                    )}
                                   </button>
-                                )}
+                                  {done && (
+                                    <button
+                                      type="button"
+                                      onClick={() => onPreview(m)}
+                                      className="text-[10px] text-[var(--amber)] hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                                    >
+                                      <IconEye size={11} /> Lihat Hasil
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                               <div className="font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto max-h-24 scrollbar-none opacity-90">
                                 {lineTokens.map((line, li) => (

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import type { AgeId, SaveData } from "./lib/storage";
+import type { AgeId, SaveData, DailyChallengeAttempt } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
@@ -175,12 +175,30 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       xp: s.xp + totalXpAward,
       coins: s.coins + totalCoinsAward,
       streak: nextStreak,
-      dailyChallenge: isDaily && r.won ? {
-        lastCompletedDate: getLocalDateString(),
-        todayScore: Math.max(s.dailyChallenge?.todayScore ?? 0, r.score),
-        todayAccuracy: Math.max(s.dailyChallenge?.todayAccuracy ?? 0, r.accuracy),
-        totalCompleted: (s.dailyChallenge?.totalCompleted ?? 0) + (alreadyDoneToday ? 0 : 1),
-      } : s.dailyChallenge,
+      dailyChallenge: isDaily && r.won ? (() => {
+        const todayStr = getLocalDateString();
+        const curChallenge = getDailyChallenge();
+        const prevHist = s.dailyChallenge?.history ?? [];
+        const newAttempt: DailyChallengeAttempt = {
+          date: todayStr,
+          title: curChallenge.title,
+          lang: curChallenge.lang,
+          score: r.score,
+          accuracy: r.accuracy,
+          wpm: r.wpm,
+          stars: r.stars,
+          timeSec: r.timeSec,
+          completedAt: Date.now(),
+        };
+        const filteredHist = prevHist.filter((h) => h.date !== todayStr);
+        return {
+          lastCompletedDate: todayStr,
+          todayScore: Math.max(s.dailyChallenge?.todayScore ?? 0, r.score),
+          todayAccuracy: Math.max(s.dailyChallenge?.todayAccuracy ?? 0, r.accuracy),
+          totalCompleted: (s.dailyChallenge?.totalCompleted ?? 0) + (alreadyDoneToday ? 0 : 1),
+          history: [newAttempt, ...filteredHist],
+        };
+      })() : s.dailyChallenge,
       modules: { ...s.modules, [id]: next },
       stats: {
         games: s.stats.games + 1,
