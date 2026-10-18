@@ -48,6 +48,15 @@ export default function Materi({ mod, cfg, alreadyDone, onComplete, onPractice, 
             </p>
             <p className="font-display font-bold">Ruang Materi</p>
           </div>
+          <button
+            type="button"
+            className="btn btn-ghost !px-2.5 !py-1 text-amber-300 hover:text-amber-200 border border-amber-300/30 bg-amber-400/10 text-xs font-bold flex items-center gap-1.5"
+            onClick={() => setShowConceptModal(true)}
+            title="Buka Galeri Konsep & Diagram"
+          >
+            <IconSparkles size={14} />
+            <span className="hidden sm:inline">Galeri Konsep</span>
+          </button>
           <div className="flex items-center gap-1.5">
             {mod.slides.map((_, i) => (
               <span
@@ -129,6 +138,13 @@ export default function Materi({ mod, cfg, alreadyDone, onComplete, onPractice, 
           </p>
         </div>
       )}
+
+      {showConceptModal && (
+        <ConceptVisualizerModal
+          initialTab={mod.id === "html" ? "html" : mod.id === "css" ? "css" : mod.id === "js" ? "js" : "trio"}
+          onClose={() => setShowConceptModal(false)}
+        />
+      )}
     </div>
   );
 }
@@ -181,6 +197,20 @@ function BlockView({
     }
     case "quiz":
       return <Quiz block={block} key2={slideIdx} solved={solved} onSolved={onSolved} />;
+    case "diagram": {
+      switch (block.kind) {
+        case "trio":
+          return <WebTrioAnalogyArt key={slideIdx} className="anim-fadeUp" />;
+        case "html-dom":
+          return <HtmlStructureDiagram key={slideIdx} className="anim-fadeUp" />;
+        case "css-flexbox":
+          return <CssFlexboxDiagram key={slideIdx} className="anim-fadeUp" />;
+        case "js-events":
+          return <JsDomInteractiveDiagram key={slideIdx} className="anim-fadeUp" />;
+        default:
+          return null;
+      }
+    }
     default:
       return null;
   }

@@ -14,6 +14,10 @@ import { SUBGAMES } from "../data/subgames";
 import type { SubGameId } from "../data/subgames";
 import { IconBook, IconKeyboard, IconTower, IconLock, IconCheck, IconArrowL, IconArrowR, IconStar } from "./icons";
 import { StationArt, stationFor } from "../graphics/stations";
+import WebTrioAnalogyArt from "./WebTrioAnalogyArt";
+import HtmlStructureDiagram from "./HtmlStructureDiagram";
+import CssFlexboxDiagram from "./CssFlexboxDiagram";
+import JsDomInteractiveDiagram from "./JsDomInteractiveDiagram";
 
 interface Props {
   save: SaveData;
@@ -108,7 +112,21 @@ function Blocks({ blocks, color }: { blocks: Block[]; color: string }) {
             </div>
           );
         }
-        return <QuizBlock key={i} b={b} color={color} />;
+        if (b.t === "diagram") {
+          return (
+            <div key={i} className="my-2">
+              {b.kind === "trio" && <WebTrioAnalogyArt interactive={false} />}
+              {b.kind === "html-dom" && <HtmlStructureDiagram />}
+              {b.kind === "css-flexbox" && <CssFlexboxDiagram />}
+              {b.kind === "js-events" && <JsDomInteractiveDiagram />}
+              {b.caption && <p className="text-[11px] text-[var(--faint)] italic mt-1">{b.caption}</p>}
+            </div>
+          );
+        }
+        if (b.t === "quiz") {
+          return <QuizBlock key={i} b={b} color={color} />;
+        }
+        return null;
       })}
     </div>
   );

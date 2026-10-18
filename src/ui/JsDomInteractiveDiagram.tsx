@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { sfx } from "../lib/audio";
-import { IconBolt, IconCheck, IconKeyboard, IconSparkles } from "./icons";
+import { IconBolt, IconKeyboard, IconSparkles } from "./icons";
 
 interface Props {
   className?: string;
