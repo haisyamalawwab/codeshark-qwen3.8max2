@@ -12,7 +12,7 @@ export type MdBlock =
   | { t: "code"; lang: string; code: string }
   | { t: "quote"; html: string }
   | { t: "hr" }
-  | { t: "img"; key: string }
+  | { t: "img"; key: string; alt?: string; src?: string }
   | { t: "table"; head: string[]; rows: string[][] };
 
 const esc = (s: string) =>
@@ -24,6 +24,10 @@ export function mdInline(s: string): string {
   out = out.replace(/`([^`]+)`/g, (_m, c) => `<code class="md-code">${c}</code>`);
   out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   out = out.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+  out = out.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    '<img src="$2" alt="$1" class="md-inline-img inline-block rounded max-h-48 my-1" referrerpolicy="no-referrer" />'
+  );
   out = out.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
@@ -72,7 +76,15 @@ export function parseMd(src: string): MdBlock[] {
     /* placeholder gambar: %%IMG:kunci%% (satu per baris) */
     const img = line.match(/^\s*%%IMG:([\w-]+)%%\s*$/);
     if (img) {
-      blocks.push({ t: "img", key: img[1] });
+      blocks.push({ t: "img", key: img[1], alt: "", src: "" });
+      i++;
+      continue;
+    }
+
+    /* standard markdown image: ![alt](url) */
+    const mdImg = line.match(/^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$/);
+    if (mdImg) {
+      blocks.push({ t: "img", key: mdImg[2], alt: mdImg[1], src: mdImg[2] });
       i++;
       continue;
     }

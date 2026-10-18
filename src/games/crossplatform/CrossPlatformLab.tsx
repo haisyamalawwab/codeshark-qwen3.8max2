@@ -1,22 +1,26 @@
 /* ==========================================================================
    CROSS-PLATFORM STUDIO / LAB ARENA
    Sub-Game Khusus: Mata Kuliah Sistem Aplikasi Lintas Platform (React Native & Expo)
-   16 Pertemuan Komprehensif • Step-by-Step • Phone Simulator • RPS Tracker
+   16 Pertemuan Komprehensif • Markdown-Powered • Phone Simulator • RPS Tracker
    ========================================================================== */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   CROSS_PLATFORM_MEETINGS,
   type CrossPlatformMeeting,
 } from "../../data/crossPlatformCurriculum";
+import { getCrossPlatformMdDoc } from "../../data/materiCrossPlatform";
+import { parseMd, type MdBlock } from "../../lib/markdown";
+import { getFigure } from "../../lib/figures";
 import CrossPlatformPhoneSimulator from "./CrossPlatformPhoneSimulator";
 import { sfx } from "../../lib/audio";
 import {
   IconArrowL,
-  IconBook,
   IconCheck,
   IconKeyboard,
   IconStar,
+  IconInfo,
+  IconX,
 } from "../../ui/icons";
 import type { GameResult } from "../../ui/TypingGame";
 
@@ -26,11 +30,219 @@ interface Props {
   startMeetingNo?: number;
 }
 
+/* ==========================================================================
+   RENDERER BLOK MARKDOWN (.md) UNTUK CROSS-PLATFORM
+   ========================================================================== */
+function CrossPlatformMdView({ blocks }: { blocks: MdBlock[] }) {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const handleCopyCode = (code: string, idx: number) => {
+    navigator.clipboard.writeText(code);
+    sfx.click();
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  return (
+    <div className="space-y-4 text-slate-200">
+      {blocks.map((b, i) => {
+        switch (b.t) {
+          case "h": {
+            if (b.level === 1) {
+              return (
+                <h2
+                  key={i}
+                  className="font-extrabold text-lg sm:text-xl text-white tracking-tight pb-2 border-b border-sky-500/20 text-sky-300"
+                >
+                  {b.text}
+                </h2>
+              );
+            }
+            if (b.level === 2) {
+              return (
+                <h3
+                  key={i}
+                  className="font-bold text-base sm:text-lg text-white mt-4 pb-1 border-b border-slate-700/60 flex items-center gap-2"
+                >
+                  <span className="text-sky-400">§</span>
+                  <span>{b.text}</span>
+                </h3>
+              );
+            }
+            if (b.level === 3) {
+              return (
+                <h4 key={i} className="font-bold text-sm text-sky-200 mt-2">
+                  {b.text}
+                </h4>
+              );
+            }
+            return (
+              <h5 key={i} className="font-bold text-xs text-slate-300">
+                {b.text}
+              </h5>
+            );
+          }
+
+          case "p":
+            return (
+              <p
+                key={i}
+                className="text-xs sm:text-sm text-slate-300 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: b.html }}
+              />
+            );
+
+          case "ul":
+            return (
+              <ul key={i} className="space-y-1.5 pl-1">
+                {b.items.map((it, j) => (
+                  <li key={j} className="flex gap-2.5 items-start text-xs sm:text-sm text-slate-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0 mt-2" />
+                    <span dangerouslySetInnerHTML={{ __html: it }} />
+                  </li>
+                ))}
+              </ul>
+            );
+
+          case "ol":
+            return (
+              <ol key={i} className="space-y-1.5 pl-1">
+                {b.items.map((it, j) => (
+                  <li key={j} className="flex gap-2.5 items-start text-xs sm:text-sm text-slate-300">
+                    <span className="w-5 h-5 rounded-md bg-slate-800 text-sky-400 font-mono text-[10px] font-bold grid place-items-center shrink-0">
+                      {j + 1}
+                    </span>
+                    <span className="pt-0.5" dangerouslySetInnerHTML={{ __html: it }} />
+                  </li>
+                ))}
+              </ol>
+            );
+
+          case "code":
+            return (
+              <div key={i} className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 my-2">
+                <div className="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                  <span>{b.lang || "code"}</span>
+                  <button
+                    onClick={() => handleCopyCode(b.code, i)}
+                    className="text-sky-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {copiedIndex === i ? "✓ Tersalin" : "Salin"}
+                  </button>
+                </div>
+                <pre className="p-3.5 text-xs font-mono text-sky-200 overflow-x-auto whitespace-pre leading-relaxed">
+                  <code>{b.code}</code>
+                </pre>
+              </div>
+            );
+
+          case "quote": {
+            const isTip = /💡|✅/.test(b.html);
+            const isWarn = /⚠️|🚫/.test(b.html);
+            return (
+              <blockquote
+                key={i}
+                className={`p-3.5 rounded-xl border flex items-start gap-3 my-2 text-xs sm:text-sm ${
+                  isWarn
+                    ? "bg-rose-950/30 border-rose-500/40 text-rose-200"
+                    : isTip
+                    ? "bg-sky-950/30 border-sky-500/40 text-sky-200"
+                    : "bg-amber-950/30 border-amber-500/40 text-amber-200"
+                }`}
+              >
+                <span className="shrink-0 mt-0.5">
+                  {isWarn ? <IconX size={15} /> : isTip ? <IconInfo size={15} /> : <IconStar size={15} />}
+                </span>
+                <span
+                  className="leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: b.html.replace(/^[💡⚠️🚫✅]\s*/, "") }}
+                />
+              </blockquote>
+            );
+          }
+
+          case "hr":
+            return <hr key={i} className="border-slate-800 my-4" />;
+
+          case "img": {
+            const fig = getFigure(b.key);
+            if (fig) {
+              return (
+                <figure key={i} className="my-4">
+                  <div className="rounded-2xl overflow-hidden border border-sky-500/30 bg-slate-950 p-2 shadow-lg">
+                    {fig.node}
+                  </div>
+                  <figcaption className="text-xs text-slate-400 mt-2 text-center font-mono">
+                    {b.alt || fig.caption}
+                  </figcaption>
+                </figure>
+              );
+            }
+            const src = b.src || b.key;
+            if (src && (src.startsWith("/") || src.startsWith("http") || src.startsWith("./"))) {
+              return (
+                <figure key={i} className="my-4">
+                  <div className="rounded-2xl overflow-hidden border border-sky-500/20 bg-slate-900/60 p-2 shadow-lg">
+                    <img
+                      src={src}
+                      alt={b.alt || "Ilustrasi Materi"}
+                      className="w-full h-auto max-h-96 object-contain rounded-xl mx-auto"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  {b.alt && <figcaption className="text-xs text-slate-400 mt-2 text-center font-mono">{b.alt}</figcaption>}
+                </figure>
+              );
+            }
+            return null;
+          }
+
+          case "table":
+            return (
+              <div key={i} className="overflow-x-auto my-3 rounded-xl border border-slate-800 bg-slate-950/60">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-slate-900 text-sky-400 font-bold border-b border-slate-800">
+                    <tr>
+                      {b.head.map((h, j) => (
+                        <th
+                          key={j}
+                          className="px-3 py-2.5"
+                          dangerouslySetInnerHTML={{ __html: h.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") }}
+                        />
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/80">
+                    {b.rows.map((r, j) => (
+                      <tr key={j} className="hover:bg-slate-900/40">
+                        {r.map((c, k) => (
+                          <td key={k} className="px-3 py-2" dangerouslySetInnerHTML={{ __html: c }} />
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+
+          default:
+            return null;
+        }
+      })}
+    </div>
+  );
+}
+
+/* ==========================================================================
+   KOMPONEN UTAMA: CROSS-PLATFORM LAB
+   ========================================================================== */
 export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }: Props) {
   const [currentNo, setCurrentNo] = useState(startMeetingNo);
   const [activeTab, setActiveTab] = useState<"teori" | "tutorial" | "code" | "quiz" | "tugas">("teori");
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [copiedFile, setCopiedFile] = useState(false);
+  const [showRawMd, setShowRawMd] = useState(false);
+  const [copiedMd, setCopiedMd] = useState(false);
 
   // Quiz state per meeting
   const [quizSelected, setQuizSelected] = useState<number | null>(null);
@@ -46,12 +258,17 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
   const meeting: CrossPlatformMeeting =
     CROSS_PLATFORM_MEETINGS.find((m) => m.no === currentNo) || CROSS_PLATFORM_MEETINGS[0];
 
+  // Memuat dokumen markdown (.md)
+  const mdDoc = useMemo(() => getCrossPlatformMdDoc(currentNo), [currentNo]);
+  const mdBlocks = useMemo(() => (mdDoc ? parseMd(mdDoc.source) : []), [mdDoc]);
+
   const handleSelectMeeting = (no: number) => {
     sfx.click();
     setCurrentNo(no);
     setActiveTab("teori");
     setActiveFileIndex(0);
     setQuizSelected(null);
+    setShowRawMd(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -60,6 +277,14 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
     setCopiedFile(true);
     sfx.click();
     setTimeout(() => setCopiedFile(false), 2000);
+  };
+
+  const handleCopyMdSource = () => {
+    if (!mdDoc) return;
+    navigator.clipboard.writeText(mdDoc.source);
+    setCopiedMd(true);
+    sfx.click();
+    setTimeout(() => setCopiedMd(false), 2000);
   };
 
   const handleAnswerQuiz = (optionIdx: number) => {
@@ -100,110 +325,82 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
   const executeCommand = (cmd: string) => {
     sfx.click();
     setTerminalLogs((prev) => [
+      ...prev,
       `$ ${cmd}`,
       cmd.includes("build")
-        ? "› [EAS] Build started in cloud: compiling Android APK..."
-        : "› Metro: Bundling 100% (JavaScript transforms complete)",
-      ...prev.slice(0, 4),
+        ? "› Compiling Android APK with EAS Cloud..."
+        : "› Fast Refresh: update bundle (12ms)",
     ]);
   };
 
-  const totalDone = Object.keys(completedMeetings).length;
-
   return (
-    <div className="min-h-screen bg-[#060f1e] text-slate-100 pb-20 relative select-none">
-      {/* Top Header Navigation */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-[rgba(6,15,30,0.92)] border-b border-[rgba(56,189,248,0.2)]">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+    <div className="min-h-screen bg-[#060f1d] text-slate-100 select-none pb-24">
+      {/* Top Header Bar */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-[rgba(6,16,32,0.92)] border-b border-[rgba(56,189,248,0.2)]">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
-              onClick={onExit}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
-              title="Kembali ke Dashboard Hub"
+              onClick={() => {
+                sfx.click();
+                onExit();
+              }}
+              className="p-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-sky-400 text-slate-300 hover:text-white flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer"
             >
-              <IconArrowL size={18} />
+              <IconArrowL size={14} />
+              <span>Kembali ke HUD</span>
             </button>
-            <div className="leading-tight">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black uppercase tracking-widest text-sky-400">
-                  📱 SISTEM APLIKASI LINTAS PLATFORM
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-bold border border-sky-400/30">
-                  3 SKS • Semester 5
-                </span>
-              </div>
-              <h1 className="font-extrabold text-sm sm:text-base text-white tracking-tight mt-0.5">
-                React Native & Expo SDK Studio
-              </h1>
-            </div>
+            <div className="h-4 w-px bg-slate-700 hidden sm:block" />
+            <h1 className="font-extrabold text-sm text-white flex items-center gap-2">
+              <span className="text-sky-400">📱 CrossPlatform Studio</span>
+              <span className="text-slate-500 hidden sm:inline">·</span>
+              <span className="text-xs text-slate-400 font-semibold hidden sm:inline">
+                P{meeting.no}: {meeting.title}
+              </span>
+            </h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 flex items-center gap-1.5">
-              <IconCheck size={14} /> {totalDone}/16 Tuntas
-            </span>
-            <button
-              onClick={onExit}
-              className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
-            >
-              Tutup Lab ✕
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Grid Container */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6">
-        {/* 16 Pertemuan RPS Stepper Selector */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <IconBook size={14} className="text-sky-400" /> Silabus 16 Pertemuan RPS
-            </span>
-            <span className="text-[11px] text-sky-300 font-bold">
-              Pertemuan {currentNo}: {meeting.title}
-            </span>
-          </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+          {/* Meeting Quick Selector (1-16) */}
+          <div className="flex items-center gap-1 overflow-x-auto max-w-[400px] py-1 scrollbar-none">
             {CROSS_PLATFORM_MEETINGS.map((m) => {
-              const active = m.no === currentNo;
-              const done = !!completedMeetings[m.no];
+              const isDone = completedMeetings[m.no];
+              const isCurrent = m.no === currentNo;
               return (
                 <button
                   key={m.no}
                   onClick={() => handleSelectMeeting(m.no)}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl font-extrabold text-xs shrink-0 transition-all cursor-pointer flex flex-col items-center justify-center relative ${
-                    active
-                      ? "bg-sky-600 text-white shadow-[0_0_15px_rgba(2,132,199,0.5)] scale-105 border-2 border-sky-300"
-                      : done
-                        ? "bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/80"
-                        : "bg-slate-800/80 border border-slate-700 text-slate-400 hover:border-sky-400 hover:text-white"
+                  className={`w-7 h-7 rounded-lg text-xs font-bold transition-all shrink-0 flex items-center justify-center cursor-pointer ${
+                    isCurrent
+                      ? "bg-sky-600 text-white shadow-md shadow-sky-600/40 scale-105"
+                      : isDone
+                      ? "bg-emerald-950/80 border border-emerald-500/50 text-emerald-400"
+                      : "bg-slate-800/80 border border-slate-700/60 text-slate-400 hover:text-white"
                   }`}
                   title={`P${m.no}: ${m.title}`}
                 >
-                  <span>P{m.no}</span>
-                  {done && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-900" />
-                  )}
+                  {isDone ? <IconCheck size={12} /> : m.no}
                 </button>
               );
             })}
           </div>
-        </section>
+        </div>
+      </header>
 
-        {/* Two-Column Responsive Workspace */}
+      {/* Main Studio Workspace */}
+      <main className="max-w-7xl mx-auto px-4 pt-4 space-y-4">
+        {/* Two-Column Studio Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Learning Materials, Steps, Code, Quiz (7 Cols) */}
+          {/* Left Column: Learning Tabs & RPS Curriculum (7 Cols) */}
           <div className="lg:col-span-7 space-y-4">
-            {/* Header Meeting Info Card */}
-            <div className="p-4 sm:p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-lg">
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30">
+            {/* Meeting Meta Header */}
+            <div className="p-4 sm:p-5 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <div className="flex items-center gap-2 flex-wrap mb-1 text-xs">
+                <span className="font-bold text-sky-400">
                   {meeting.phase}
                 </span>
-                <span className="text-[10px] font-bold text-slate-400">
-                  {meeting.sks}
-                </span>
+                <span className="text-slate-500">·</span>
+                <span className="text-slate-400 font-medium">{meeting.sks}</span>
+                <span className="text-slate-500">·</span>
+                <span className="text-slate-300 font-semibold">{meeting.cpmk}</span>
               </div>
               <h2 className="font-extrabold text-xl sm:text-2xl text-white tracking-tight mt-1">
                 Pertemuan {meeting.no}: {meeting.title}
@@ -211,10 +408,8 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
               <p className="text-xs text-sky-200/90 font-medium mt-1 leading-relaxed">
                 🎯 <strong>Capaian:</strong> {meeting.goal}
               </p>
-              <div className="mt-3 p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-semibold">
-                  📦 <strong>Output Praktikum:</strong> {meeting.outputPraktikum}
-                </span>
+              <div className="mt-2.5 p-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300">
+                📦 <strong>Target Output:</strong> {meeting.outputPraktikum}
               </div>
             </div>
 
@@ -225,20 +420,20 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
                   sfx.click();
                   setActiveTab("teori");
                 }}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "teori"
                     ? "bg-sky-600 text-white shadow-md"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                📖 Teori RPS
+                📖 Materi (.md)
               </button>
               <button
                 onClick={() => {
                   sfx.click();
                   setActiveTab("tutorial");
                 }}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "tutorial"
                     ? "bg-sky-600 text-white shadow-md"
                     : "text-slate-400 hover:text-white"
@@ -251,7 +446,7 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
                   sfx.click();
                   setActiveTab("code");
                 }}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "code"
                     ? "bg-sky-600 text-white shadow-md"
                     : "text-slate-400 hover:text-white"
@@ -264,57 +459,67 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
                   sfx.click();
                   setActiveTab("quiz");
                 }}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "quiz"
                     ? "bg-sky-600 text-white shadow-md"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                ⚡ Kuis & Uji
+                ⚡ Kuis
               </button>
               <button
                 onClick={() => {
                   sfx.click();
                   setActiveTab("tugas");
                 }}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "tugas"
                     ? "bg-sky-600 text-white shadow-md"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                📝 Tugas LMS
+                📝 Tugas
               </button>
             </div>
 
-            {/* TAB CONTENT: TEORI */}
+            {/* ============ TAB CONTENT: TEORI DARI FILE MARKDOWN (.md) ============ */}
             {activeTab === "teori" && (
               <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4">
-                <h3 className="font-extrabold text-base text-white flex items-center gap-2">
-                  <IconBook size={17} className="text-sky-400" /> Materi Teori & Arsitektur
-                </h3>
-                {meeting.materiTeori.map((m, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2"
-                  >
-                    <h4 className="font-bold text-sm text-sky-300">{m.title}</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">{m.explanation}</p>
-                    <ul className="space-y-1 pt-1">
-                      {m.points.map((p, pIdx) => (
-                        <li key={pIdx} className="text-xs text-slate-300 flex items-start gap-2">
-                          <span className="text-sky-400 shrink-0 mt-0.5">▸</span>
-                          <span>{p}</span>
-                        </li>
-                      ))}
-                    </ul>
+                {/* Markdown Header Toolbar */}
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-400 font-mono text-[11px] truncate">
+                    <span className="text-sky-400">📄 Berkas:</span>
+                    <span className="truncate">/content/crossplatform/{mdDoc?.fileName}</span>
                   </div>
-                ))}
-
-                {/* CPMK Association Badge */}
-                <div className="p-3 rounded-2xl bg-sky-950/40 border border-sky-400/20 text-xs text-sky-200">
-                  <strong className="text-sky-300">Capaian Pembelajaran (CPMK):</strong> {meeting.cpmk}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={handleCopyMdSource}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-medium transition-colors cursor-pointer"
+                    >
+                      {copiedMd ? "✓ .md Tersalin" : "📋 Salin .md"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        sfx.click();
+                        setShowRawMd((prev) => !prev);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-sky-600/30 hover:bg-sky-600/50 border border-sky-400/40 text-sky-300 text-[11px] font-bold transition-colors cursor-pointer"
+                    >
+                      {showRawMd ? "👁️ Tampilan Render" : "📝 Lihat Raw .md"}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Markdown Content (Rendered vs Raw) */}
+                {showRawMd ? (
+                  <pre className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-sky-200 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto">
+                    <code>{mdDoc?.source}</code>
+                  </pre>
+                ) : (
+                  <div className="md-body">
+                    <CrossPlatformMdView blocks={mdBlocks} />
+                  </div>
+                )}
               </div>
             )}
 
@@ -366,7 +571,7 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
                           sfx.click();
                           setActiveFileIndex(i);
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                           activeFileIndex === i
                             ? "bg-sky-600 text-white shadow-md"
                             : "bg-slate-800 text-slate-400 hover:text-white"
@@ -379,23 +584,25 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
 
                   <button
                     onClick={() => handleCopyCode(meeting.files[activeFileIndex].code)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-sky-400 border border-slate-700 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    {copiedFile ? <><IconCheck size={14} /> Tersalin!</> : "Salin Kode"}
+                    <span>{copiedFile ? "✓ Berhasil Disalin" : "Salin Kode"}</span>
                   </button>
                 </div>
 
-                <p className="text-xs text-slate-400">
-                  {meeting.files[activeFileIndex].description}
-                </p>
-
-                <div className="rounded-2xl bg-[#030712] border border-slate-800 p-4 font-mono text-xs overflow-x-auto text-slate-200 leading-relaxed code-scroll max-h-[380px]">
-                  <pre>{meeting.files[activeFileIndex].code}</pre>
+                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-[#030712]">
+                  <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span className="font-mono text-sky-300">{meeting.files[activeFileIndex].name}</span>
+                    <span>{meeting.files[activeFileIndex].description}</span>
+                  </div>
+                  <pre className="p-4 text-xs font-mono text-sky-200 overflow-x-auto whitespace-pre leading-relaxed">
+                    <code>{meeting.files[activeFileIndex].code}</code>
+                  </pre>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT: KUIS & EVALUASI */}
+            {/* TAB CONTENT: KUIS INTERAKTIF RPS */}
             {activeTab === "quiz" && (
               <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
@@ -449,7 +656,7 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
                   <button
                     onClick={() => handleSelectMeeting(Math.max(1, currentNo - 1))}
                     disabled={currentNo === 1}
-                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs disabled:opacity-40"
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs disabled:opacity-40 cursor-pointer"
                   >
                     ← P{currentNo - 1}
                   </button>
@@ -462,7 +669,7 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
                   <button
                     onClick={() => handleSelectMeeting(Math.min(16, currentNo + 1))}
                     disabled={currentNo === 16}
-                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs disabled:opacity-40"
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs disabled:opacity-40 cursor-pointer"
                   >
                     P{currentNo + 1} →
                   </button>
@@ -527,19 +734,19 @@ export default function CrossPlatformLab({ onDone, onExit, startMeetingNo = 1 }:
               <div className="flex gap-1 pt-1">
                 <button
                   onClick={() => executeCommand("npx expo start")}
-                  className="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 text-[10px] font-bold"
+                  className="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 text-[10px] font-bold cursor-pointer"
                 >
                   expo start
                 </button>
                 <button
                   onClick={() => executeCommand("r (reload)")}
-                  className="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold"
+                  className="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold cursor-pointer"
                 >
                   reload (r)
                 </button>
                 <button
                   onClick={() => executeCommand("eas build -p android")}
-                  className="flex-1 py-1 rounded bg-amber-600/80 hover:bg-amber-500 text-white text-[10px] font-bold"
+                  className="flex-1 py-1 rounded bg-amber-600/80 hover:bg-amber-500 text-white text-[10px] font-bold cursor-pointer"
                 >
                   eas build
                 </button>

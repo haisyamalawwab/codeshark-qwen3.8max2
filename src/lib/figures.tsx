@@ -3,6 +3,7 @@
    Palet mengikuti var CSS tema: cyan #45c6ff · teal #2ee6c8 · amber #ffc247 ·
    koral #ff7a59 · biru dalam #071b2e. */
 import type { ReactNode } from "react";
+import { CROSS_PLATFORM_FIGURES } from "./crossPlatformFigures";
 
 const CYAN = "#45c6ff";
 const TEAL = "#2ee6c8";
@@ -313,6 +314,80 @@ function FigChecklist() {
   );
 }
 
+/* ---------- P2 · Pohon Hierarki DOM HTML ---------- */
+function FigDomTree() {
+  return (
+    <svg viewBox="0 0 640 260" role="img" aria-label="Diagram Pohon DOM Dokumen HTML">
+      <Markers />
+      <rect x="0" y="0" width="640" height="260" rx="14" fill="url(#sea-bg)" />
+      <text x="320" y="30" textAnchor="middle" style={{ ...capStyle, fontSize: 13 }}>POHON HIERARKI DOKUMEN (DOM TREE)</text>
+
+      {/* Root html */}
+      <rect x="270" y="45" width="100" height="30" rx="8" fill="rgba(69,198,255,0.15)" stroke={CYAN} strokeWidth="1.5" />
+      <text x="320" y="65" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="11" fontWeight="bold" fill={CYAN}>&lt;html&gt;</text>
+
+      {/* Lines to head & body */}
+      <path d="M 300 75 L 180 115" stroke={CYAN} strokeWidth="1.5" />
+      <path d="M 340 75 L 460 115" stroke={TEAL} strokeWidth="1.5" />
+
+      {/* Head */}
+      <rect x="120" y="115" width="120" height="30" rx="8" fill="rgba(69,198,255,0.1)" stroke={CYAN} strokeWidth="1.2" />
+      <text x="180" y="135" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="10" fontWeight="bold" fill={CYAN}>&lt;head&gt; (Metadata)</text>
+
+      {/* Head Children */}
+      <path d="M 150 145 L 120 180" stroke={CYAN} strokeWidth="1.2" />
+      <path d="M 210 145 L 240 180" stroke={CYAN} strokeWidth="1.2" />
+      <rect x="70" y="180" width="90" height="26" rx="6" fill="rgba(69,198,255,0.08)" stroke="rgba(69,198,255,0.4)" />
+      <text x="115" y="197" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="9" fill="#dff3ff">&lt;title&gt;</text>
+      <rect x="200" y="180" width="90" height="26" rx="6" fill="rgba(69,198,255,0.08)" stroke="rgba(69,198,255,0.4)" />
+      <text x="245" y="197" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="9" fill="#dff3ff">&lt;meta&gt;</text>
+
+      {/* Body */}
+      <rect x="400" y="115" width="120" height="30" rx="8" fill="rgba(46,230,200,0.1)" stroke={TEAL} strokeWidth="1.2" />
+      <text x="460" y="135" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="10" fontWeight="bold" fill={TEAL}>&lt;body&gt; (Tampilan)</text>
+
+      {/* Body Children */}
+      <path d="M 430 145 L 370 180" stroke={TEAL} strokeWidth="1.2" />
+      <path d="M 460 145 L 460 180" stroke={TEAL} strokeWidth="1.2" />
+      <path d="M 490 145 L 550 180" stroke={TEAL} strokeWidth="1.2" />
+      <rect x="330" y="180" width="80" height="26" rx="6" fill="rgba(46,230,200,0.08)" stroke="rgba(46,230,200,0.4)" />
+      <text x="370" y="197" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="9" fill="#dff3ff">&lt;header&gt;</text>
+      <rect x="425" y="180" width="70" height="26" rx="6" fill="rgba(46,230,200,0.08)" stroke="rgba(46,230,200,0.4)" />
+      <text x="460" y="197" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="9" fill="#dff3ff">&lt;main&gt;</text>
+      <rect x="510" y="180" width="80" height="26" rx="6" fill="rgba(46,230,200,0.08)" stroke="rgba(46,230,200,0.4)" />
+      <text x="550" y="197" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="9" fill="#dff3ff">&lt;footer&gt;</text>
+
+      <text x="320" y="240" textAnchor="middle" style={{ ...smallStyle, fill: "#7ec4ec" }}>Setiap elemen bersarang menjadi simpul (node) yang dapat dimanipulasi browser</text>
+    </svg>
+  );
+}
+
+/* ---------- CSS Box Model ---------- */
+function FigCssBoxModel() {
+  return (
+    <svg viewBox="0 0 640 250" role="img" aria-label="Diagram Box Model CSS: Margin, Border, Padding, Content">
+      <rect x="0" y="0" width="640" height="250" rx="14" fill="url(#sea-bg)" />
+      <text x="320" y="28" textAnchor="middle" style={{ ...capStyle, fontSize: 13 }}>CSS &amp; LAYOUT BOX MODEL</text>
+
+      {/* Margin */}
+      <rect x="90" y="45" width="460" height="180" rx="12" fill="rgba(255,194,71,0.08)" stroke={AMBER} strokeWidth="1.5" strokeDasharray="5 3" />
+      <text x="105" y="65" fontFamily="ui-monospace, monospace" fontSize="10" fontWeight="bold" fill={AMBER}>MARGIN (Ruang Luar)</text>
+
+      {/* Border */}
+      <rect x="140" y="75" width="360" height="125" rx="8" fill="rgba(255,122,89,0.1)" stroke={CORAL} strokeWidth="1.8" />
+      <text x="155" y="93" fontFamily="ui-monospace, monospace" fontSize="10" fontWeight="bold" fill={CORAL}>BORDER (Batas Garis)</text>
+
+      {/* Padding */}
+      <rect x="190" y="105" width="260" height="75" rx="6" fill="rgba(46,230,200,0.12)" stroke={TEAL} strokeWidth="1.5" />
+      <text x="205" y="122" fontFamily="ui-monospace, monospace" fontSize="10" fontWeight="bold" fill={TEAL}>PADDING (Ruang Dalam)</text>
+
+      {/* Content */}
+      <rect x="250" y="130" width="140" height="35" rx="4" fill="rgba(69,198,255,0.25)" stroke={CYAN} strokeWidth="1.5" />
+      <text x="320" y="152" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="11" fontWeight="bold" fill="#ffffff">CONTENT (Teks/Gambar)</text>
+    </svg>
+  );
+}
+
 /* ---------- katalog kunci untuk placeholder %%IMG:key%% ---------- */
 export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
   "web-browser-server": {
@@ -327,6 +402,10 @@ export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
     node: <FigAnatomy />,
     caption: "Gambar 2.1 — Empat pilar dokumen HTML dan batas wilayah head (tak terlihat) vs body (terlihat).",
   },
+  "html-dom-tree": {
+    node: <FigDomTree />,
+    caption: "Gambar 2.2 — Struktur Pohon DOM: elemen bersarang dari html, head, hingga body dan isinya.",
+  },
   "struktur-tag": {
     node: <FigTagStructure />,
     caption: "Gambar 3.1 — Bagian-bagian elemen: tag pembuka, atribut, isi, dan tag penutup.",
@@ -339,6 +418,10 @@ export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
     node: <FigMediaLink />,
     caption: "Gambar 4.1 — img memakai src + alt; anchor a memakai href yang menunjuk id tujuan.",
   },
+  "css-box-model": {
+    node: <FigCssBoxModel />,
+    caption: "Gambar 4.2 — CSS Box Model: Margin (luar), Border (garis tepi), Padding (dalam), dan Content (isi).",
+  },
   "form-semantik": {
     node: <FigFormLabel />,
     caption: "Gambar 5.1 — Kiri: pasangan label↔input lewat id. Kanan: pembagian wilayah semantik halaman.",
@@ -349,5 +432,9 @@ export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
   },
 };
 
-/** Ambil gambar berdasarkan kunci placeholder; undefined bila tak dikenal. */
-export const getFigure = (key: string) => FIGURES[key.trim()];
+/** Ambil gambar berdasarkan kunci placeholder; gabungkan katalog web dan cross-platform. */
+export const getFigure = (key: string) => {
+  const k = key.trim();
+  return FIGURES[k] || CROSS_PLATFORM_FIGURES[k];
+};
+

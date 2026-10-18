@@ -94,13 +94,31 @@ function MdView({ blocks }: { blocks: MdBlock[] }) {
             return <hr key={i} className="md-hr" />;
           case "img": {
             const fig = getFigure(b.key);
-            if (!fig) return null; /* kunci tak dikenal → lewati diam-diam */
-            return (
-              <figure key={i} className="md-figure anim-fadeUp">
-                <div className="md-figure-frame">{fig.node}</div>
-                <figcaption className="md-figure-cap">{fig.caption}</figcaption>
-              </figure>
-            );
+            if (fig) {
+              return (
+                <figure key={i} className="md-figure anim-fadeUp my-3">
+                  <div className="md-figure-frame">{fig.node}</div>
+                  <figcaption className="md-figure-cap">{b.alt || fig.caption}</figcaption>
+                </figure>
+              );
+            }
+            const src = b.src || b.key;
+            if (src && (src.startsWith("/") || src.startsWith("http") || src.startsWith("./"))) {
+              return (
+                <figure key={i} className="md-figure anim-fadeUp my-3">
+                  <div className="rounded-2xl overflow-hidden border border-sky-500/20 bg-slate-900/60 p-2 shadow-lg">
+                    <img
+                      src={src}
+                      alt={b.alt || "Ilustrasi Materi"}
+                      className="w-full h-auto max-h-96 object-contain rounded-xl mx-auto"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  {b.alt && <figcaption className="md-figure-cap">{b.alt}</figcaption>}
+                </figure>
+              );
+            }
+            return null;
           }
           case "table":
             return (
