@@ -1,95 +1,143 @@
-# Pertemuan 13 — Animasi Interaktif & Optimasi Performa Mobile
+# Pertemuan 13 — Animasi & Optimasi Performa (Animated API & FlatList)
 
 > **Mata Kuliah:** Sistem Aplikasi Lintas Platform (React Native & Expo SDK) · **Fase:** Native & Build (Pertemuan 13 dari 16)
-> **CPMK2 & CPMK6:** Mahasiswa mampu mengimplementasikan animasi antarmuka 60 FPS dan teknik optimasi performa memory rendering.
-> **Output Praktikum:** Aplikasi dengan animasi transisi smooth (Animated API / Reanimated) dan rendering list bebas lag.
+> **CPMK2 & CPMK5:** Mahasiswa mampu menciptakan transisi antarmuka fluid 60 FPS menggunakan Animated API dan mengoptimasi rendering list berkecepatan tinggi.
+> **Output Praktikum:** Kartu animasi interaktif fluid 60 FPS dan FlatList yang dioptimasi untuk ribuan data.
+
+%%IMG:rn-performance%%
 
 ---
 
-## 1. Menjaga 60 FPS: UI Thread vs JavaScript Thread
+## 1. Rahasia Performa Animasi: Mengapa `useNativeDriver: true`?
 
-Animasi di mobile harus berjalan pada kecepatan **60 frame per detik (FPS)** (atau 120 FPS pada layar ProMotion) agar terasa natural.
+Di React Native, animasi dapat berjalan melalui dua jalur:
 
-Jika kita mengubah state React biasa (`useState`) secara berulang-ulang untuk menggerakkan elemen, setiap frame akan memaksa kompilasi ulang JS thread, menyebabkan **frame drop (lag)**.
+### A. Jalur Tradisional (`useNativeDriver: false`) ❌
+Setiap frame (setiap 16 milidetik) dihitung di dalam memori JavaScript, kemudian dikirim satu per satu melalui JSI / Bridge ke thread native Android/iOS. Jika thread JavaScript sedang sibuk (misalnya sedang melakukan parsing JSON berukuran besar atau menghitung rumus matematika), animasi akan **patah-patah (drop frame / lag)**.
 
-Solusi: Gunakan **`useNativeDriver: true`** pada Animated API React Native. Properti ini mengirimkan seluruh instruksi kurva animasi ke thread native (C++/Java) sekali saja di awal, sehingga animasi tetap berjalan mulus meskipun thread JavaScript sedang sibuk mengambil data internet!
+### B. Jalur Native Driver (`useNativeDriver: true`) ✅
+Seluruh konfigurasi animasi dikirim **hanya sekali** ke thread native platform sebelum animasi dimulai. Thread UI asli (GPU platform) kemudian mengeksekusi animasi secara independen di kecepatan puncak 60 FPS / 120 FPS, bahkan saat JavaScript thread mengalami freeze sesaat!
+
+> ⚠️ **Catatan Penting:** Properti yang didukung oleh Native Driver meliputi: `transform` (seperti `scale`, `translateX`, `translateY`, `rotate`) dan `opacity`. Properti tata letak non-GPU seperti `width`, `height`, dan `backgroundColor` tidak didukung native driver dan harus dihindari untuk animasi frekuensi tinggi.
 
 ---
 
-## 2. Praktikum Animasi Fade & Scale Interaktif
+## 2. Pola Pembuatan Animasi Fluida dengan `Animated.timing` & `Animated.spring`
 
 ```jsx
 import React, { useRef } from 'react';
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View, Animated, TouchableOpacity } from 'react-native';
 
-export default function SmoothCard() {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+export default function AnimatedCard() {
+  // 1. Inisialisasi Animated.Value di dalam useRef agar tidak ter-reset saat re-render
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const fadeValue = useRef(new Animated.Value(0.5)).current;
 
-  React.useEffect(() => {
-    // Animasi Fade In saat muncul
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true, // Wajib agar 60 FPS!
-    }).start();
-  }, []);
-
+  // Efek tombol ditekan (Press In)
   const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.95,
-      friction: 4,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.spring(scaleValue, {
+        toValue: 0.95,
+        useNativeDriver: true, // WAJIB untuk performa 60 FPS
+      }),
+      Animated.timing(fadeValue, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
+  // Efek tombol dilepas (Press Out)
   const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
+    Animated.spring(scaleValue, {
       toValue: 1,
-      friction: 4,
+      friction: 4, // Tingkat elastisitas pantulan
       useNativeDriver: true,
     }).start();
   };
 
   return (
-    <Animated.View
-      style={[
-        styles.card,
-        {
-          opacity: fadeAnim,
-          transform: [{ scale: scaleAnim }],
-        },
-      ]}
-    >
+    <View style={styles.container}>
       <TouchableOpacity
         activeOpacity={1}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
       >
-        <Text style={styles.cardTitle}>Kartu Responsif Beranimasi</Text>
-        <Text style={styles.cardDesc}>Sentuh kartu ini untuk melihat efek pantulan pegas halus.</Text>
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              transform: [{ scale: scaleValue }],
+              opacity: fadeValue,
+            },
+          ]}
+        >
+          <Text style={styles.cardEmoji}>🚀</Text>
+          <Text style={styles.cardTitle}>Kartu Beranimasi Fluida</Text>
+          <Text style={styles.cardSub}>Tekan dan tahan untuk melihat efek spring & scale</Text>
+        </Animated.View>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#091120' },
   card: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#111c34',
     padding: 24,
     borderRadius: 20,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#38bdf8',
-    margin: 20,
+    width: 280,
   },
-  cardTitle: { color: '#ffffff', fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  cardDesc: { color: '#94a3b8', fontSize: 13, lineHeight: 20 },
+  cardEmoji: { fontSize: 40, marginBottom: 8 },
+  cardTitle: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
+  cardSub: { color: '#94a3b8', fontSize: 12, textAlign: 'center', marginTop: 4 },
 });
 ```
 
 ---
 
-## 3. Checklist Optimasi Performa Mobile
-1. Gunakan format gambar modern **WebP** daripada PNG/JPG mentah yang berukuran besar.
-2. Pasang properti `initialNumToRender={10}` dan `maxToRenderPerBatch={10}` pada `<FlatList>`.
-3. Bungkus fungsi callback di dalam `useCallback()` dan kalkulasi berat di dalam `useMemo()`.
+## 3. Optimasi Rendering FlatList untuk Data Raksasa (>1.000 Item)
+
+`<ScrollView>` merender seluruh elemen sekaligus ke dalam memori, sehingga aplikasi akan crash jika menampilkan ribuan data. Sebaliknya, `<FlatList>` hanya merender item yang sedang tampak di layar (*virtualization*).
+
+Untuk performa scrolling sehalus mentega (*butter-smooth*), terapkan 5 konfigurasi wajib berikut:
+
+```jsx
+<FlatList
+  data={dataRibuan}
+  keyExtractor={(item) => item.id}
+  renderItem={renderItemMemoized}
+  
+  // 1. Tentukan ukuran tinggi statis agar engine tidak menghitung ulang tata letak
+  getItemLayout={(data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  })}
+
+  // 2. Batasi jumlah item pertama yang dimuat saat aplikasi boot
+  initialNumToRender={10}
+
+  // 3. Batasi berapa item yang diproses per batch rendering saat scrolling
+  maxToRenderPerBatch={10}
+
+  // 4. Kurangi jangkauan viewport render luar layar (default 21 layar -> perkecil jadi 5)
+  windowSize={5}
+
+  // 5. Hapus elemen di luar layar dari pohon rendering native untuk menghemat RAM
+  removeClippedSubviews={true}
+/>
+```
+
+---
+
+## 4. Checklist Evaluasi Performa
+- [ ] Semua animasi tombol dan transisi kartu wajib menyertakan `useNativeDriver: true`.
+- [ ] Komponen baris di dalam `renderItem` dibungkus dengan `React.memo` untuk mencegah re-render yang tidak perlu.
+- [ ] Hindari mendeklarasikan fungsi anonim inline (`renderItem={() => <View />}`) di dalam JSX FlatList; selalu deklarasikan di luar JSX.
+- [ ] Aktifkan monitor performa FPS di Expo Go dengan menggoyangkan smartphone dan memilih *"Show Perf Monitor"*.

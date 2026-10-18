@@ -1,8 +1,8 @@
 # Pertemuan 12 — Fitur Native Perangkat (Kamera, Lokasi & Notifikasi)
 
 > **Mata Kuliah:** Sistem Aplikasi Lintas Platform (React Native & Expo SDK) · **Fase:** Native & Build (Pertemuan 12 dari 16)
-> **CPMK4:** Mahasiswa mampu mengakses fitur perangkat keras native smartphone (Kamera, Sensor GPS Lokasi, dan Push Notification).
-> **Output Praktikum:** Aplikasi pelacak lokasi presisi dengan fitur jepret foto bukti laporan (Evidence Camera App).
+> **CPMK4:** Mahasiswa mampu mengakses fitur perangkat keras native smartphone (Kamera, Sensor GPS Lokasi, dan Local Notifications) dengan pengelolaan izin runtime modern.
+> **Output Praktikum:** Aplikasi pelacak lokasi presisi dengan fitur jepret foto bukti laporan lapangan (*Evidence Camera App*) dan pengingat lokal.
 
 %%IMG:rn-native-hardware%%
 
@@ -10,110 +10,253 @@
 
 ## 1. Filosofi Izin Akses Runtime (*Runtime Permissions*)
 
-Sistem operasi mobile modern (Android 13+ dan iOS 17+) menerapkan keamanan ketat:
-- Aplikasi **tidak boleh** mengakses sensor sensitif tanpa meminta izin tertulis dari pengguna secara eksplisit saat runtime.
-- Jika pengguna menolak (*denied*), aplikasi tidak boleh crash, melainkan harus memberikan antarmuka alternatif yang ramah.
+Sistem operasi mobile modern (Android 13+ dan iOS 17+) menerapkan arsitektur keamanan *Zero Trust*:
+- Aplikasi **tidak boleh** mengakses sensor sensitif tanpa persetujuan eksplisit pengguna saat runtime.
+- Izin tidak lagi diminta saat instalasi di Play Store, melainkan diminta secara *just-in-time* ketika fitur tersebut hendak digunakan.
+- Jika pengguna menolak (*permission denied*), aplikasi tidak boleh *crash* atau *freeze*, melainkan harus menampilkan antarmuka alternatif (*fallback UI*) dan opsi membuka menu Settings OS.
 
 ---
 
 ## 2. Akses Kamera & Galeri Foto (`expo-image-picker`)
 
-Instalasi pustaka resmi:
+Modul `expo-image-picker` menyediakan antarmuka terpadu untuk membuka galeri foto ponsel (*Photo Library*) atau mengaktifkan kamera fisik (*Hardware Camera*).
+
+### Instalasi:
 ```bash
 npx expo install expo-image-picker
 ```
 
-Contoh Implementasi Pemilihan Foto dari Galeri:
+### Konfigurasi Izin di `app.json`:
+Tambahkan pesan alasan izin pada plugin Expo:
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikasi memerlukan akses galeri untuk mengunggah foto profil.",
+          "cameraPermission": "Aplikasi memerlukan akses kamera untuk mengambil bukti absensi."
+        }
+      ]
+    ]
+  }
+}
+```
+
+### Implementasi Lengkap Pengambilan Foto:
 ```javascript
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
-import { Button, Image, View } from 'react-native';
 
-export default function PhotoUploader() {
-  const [imageUri, setImageUri] = useState(null);
+export default function EvidenceCamera() {
+  const [photoUri, setPhotoUri] = useState(null);
 
-  const pickImage = async () => {
-    // 1. Minta Izin
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      alert("Izin galeri diperlukan untuk memilih foto!");
+  // 1. Ambil Foto Langsung dari Kamera
+  const takePhotoWithCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Izin Ditolak', 'Akses kamera dibutuhkan untuk mengambil foto bukti.');
       return;
     }
 
-    // 2. Buka Pemilih Berkas Native
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      setPhotoUri(result.assets[0].uri);
+    }
+  };
+
+  // 2. Pilih dari Galeri
+  const pickFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Izin Ditolak', 'Akses galeri dibutuhkan untuk memilih foto.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setPhotoUri(result.assets[0].uri);
     }
   };
 
   return (
-    <View style={{ alignItems: 'center', padding: 20 }}>
-      <Button title="Pilih Foto dari Galeri" onPress={pickImage} />
-      {imageUri && (
-        <Image
-          source={{ uri: imageUri }}
-          style={{ width: 240, height: 180, borderRadius: 12, marginTop: 16 }}
-        />
-      )}
+    <View style={styles.container}>
+      <Text style={styles.header}>Bukti Foto Lapangan</Text>
+
+      <View style={styles.previewBox}>
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} style={styles.image} />
+        ) : (
+          <Text style={styles.placeholderText}>Belum ada foto yang dipilih</Text>
+        )}
+      </View>
+
+      <View style={styles.btnRow}>
+        <TouchableOpacity style={styles.btnCamera} onPress={takePhotoWithCamera}>
+          <Text style={styles.btnText}>📷 Buka Kamera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnGallery} onPress={pickFromGallery}>
+          <Text style={styles.btnText}>🖼️ Dari Galeri</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, backgroundColor: '#0f172a', alignItems: 'center' },
+  header: { fontSize: 18, fontWeight: 'bold', color: '#38bdf8', marginBottom: 16 },
+  previewBox: {
+    width: '100%',
+    height: 240,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#334155',
+    backgroundColor: '#1e293b',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+  image: { width: '100%', height: '100%' },
+  placeholderText: { color: '#64748b', fontSize: 13 },
+  btnRow: { flexDirection: 'row', gap: 12 },
+  btnCamera: { flex: 1, backgroundColor: '#0284c7', padding: 12, borderRadius: 12, alignItems: 'center' },
+  btnGallery: { flex: 1, backgroundColor: '#334155', padding: 12, borderRadius: 12, alignItems: 'center' },
+  btnText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13 },
+});
 ```
 
 ---
 
 ## 3. Akses Sensor Lokasi & GPS Presisi (`expo-location`)
 
-Instalasi:
+Modul `expo-location` memungkinkan pengambilan posisi geografis ponsel secara presisi melalui kombinasi satelit GPS, pemancar seluler, dan WiFi triangulasi.
+
+### Instalasi:
 ```bash
 npx expo install expo-location
 ```
 
-Mengambil Koordinat Latitude & Longitude Pengguna:
+### Implementasi Pengambilan Koordinat dan Reverse Geocoding (Alamat):
 ```javascript
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
 
-export default function GpsTracker() {
+export default function GpsWidget() {
   const [coords, setCoords] = useState(null);
-  const [statusMsg, setStatusMsg] = useState('Mencari sinyal GPS...');
+  const [address, setAddress] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setStatusMsg('Izin akses lokasi ditolak oleh pengguna');
-        return;
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setErrorMsg('Izin akses lokasi ditolak oleh pengguna.');
+          setLoading(false);
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+        setCoords(location.coords);
+
+        // Reverse Geocoding: Mengubah Latitude & Longitude menjadi nama jalan & kota
+        const reverse = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+
+        if (reverse.length > 0) {
+          const item = reverse[0];
+          setAddress(`${item.street || item.name || ''}, ${item.subregion || item.city || ''}, ${item.region || ''}`);
+        }
+      } catch (err) {
+        setErrorMsg('Gagal mengunci sinyal GPS.');
+      } finally {
+        setLoading(false);
       }
-
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-
-      setCoords(location.coords);
-      setStatusMsg('Lokasi berhasil didapatkan!');
     })();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.card}>
+        <ActivityIndicator color="#38bdf8" />
+        <Text style={styles.subText}>Mengunci koordinat satelit GPS...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={{ padding: 24 }}>
-      <Text style={{ fontWeight: 'bold' }}>Status GPS: {statusMsg}</Text>
-      {coords && (
-        <View style={{ marginTop: 12 }}>
-          <Text>Latitude: {coords.latitude}</Text>
-          <Text>Longitude: {coords.longitude}</Text>
-          <Text>Akurasi: ±{coords.accuracy.toFixed(1)} meter</Text>
+    <View style={styles.card}>
+      <Text style={styles.title}>📍 Sensor Lokasi Perangkat</Text>
+      {errorMsg ? (
+        <Text style={styles.err}>{errorMsg}</Text>
+      ) : (
+        <View style={styles.infoBox}>
+          <Text style={styles.info}>Latitude: <Text style={styles.val}>{coords?.latitude.toFixed(6)}</Text></Text>
+          <Text style={styles.info}>Longitude: <Text style={styles.val}>{coords?.longitude.toFixed(6)}</Text></Text>
+          <Text style={styles.info}>Akurasi: <Text style={styles.val}>±{coords?.accuracy.toFixed(1)} m</Text></Text>
+          {address ? <Text style={styles.address}>🏠 {address}</Text> : null}
         </View>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: { padding: 16, borderRadius: 16, backgroundColor: '#1e293b', borderWidth: 1, borderColor: '#334155' },
+  title: { fontSize: 14, fontWeight: 'bold', color: '#38bdf8', marginBottom: 8 },
+  subText: { color: '#94a3b8', fontSize: 12, marginTop: 6 },
+  err: { color: '#f43f5e', fontSize: 12 },
+  infoBox: { marginTop: 4, gap: 4 },
+  info: { color: '#94a3b8', fontSize: 12 },
+  val: { color: '#f8fafc', fontWeight: 'bold' },
+  address: { color: '#34d399', fontSize: 11, marginTop: 6, fontStyle: 'italic' },
+});
+```
+
+---
+
+## 4. Notifikasi Lokal Terjadwal (`expo-notifications`)
+
+Aplikasi mobile dapat mengirimkan pemberitahuan banner lokal ke pusat notifikasi OS tanpa memerlukan server backend push notification.
+
+### Penjadwalan Notifikasi Lokal:
+```javascript
+import * as Notifications from 'expo-notifications';
+
+export const scheduleLocalReminder = async (title, body, secondsDelay) => {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== 'granted') return;
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: title,
+      body: body,
+      sound: 'default',
+    },
+    trigger: {
+      seconds: secondsDelay,
+    },
+  });
+};
 ```

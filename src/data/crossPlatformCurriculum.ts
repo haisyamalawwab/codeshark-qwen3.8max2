@@ -830,6 +830,93 @@ export const getFavorites = async () => {
     ],
     files: [
       {
+        name: "App.js",
+        lang: "javascript",
+        description: "Solusi lengkap Todo List dengan AsyncStorage & Filter",
+        code: `import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Alert, SafeAreaView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const KEY = '@todos_mini_project';
+
+export default function App() {
+  const [todos, setTodos] = useState([]);
+  const [text, setText] = useState('');
+  const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    (async () => {
+      const saved = await AsyncStorage.getItem(KEY);
+      if (saved) setTodos(JSON.parse(saved));
+    })();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem(KEY, JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = () => {
+    if (!text.trim()) return Alert.alert('Peringatan', 'Tugas tidak boleh kosong');
+    setTodos([{ id: Date.now().toString(), text: text.trim(), done: false }, ...todos]);
+    setText('');
+  };
+
+  const toggleTodo = (id) => {
+    setTodos(todos.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  };
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter(t => t.id !== id));
+  };
+
+  const filtered = todos.filter(t => filter === 'active' ? !t.done : filter === 'done' ? t.done : true);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Mini Project: Todo List 📝</Text>
+      <View style={styles.row}>
+        <TextInput
+          style={styles.input}
+          placeholder="Tugas baru..."
+          placeholderTextColor="#64748b"
+          value={text}
+          onChangeText={setText}
+        />
+        <TouchableOpacity style={styles.btn} onPress={addTodo}>
+          <Text style={styles.btnText}>Tambah</Text>
+        </TouchableOpacity>
+      </View>
+      <FlatList
+        data={filtered}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <TouchableOpacity onPress={() => toggleTodo(item.id)} style={{ flex: 1 }}>
+              <Text style={[styles.cardText, item.done && styles.done]}>{item.text}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteTodo(item.id)}>
+              <Text style={{ color: '#f43f5e' }}>Hapus</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#091120', padding: 16 },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginBottom: 12 },
+  row: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  input: { flex: 1, backgroundColor: '#131e32', color: '#fff', padding: 12, borderRadius: 10 },
+  btn: { backgroundColor: '#0284c7', paddingHorizontal: 16, justifyContent: 'center', borderRadius: 10 },
+  btnText: { color: '#fff', fontWeight: 'bold' },
+  card: { flexDirection: 'row', backgroundColor: '#111c30', padding: 14, borderRadius: 10, marginBottom: 8 },
+  cardText: { color: '#e2e8f0', fontSize: 14 },
+  done: { textDecorationLine: 'line-through', color: '#64748b' },
+});`,
+      },
+      {
         name: "README.md",
         lang: "javascript",
         description: "Template dokumentasi proyek",
@@ -1585,6 +1672,55 @@ export default function FadeInBox({ children }) {
       },
     ],
     files: [
+      {
+        name: "app.json",
+        lang: "json",
+        description: "Konfigurasi rilis produksi Android & iOS",
+        code: `{
+  "expo": {
+    "name": "MyCampus Mobile",
+    "slug": "mycampus-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#091120"
+    },
+    "android": {
+      "package": "com.namakamu.mycampus",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#091120"
+      },
+      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"]
+    }
+  }
+}`,
+      },
+      {
+        name: "eas.json",
+        lang: "json",
+        description: "Konfigurasi EAS Cloud Build APK & App Bundle",
+        code: `{
+  "cli": { "version": ">= 12.0.0" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" }
+    },
+    "production": {
+      "android": { "buildType": "app-bundle" }
+    }
+  }
+}`,
+      },
       {
         name: "UAS-SUBMISSION.md",
         lang: "javascript",

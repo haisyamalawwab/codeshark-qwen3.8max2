@@ -4,6 +4,8 @@
 > **CPMK1:** Mahasiswa memahami sintaks modern JavaScript ES6+ dan paradigma komponen fungsional React.
 > **Output Praktikum:** Aplikasi mini modular dengan komponen reusable dan passing props dinamis.
 
+%%IMG:rn-react-foundation%%
+
 ---
 
 ## 1. Fitur Kunci JavaScript ES6+ untuk Mobile

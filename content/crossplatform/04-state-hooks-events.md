@@ -4,6 +4,8 @@
 > **CPMK3:** Mahasiswa mampu mengimplementasikan state management lokal, hooks, dan event handling interaktif pada aplikasi mobile.
 > **Output Praktikum:** Aplikasi Kalkulator BMI Interaktif & Form Validasi real-time.
 
+%%IMG:rn-hooks-lifecycle%%
+
 ---
 
 ## 1. Konsep State vs Props

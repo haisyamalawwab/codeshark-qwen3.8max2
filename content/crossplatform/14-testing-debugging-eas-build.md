@@ -4,7 +4,7 @@
 > **CPMK5:** Mahasiswa mampu melakukan build dan deployment aplikasi mobile ke artefak instalasi Android (.APK mandiri) via EAS Build.
 > **Output Praktikum:** File APK Android mandiri (*standalone installer*) yang dapat di-share dan diinstall di HP siapa pun tanpa Expo Go!
 
-%%IMG:expo-workflow%%
+%%IMG:rn-eas-cloud-build%%
 
 ---
 
