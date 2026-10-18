@@ -3,7 +3,7 @@
    baru masuk ke Peta Pertemuan / Misi dengan arena tersebut.
    Pilihan terakhir disimpan di localStorage agar konsisten antar sesi. */
 
-export type SubGameId = "tower" | "shark";
+export type SubGameId = "tower" | "shark" | "crossplatform";
 
 export interface SubGame {
   id: SubGameId;
@@ -15,11 +15,21 @@ export interface SubGame {
   desc: string;
   points: string[];
   cta: string;
-  /** "ketik" = TypingGame, "susun" = TowerPuzzle */
-  mode: "ketik" | "susun";
+  /** "ketik" = TypingGame, "susun" = TowerPuzzle, "simulator" = CrossPlatformLab */
+  mode: "ketik" | "susun" | "simulator";
 }
 
 export const SUBGAMES: Record<SubGameId, SubGame> = {
+  crossplatform: {
+    id: "crossplatform",
+    name: "CrossPlatform Lab",
+    short: "React Native",
+    tagline: "React Native & Expo • Simulator Mobile HP",
+    desc: "MK Sistem Aplikasi Lintas Platform (16 Pertemuan): Setup Expo, Core Components, Flexbox, State Hooks, React Navigation, AsyncStorage, Context, Auth, Firestore CRUD, Native Camera/GPS, sampai EAS Build APK!",
+    points: ["16 Pertemuan RPS", "Simulator HP Live", "EAS Build APK"],
+    cta: "Buka CrossPlatform Lab",
+    mode: "simulator",
+  },
   tower: {
     id: "tower",
     name: "Coding Tower",
@@ -42,14 +52,14 @@ export const SUBGAMES: Record<SubGameId, SubGame> = {
   },
 };
 
-export const SUBGAME_ORDER: SubGameId[] = ["tower", "shark"];
+export const SUBGAME_ORDER: SubGameId[] = ["crossplatform", "tower", "shark"];
 
 const KEY = "codeshark:subgame:v1";
 
 export function loadSubGame(fallback: SubGameId): SubGameId {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw === "tower" || raw === "shark") return raw;
+    if (raw === "tower" || raw === "shark" || raw === "crossplatform") return raw;
   } catch {
     /* abaikan */
   }

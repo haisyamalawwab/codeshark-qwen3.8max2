@@ -7,7 +7,7 @@
    Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi.
    Ikon kartu memakai SVG vektor (ui/icons) agar tajam di semua DPR. */
 import type { ComponentType } from "react";
-import { IconTower, IconFin, IconBolt, IconBrush } from "../ui/icons";
+import { IconTower, IconFin, IconBolt, IconBrush, IconMobile } from "../ui/icons";
 
 interface HubGame {
   id: string;
@@ -23,6 +23,18 @@ interface HubGame {
 }
 
 const GAMES: HubGame[] = [
+  {
+    id: "crossplatform",
+    name: "CrossPlatform Studio",
+    href: "./crossplatform/",
+    tagline: "React Native & Expo • Simulator Mobile HP • 16 Pertemuan RPS",
+    desc: "MK Sistem Aplikasi Lintas Platform (React Native & Expo): Setup Expo, Core Components, Flexbox, State Hooks, React Navigation, AsyncStorage/API, Context API, Auth Flow, Firestore CRUD, Native Camera/GPS, sampai EAS Build APK!",
+    points: ["Expo SDK 52", "Simulator HP Live", "16 Pertemuan RPS", "Build APK EAS"],
+    cta: "Buka CrossPlatform Studio",
+    Icon: IconMobile,
+    accent: "#38bdf8",
+    live: true,
+  },
   {
     id: "tower",
     name: "Coding Tower",
@@ -52,7 +64,7 @@ const GAMES: HubGame[] = [
     name: "Shark Runner",
     href: "#",
     tagline: "Arcade • Segera hadir",
-    desc: "Pelari bawah laut: lompat rintangan dengan menjawab sintaks. Slot sub-game ketiga — folder /shark-runner/ tinggal dicolok ke hub ini.",
+    desc: "Pelari bawah laut: lompat rintangan dengan menjawab sintaks. Slot sub-game keempat — folder /shark-runner/ tinggal dicolok ke hub ini.",
     points: ["Arcade", "Reaksi cepat", "Segera"],
     cta: "Segera hadir",
     Icon: IconBolt,
@@ -64,7 +76,7 @@ const GAMES: HubGame[] = [
     name: "CSS Reef",
     href: "#",
     tagline: "Desain • Segera hadir",
-    desc: "Hias terumbu karang dengan CSS (flex/grid/warna). Slot media belajar keempat untuk jalur desain visual.",
+    desc: "Hias terumbu karang dengan CSS (flex/grid/warna). Slot media belajar kelima untuk jalur desain visual.",
     points: ["Flex/Grid", "Warna", "Segera"],
     cta: "Segera hadir",
     Icon: IconBrush,
@@ -89,10 +101,13 @@ export default function HubApp() {
               Template belajar koding berbasis game
             </p>
           </div>
-          <a href="./codingtower/" className="text-xs font-bold px-4 py-2 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
+          <a href="./crossplatform/" className="text-xs font-bold px-3.5 py-2 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
+            <IconMobile size={15} /> React Native (Expo)
+          </a>
+          <a href="./codingtower/" className="text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
             <IconTower size={15} /> Tower (HP)
           </a>
-          <a href="./codingshark/" className="text-xs font-bold px-4 py-2 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
+          <a href="./codingshark/" className="text-xs font-bold px-3.5 py-2 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
             <IconFin size={15} /> Shark (PC)
           </a>
         </div>
@@ -101,18 +116,17 @@ export default function HubApp() {
       <main className="max-w-6xl mx-auto px-4 pb-24">
         <section className="mt-8 md:mt-12 text-center max-w-3xl mx-auto">
           <p className="text-[11px] font-extrabold tracking-[0.28em] uppercase" style={{ color: "#45c6ff" }}>
-            Agregat • 2 sub-game live + slot ekspansi
+            Agregat • 3 sub-game live (CrossPlatform, Tower, Shark) + slot ekspansi
           </p>
           <h1 className="font-extrabold text-3xl md:text-5xl tracking-tight mt-2">
             Belajar koding sambil <span style={{ color: "#2ee6c8" }}>main game</span>.
           </h1>
           <p className="text-sm md:text-base mt-3 leading-relaxed" style={{ color: "#9db8cb" }}>
             latihan.my.id adalah halaman induk. Pilih sub-game di bawah — progres tiap game
-            tersimpan di perangkat masing-masing (<code>localStorage</code>), satu kurikulum 16 pertemuan
-            dipakai bersama CodeShark &amp; Coding Tower.
+            tersimpan di perangkat masing-masing (<code>localStorage</code>), berbagi XP, koin, dan streak harian.
           </p>
           <div className="flex items-center justify-center gap-2 mt-4 flex-wrap text-[11px] font-bold" style={{ color: "#7ea4bd" }}>
-            <span>⚡ Performa HP</span>•<span>📲 PWA bisa di-install</span>•<span>📴 Main offline</span>•<span>👆 Sentuh ≥48px</span>
+            <span>⚡ React Native & Expo</span>•<span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>•<span>📲 PWA Offline</span>
           </div>
         </section>
 

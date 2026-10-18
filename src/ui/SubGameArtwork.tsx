@@ -4,12 +4,78 @@
    2. "tower" (Coding Tower / Susun Menara HTML) */
 
 interface Props {
-  id: "shark" | "tower";
+  id: "shark" | "tower" | "crossplatform";
   active?: boolean;
   size?: number;
 }
 
 export default function SubGameArtwork({ id, active = false, size = 64 }: Props) {
+  if (id === "crossplatform") {
+    return (
+      <div
+        className="relative inline-block select-none shrink-0"
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      >
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="overflow-visible"
+          style={{
+            filter: active
+              ? "drop-shadow(0 4px 16px rgba(56,189,248,0.6))"
+              : "drop-shadow(0 2px 8px rgba(0,0,0,0.4))",
+          }}
+        >
+          <defs>
+            <linearGradient id="sgCrossPhone" x1="16" y1="8" x2="48" y2="56" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#0284c7" />
+              <stop offset="50%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#0f172a" />
+            </linearGradient>
+            <linearGradient id="sgReactAtom" x1="20" y1="20" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#818cf8" />
+            </linearGradient>
+          </defs>
+
+          {/* Smartphone Bezel Body */}
+          <rect
+            x="14"
+            y="6"
+            width="36"
+            height="52"
+            rx="10"
+            fill={active ? "rgba(15,23,42,0.95)" : "rgba(10,18,34,0.85)"}
+            stroke={active ? "#38bdf8" : "rgba(56,189,248,0.3)"}
+            strokeWidth={active ? "2" : "1.2"}
+          />
+
+          {/* Screen Inner */}
+          <rect x="17" y="10" width="30" height="44" rx="6" fill="#030712" />
+
+          {/* Speaker / Notch */}
+          <rect x="27" y="8" width="10" height="1.5" rx="0.75" fill="#475569" />
+
+          {/* React Native Atomic Orbit Rings */}
+          <ellipse cx="32" cy="30" rx="10" ry="4" stroke="url(#sgReactAtom)" strokeWidth="1.2" transform="rotate(-30 32 30)" opacity="0.85" />
+          <ellipse cx="32" cy="30" rx="10" ry="4" stroke="url(#sgReactAtom)" strokeWidth="1.2" transform="rotate(30 32 30)" opacity="0.85" />
+          <ellipse cx="32" cy="30" rx="10" ry="4" stroke="url(#sgReactAtom)" strokeWidth="1.2" transform="rotate(90 32 30)" opacity="0.85" />
+
+          {/* Central Core Atom */}
+          <circle cx="32" cy="30" r="2.5" fill="#38bdf8" className={active ? "animate-pulse" : ""} />
+
+          {/* Expo 'E' Badge Mini Bottom */}
+          <rect x="25" y="44" width="14" height="4" rx="2" fill="#0284c7" />
+          <circle cx="32" cy="46" r="1" fill="#ffffff" />
+        </svg>
+      </div>
+    );
+  }
+
   if (id === "shark") {
     return (
       <div

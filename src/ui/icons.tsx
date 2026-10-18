@@ -256,6 +256,10 @@ export const IconCode = make(
   </>
 );
 
-
-
-
+export const IconMobile = make(
+  <>
+    <rect x="5" y="2" width="14" height="20" rx="3" />
+    <path d="M11 18h2" />
+    <circle cx="12" cy="5" r="0.5" fill="currentColor" stroke="none" />
+  </>
+);

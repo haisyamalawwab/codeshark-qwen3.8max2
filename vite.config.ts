@@ -29,7 +29,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2}"],
         // navigasi offline: hub + dua sub-game tetap bisa dibuka
         navigateFallback: "index.html",
-        navigateFallbackAllowlist: [/^\/$/, /codingshark/, /codingtower/],
+        navigateFallbackAllowlist: [/^\/$/, /codingshark/, /codingtower/, /crossplatform/],
         runtimeCaching: [
           {
             // font Google — cache-first agar HUD tetap cantik offline
@@ -83,11 +83,12 @@ export default defineConfig({
         if (warning.code === "INVALID_ANNOTATION") return;
         handler(warning);
       },
-      // TIGA ENTRY: hub agregat + 2 sub-game mandiri (output dist sub-folder)
+      // EMPAT ENTRY: hub agregat + 3 sub-game mandiri (output dist sub-folder)
       input: {
         hub: path.resolve(__dirname, "index.html"),
         codingshark: path.resolve(__dirname, "codingshark/index.html"),
         codingtower: path.resolve(__dirname, "codingtower/index.html"),
+        crossplatform: path.resolve(__dirname, "crossplatform/index.html"),
       },
       output: {
         // JS, CSS, dan grafis dipisah ke folder masing-masing
