@@ -35,6 +35,8 @@ import {
 const TypingGame = lazy(() => import("./ui/TypingGame"));
 const TowerPuzzle = lazy(() => import("./ui/TowerPuzzle"));
 const CrossPlatformLab = lazy(() => import("./games/crossplatform/CrossPlatformLab"));
+const CiBackendLab = lazy(() => import("./games/backend/CiBackendLab"));
+const PyBackendLab = lazy(() => import("./games/backend/PyBackendLab"));
 
 interface AppProps {
   /** bila diisi, entry ini dikunci ke satu sub-game (dipakai entry /codingshark & /codingtower).
@@ -84,9 +86,25 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   /* SUB-GAME aktif — dipilih di hub Dashboard, tersimpan antar sesi.
      Bila entry dikunci (/codingshark, /codingtower) pilihan dikunci juga. */
   const [touch] = useState(() => isTouchDevice());
-  const [subGame, setSubGame] = useState<SubGameId>(() =>
-    lockedSubGame ?? loadSubGame(isTouchDevice() ? "tower" : "shark")
-  );
+  const [subGame, setSubGame] = useState<SubGameId>(() => {
+    if (lockedSubGame) return lockedSubGame;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const sg = params.get("subgame");
+      if (
+        sg === "ci_backend" ||
+        sg === "py_backend" ||
+        sg === "crossplatform" ||
+        sg === "tower" ||
+        sg === "shark"
+      ) {
+        return sg;
+      }
+    } catch {
+      /* abaikan */
+    }
+    return loadSubGame(isTouchDevice() ? "tower" : "shark");
+  });
 
   const selectSubGame = (id: SubGameId) => {
     if (lockedSubGame) return;
@@ -330,7 +348,25 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
           onGoogleLogin={() => signInWithGoogle().catch(() => {})}
         />
       ) : screen.s === "dash" ? (
-        subGame === "crossplatform" ? (
+        subGame === "ci_backend" ? (
+          <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat CI4 Backend Studio…</div>}>
+            <CiBackendLab
+              key={`ci-backend-dash-${gameKey}`}
+              startMeetingNo={1}
+              onDone={() => setGameKey((k) => k + 1)}
+              onExit={() => selectSubGame("crossplatform")}
+            />
+          </Suspense>
+        ) : subGame === "py_backend" ? (
+          <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat Python Backend Studio…</div>}>
+            <PyBackendLab
+              key={`py-backend-dash-${gameKey}`}
+              startMeetingNo={1}
+              onDone={() => setGameKey((k) => k + 1)}
+              onExit={() => selectSubGame("crossplatform")}
+            />
+          </Suspense>
+        ) : subGame === "crossplatform" ? (
           <CrossPlatformHud
             save={save}
             onOpenMeeting={(no) => enterPractice(`crossplatform:${no}`)}
@@ -354,7 +390,16 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
                   </a>
                 )}
                 <span className="chip !text-[var(--teal)]">
-                  {lockedSubGame === "crossplatform" ? "📱 CrossPlatform Studio" : lockedSubGame === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"} • mode sub-game mandiri
+                  {lockedSubGame === "ci_backend"
+                    ? "🐘 Backend CI4 Studio"
+                    : lockedSubGame === "py_backend"
+                    ? "🐍 Backend Python Studio"
+                    : lockedSubGame === "crossplatform"
+                    ? "📱 CrossPlatform Studio"
+                    : lockedSubGame === "tower"
+                    ? "🧱 Coding Tower"
+                    : "🦈 CodeShark"}{" "}
+                  • mode sub-game mandiri
                 </span>
                 {siblingHref && (
                   <a href={siblingHref} className="chip hover:brightness-125 ml-auto">
@@ -417,7 +462,15 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             {lockedSubGame ? (
               <div className="mode-switch" role="note" aria-label="Sub-game aktif (dikunci)">
                 <span className="mode-btn on" aria-current="true">
-                  {lockedSubGame === "crossplatform" ? "📱 CrossPlatform Studio" : lockedSubGame === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"}
+                  {lockedSubGame === "ci_backend"
+                    ? "🐘 Backend CI4 Studio"
+                    : lockedSubGame === "py_backend"
+                    ? "🐍 Backend Python Studio"
+                    : lockedSubGame === "crossplatform"
+                    ? "📱 CrossPlatform Studio"
+                    : lockedSubGame === "tower"
+                    ? "🧱 Coding Tower"
+                    : "🦈 CodeShark"}
                 </span>
                 {siblingHref && (
                   <a className="mode-btn" href={siblingHref}>
@@ -432,7 +485,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               </div>
             ) : (
               <div className="mode-switch" role="tablist" aria-label="Sub-game aktif">
-                {(["crossplatform", "tower", "shark"] as SubGameId[]).map((id) => (
+                {(["ci_backend", "py_backend", "crossplatform", "tower", "shark"] as SubGameId[]).map((id) => (
                   <button
                     key={id}
                     role="tab"
@@ -440,7 +493,15 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
                     className={`mode-btn ${subGame === id ? "on" : ""}`}
                     onClick={() => { selectSubGame(id); setGameKey((k) => k + 1); sfx.click(); }}
                   >
-                    {id === "crossplatform" ? "📱 CrossPlatform" : id === "tower" ? "🧱 Coding Tower" : "🦈 CodeShark"}
+                    {id === "ci_backend"
+                      ? "🐘 CI4 Backend"
+                      : id === "py_backend"
+                      ? "🐍 Python Backend"
+                      : id === "crossplatform"
+                      ? "📱 CrossPlatform"
+                      : id === "tower"
+                      ? "🧱 Coding Tower"
+                      : "🦈 CodeShark"}
                   </button>
                 ))}
               </div>
@@ -451,7 +512,27 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             </p>
           </div>
           <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat arena…</div>}>
-          {subGame === "crossplatform" ? (
+          {subGame === "ci_backend" ? (
+            <CiBackendLab
+              key={`ci-${screen.id}-${screen.k}-${gameKey}`}
+              startMeetingNo={(() => {
+                const m = /^ci_backend:(\d+)/.exec(screen.id)?.[1];
+                return m ? parseInt(m, 10) : 1;
+              })()}
+              onDone={(r) => finishPractice(screen.id, r)}
+              onExit={() => setScreen({ s: "dash" })}
+            />
+          ) : subGame === "py_backend" ? (
+            <PyBackendLab
+              key={`py-${screen.id}-${screen.k}-${gameKey}`}
+              startMeetingNo={(() => {
+                const m = /^py_backend:(\d+)/.exec(screen.id)?.[1];
+                return m ? parseInt(m, 10) : 1;
+              })()}
+              onDone={(r) => finishPractice(screen.id, r)}
+              onExit={() => setScreen({ s: "dash" })}
+            />
+          ) : subGame === "crossplatform" ? (
             <CrossPlatformLab
               key={`crossplatform-${screen.id}-${screen.k}-${gameKey}`}
               startMeetingNo={(() => {

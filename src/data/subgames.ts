@@ -3,7 +3,7 @@
    baru masuk ke Peta Pertemuan / Misi dengan arena tersebut.
    Pilihan terakhir disimpan di localStorage agar konsisten antar sesi. */
 
-export type SubGameId = "tower" | "shark" | "crossplatform";
+export type SubGameId = "tower" | "shark" | "crossplatform" | "ci_backend" | "py_backend";
 
 export interface SubGame {
   id: SubGameId;
@@ -15,11 +15,31 @@ export interface SubGame {
   desc: string;
   points: string[];
   cta: string;
-  /** "ketik" = TypingGame, "susun" = TowerPuzzle, "simulator" = CrossPlatformLab */
-  mode: "ketik" | "susun" | "simulator";
+  /** "ketik" = TypingGame, "susun" = TowerPuzzle, "simulator" = CrossPlatformLab, "backend_ci" = CiBackendLab, "backend_py" = PyBackendLab */
+  mode: "ketik" | "susun" | "simulator" | "backend_ci" | "backend_py";
 }
 
 export const SUBGAMES: Record<SubGameId, SubGame> = {
+  ci_backend: {
+    id: "ci_backend",
+    name: "Backend CI4 Studio",
+    short: "CodeIgniter 4",
+    tagline: "PHP 8 & CodeIgniter 4 • MySQL Database • cPanel Hosting",
+    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur MVC, CRUD MySQL, Form Validation, Relasi 1-to-N JOIN, Session-based Login & Role Admin, sampai Live Deployment ke cPanel Web Hosting!",
+    points: ["16 Pertemuan OBE", "Simulator phpMyAdmin", "cPanel Deployment"],
+    cta: "Buka CI4 Backend Lab",
+    mode: "backend_ci",
+  },
+  py_backend: {
+    id: "py_backend",
+    name: "Backend Python Studio",
+    short: "Python Django/Flask",
+    tagline: "Python 3 & Flask / Django • MySQL Database • WSGI Hosting",
+    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur B): WSGI & Routing Jinja2, CRUD MySQL, Validasi Form, Relasi 1-to-N JOIN, Session Login & Role Decorator, sampai Deployment cPanel Python App!",
+    points: ["16 Pertemuan OBE", "Flask & Django", "cPanel Python WSGI"],
+    cta: "Buka Python Backend Lab",
+    mode: "backend_py",
+  },
   crossplatform: {
     id: "crossplatform",
     name: "CrossPlatform Lab",
@@ -52,14 +72,28 @@ export const SUBGAMES: Record<SubGameId, SubGame> = {
   },
 };
 
-export const SUBGAME_ORDER: SubGameId[] = ["crossplatform", "tower", "shark"];
+export const SUBGAME_ORDER: SubGameId[] = [
+  "ci_backend",
+  "py_backend",
+  "crossplatform",
+  "tower",
+  "shark",
+];
 
 const KEY = "codeshark:subgame:v1";
 
 export function loadSubGame(fallback: SubGameId): SubGameId {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw === "tower" || raw === "shark" || raw === "crossplatform") return raw;
+    if (
+      raw === "tower" ||
+      raw === "shark" ||
+      raw === "crossplatform" ||
+      raw === "ci_backend" ||
+      raw === "py_backend"
+    ) {
+      return raw;
+    }
   } catch {
     /* abaikan */
   }

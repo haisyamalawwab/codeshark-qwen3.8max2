@@ -7,7 +7,7 @@
    Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi.
    Ikon kartu memakai SVG vektor (ui/icons) agar tajam di semua DPR. */
 import type { ComponentType } from "react";
-import { IconTower, IconFin, IconBolt, IconBrush, IconMobile } from "../ui/icons";
+import { IconTower, IconFin, IconMobile, IconServer, IconDatabase } from "../ui/icons";
 
 interface HubGame {
   id: string;
@@ -23,6 +23,30 @@ interface HubGame {
 }
 
 const GAMES: HubGame[] = [
+  {
+    id: "ci_backend",
+    name: "Backend CI4 Studio",
+    href: "./?subgame=ci_backend",
+    tagline: "PHP 8 & CodeIgniter 4 • MySQL Database • cPanel Hosting • 16 Pertemuan OBE",
+    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur Client-Server, MVC CodeIgniter 4, Database MySQL & phpMyAdmin, Operasi CRUD Lengkap, Validasi Form Server-Side, Relasi 1:N JOIN, Session-Based Auth, sampai Deployment cPanel Web Hosting!",
+    points: ["PHP 8.2 & CI4", "phpMyAdmin & MySQL", "16 Pertemuan OBE", "Deploy cPanel"],
+    cta: "Buka CI4 Backend Studio",
+    Icon: IconServer,
+    accent: "#ef4444",
+    live: true,
+  },
+  {
+    id: "py_backend",
+    name: "Backend Python Studio",
+    href: "./?subgame=py_backend",
+    tagline: "Python 3 & Flask / Django • MySQL Database • Passenger WSGI Hosting",
+    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur B): Arsitektur Web Python, WSGI & Routing Jinja2, PyMySQL & Parameterized Queries, CRUD Lengkap, Validasi Server-Side & Flash Messages, Relasi 1:N JOIN, Session Auth & Role Decorators, sampai Deployment cPanel Python App!",
+    points: ["Python 3 & Flask", "PyMySQL & WSGI", "16 Pertemuan OBE", "cPanel Python App"],
+    cta: "Buka Python Backend Studio",
+    Icon: IconDatabase,
+    accent: "#10b981",
+    live: true,
+  },
   {
     id: "crossplatform",
     name: "CrossPlatform Studio",
@@ -59,30 +83,6 @@ const GAMES: HubGame[] = [
     accent: "#2ee6c8",
     live: true,
   },
-  {
-    id: "soon-runner",
-    name: "Shark Runner",
-    href: "#",
-    tagline: "Arcade • Segera hadir",
-    desc: "Pelari bawah laut: lompat rintangan dengan menjawab sintaks. Slot sub-game keempat — folder /shark-runner/ tinggal dicolok ke hub ini.",
-    points: ["Arcade", "Reaksi cepat", "Segera"],
-    cta: "Segera hadir",
-    Icon: IconBolt,
-    accent: "#818cf8",
-    live: false,
-  },
-  {
-    id: "soon-css",
-    name: "CSS Reef",
-    href: "#",
-    tagline: "Desain • Segera hadir",
-    desc: "Hias terumbu karang dengan CSS (flex/grid/warna). Slot media belajar kelima untuk jalur desain visual.",
-    points: ["Flex/Grid", "Warna", "Segera"],
-    cta: "Segera hadir",
-    Icon: IconBrush,
-    accent: "#fb7185",
-    live: false,
-  },
 ];
 
 export default function HubApp() {
@@ -101,14 +101,20 @@ export default function HubApp() {
               Template belajar koding berbasis game
             </p>
           </div>
-          <a href="./crossplatform/" className="text-xs font-bold px-3.5 py-2 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
-            <IconMobile size={15} /> React Native (Expo)
+          <a href="./?subgame=ci_backend" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-rose-500/40 inline-flex items-center gap-1.5" style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}>
+            <IconServer size={14} /> Backend CI4
           </a>
-          <a href="./codingtower/" className="text-xs font-bold px-3.5 py-2 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
-            <IconTower size={15} /> Tower (HP)
+          <a href="./?subgame=py_backend" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 inline-flex items-center gap-1.5" style={{ background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
+            <IconDatabase size={14} /> Backend Python
           </a>
-          <a href="./codingshark/" className="text-xs font-bold px-3.5 py-2 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
-            <IconFin size={15} /> Shark (PC)
+          <a href="./crossplatform/" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
+            <IconMobile size={14} /> React Native
+          </a>
+          <a href="./codingtower/" className="text-xs font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
+            <IconTower size={14} /> Tower
+          </a>
+          <a href="./codingshark/" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
+            <IconFin size={14} /> Shark
           </a>
         </div>
       </header>
@@ -116,7 +122,7 @@ export default function HubApp() {
       <main className="max-w-6xl mx-auto px-4 pb-24">
         <section className="mt-8 md:mt-12 text-center max-w-3xl mx-auto">
           <p className="text-[11px] font-extrabold tracking-[0.28em] uppercase" style={{ color: "#45c6ff" }}>
-            Agregat • 3 sub-game live (CrossPlatform, Tower, Shark) + slot ekspansi
+            Agregat • 5 sub-game live (Backend CI4, Backend Python, CrossPlatform, Tower, Shark)
           </p>
           <h1 className="font-extrabold text-3xl md:text-5xl tracking-tight mt-2">
             Belajar koding sambil <span style={{ color: "#2ee6c8" }}>main game</span>.
@@ -126,7 +132,7 @@ export default function HubApp() {
             tersimpan di perangkat masing-masing (<code>localStorage</code>), berbagi XP, koin, dan streak harian.
           </p>
           <div className="flex items-center justify-center gap-2 mt-4 flex-wrap text-[11px] font-bold" style={{ color: "#7ea4bd" }}>
-            <span>⚡ React Native & Expo</span>•<span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>•<span>📲 PWA Offline</span>
+            <span>🐘 CI4 & MySQL</span>•<span>🐍 Python Flask & Django</span>•<span>⚡ React Native & Expo</span>•<span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>
           </div>
         </section>
 

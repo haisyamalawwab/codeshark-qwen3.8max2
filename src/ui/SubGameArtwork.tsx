@@ -4,12 +4,137 @@
    2. "tower" (Coding Tower / Susun Menara HTML) */
 
 interface Props {
-  id: "shark" | "tower" | "crossplatform";
+  id: "shark" | "tower" | "crossplatform" | "ci_backend" | "py_backend";
   active?: boolean;
   size?: number;
 }
 
 export default function SubGameArtwork({ id, active = false, size = 64 }: Props) {
+  if (id === "ci_backend") {
+    return (
+      <div
+        className="relative inline-block select-none shrink-0"
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      >
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="overflow-visible"
+          style={{
+            filter: active
+              ? "drop-shadow(0 4px 16px rgba(239,68,68,0.6))"
+              : "drop-shadow(0 2px 8px rgba(0,0,0,0.4))",
+          }}
+        >
+          <defs>
+            <linearGradient id="sgCiFlame" x1="16" y1="10" x2="48" y2="54" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#f97316" />
+              <stop offset="50%" stopColor="#ef4444" />
+              <stop offset="100%" stopColor="#991b1b" />
+            </linearGradient>
+            <linearGradient id="sgCiDb" x1="20" y1="36" x2="44" y2="56" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#0284c7" />
+            </linearGradient>
+          </defs>
+
+          {/* Outer Rounded Badge */}
+          <rect
+            x="4"
+            y="4"
+            width="56"
+            height="56"
+            rx="16"
+            fill={active ? "rgba(35,14,14,0.95)" : "rgba(10,18,34,0.85)"}
+            stroke={active ? "#ef4444" : "rgba(239,68,68,0.35)"}
+            strokeWidth={active ? "2" : "1.2"}
+          />
+
+          {/* CodeIgniter 4 Flame Icon */}
+          <path
+            d="M32 10C33.5 17 28.5 22 23 27C17 32 16 38 21 44C23 46.5 26.5 48 30 48C28 44 29 40 33 37C34 40 37 42 37 45C42 41 45 35 43 28C41.5 23 37.5 18 35.5 15C34.5 13.5 33 11.5 32 10Z"
+            fill="url(#sgCiFlame)"
+          />
+
+          {/* Mini MySQL Database Cylinder in Bottom Center */}
+          <ellipse cx="32" cy="46" rx="9" ry="3.5" fill="#0284c7" stroke="#ffffff" strokeWidth="0.8" />
+          <path d="M23 46v6c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5v-6" fill="#0369a1" stroke="#ffffff" strokeWidth="0.8" />
+
+          {/* PHP Tag Text */}
+          <rect x="24" y="24" width="16" height="7" rx="3.5" fill="rgba(15,23,42,0.85)" stroke="#38bdf8" strokeWidth="0.8" />
+          <text x="32" y="29.5" textAnchor="middle" fill="#38bdf8" fontSize="4.5" fontWeight="900" fontFamily="monospace">CI4</text>
+        </svg>
+      </div>
+    );
+  }
+
+  if (id === "py_backend") {
+    return (
+      <div
+        className="relative inline-block select-none shrink-0"
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      >
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="overflow-visible"
+          style={{
+            filter: active
+              ? "drop-shadow(0 4px 16px rgba(16,185,129,0.6))"
+              : "drop-shadow(0 2px 8px rgba(0,0,0,0.4))",
+          }}
+        >
+          <defs>
+            <linearGradient id="sgPyBlue" x1="16" y1="12" x2="38" y2="34" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#0284c7" />
+            </linearGradient>
+            <linearGradient id="sgPyGreen" x1="26" y1="28" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+          </defs>
+
+          {/* Outer Rounded Badge */}
+          <rect
+            x="4"
+            y="4"
+            width="56"
+            height="56"
+            rx="16"
+            fill={active ? "rgba(6,32,24,0.95)" : "rgba(10,18,34,0.85)"}
+            stroke={active ? "#10b981" : "rgba(16,185,129,0.35)"}
+            strokeWidth={active ? "2" : "1.2"}
+          />
+
+          {/* Python Snake 1 (Top Blue) */}
+          <path
+            d="M31.5 12C24 12 21 15 21 20V24H32V25.5H18C13 25.5 11 29 11 35C11 41 14 44 20 44H23V39C23 33.5 27 30 33 30H42C46.5 30 50 26.5 50 22C50 17.5 46.5 12 40 12H31.5ZM26 16C27.1 16 28 16.9 28 18C28 19.1 27.1 20 26 20C24.9 20 24 19.1 24 18C24 16.9 24.9 16 26 16Z"
+            fill="url(#sgPyBlue)"
+          />
+
+          {/* Python Snake 2 (Bottom Emerald) */}
+          <path
+            d="M32.5 52C40 52 43 49 43 44V40H32V38.5H46C51 38.5 53 35 53 29C53 23 50 20 44 20H41V25C41 30.5 37 34 31 34H22C17.5 34 14 37.5 14 42C14 46.5 17.5 52 24 52H32.5ZM38 48C36.9 48 36 47.1 36 46C36 44.9 36.9 44 38 44C39.1 44 40 44.9 40 46C40 47.1 39.1 48 38 48Z"
+            fill="url(#sgPyGreen)"
+          />
+
+          {/* Center Flask Badge */}
+          <circle cx="32" cy="32" r="5" fill="#0f172a" stroke="#ffffff" strokeWidth="1" />
+          <text x="32" y="34.5" textAnchor="middle" fill="#34d399" fontSize="6" fontWeight="900">PY</text>
+        </svg>
+      </div>
+    );
+  }
+
   if (id === "crossplatform") {
     return (
       <div
