@@ -80,7 +80,7 @@ export default function CiBackendSimulator({
 
   // Form Inputs in Browser
   const [browserPath, setBrowserPath] = useState<string>(
-    meeting.no >= 13 ? "https://simpus-mini.mhs.latihan.my.id/buku" : "http://localhost:8080/buku"
+    meeting.no >= 14 ? "https://simpus-mini.mhs.latihan.my.id/index.php" : "http://localhost/simpus-mini/index.php"
   );
   const [formJudul, setFormJudul] = useState("");
   const [formPengarang, setFormPengarang] = useState("");
@@ -185,7 +185,7 @@ export default function CiBackendSimulator({
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-white font-extrabold text-xs">PHP 8.2 & MySQL Simulator</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-950 border border-sky-500/30 text-sky-400 font-mono">
-            CI4 Framework
+            PHP 8 Native
           </span>
         </div>
 
@@ -651,13 +651,13 @@ export default function CiBackendSimulator({
             <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
               <div>
                 <p className="font-bold text-white text-xs">3. Upload File & Ekstrak di File Manager</p>
-                <p className="text-[11px] text-slate-400">Folder app/ di luar public, folder public/* di public_html/</p>
+                <p className="text-[11px] text-slate-400">Ekstrak arsip simpus-mini.zip ke folder public_html/</p>
               </div>
               <button
                 onClick={() => {
                   sfx.win();
                   setCpanelFilesUploaded(true);
-                  setFlashMessage("Berkas aplikasi berhasil diunggah dan diekstrak di server!");
+                  setFlashMessage("Berkas aplikasi berhasil diunggah dan diekstrak di public_html!");
                 }}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
                   cpanelFilesUploaded
@@ -671,15 +671,15 @@ export default function CiBackendSimulator({
 
             <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
               <div>
-                <p className="font-bold text-white text-xs">4. Konfigurasi .env Produksi</p>
-                <p className="text-[11px] text-slate-400">Set CI_ENVIRONMENT=production dan kredensial hosting</p>
+                <p className="font-bold text-white text-xs">4. Konfigurasi config/koneksi.php</p>
+                <p className="text-[11px] text-slate-400">Sesuaikan user dan password database cPanel</p>
               </div>
               <button
                 onClick={() => {
                   sfx.win();
                   setCpanelEnvConfigured(true);
-                  setBrowserPath("https://simpus-mini.mhs.latihan.my.id/buku");
-                  setFlashMessage("Aplikasi resmi LIVE di web hosting!");
+                  setBrowserPath("https://simpus-mini.mhs.latihan.my.id/index.php");
+                  setFlashMessage("Koneksi database hosting aktif! Aplikasi resmi LIVE.");
                 }}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
                   cpanelEnvConfigured
@@ -687,7 +687,7 @@ export default function CiBackendSimulator({
                     : "bg-sky-600 text-white"
                 }`}
               >
-                {cpanelEnvConfigured ? "✓ Konfigurasi Selesai" : "Simpan .env"}
+                {cpanelEnvConfigured ? "✓ Konfigurasi Selesai" : "Simpan Koneksi"}
               </button>
             </div>
           </div>
@@ -703,7 +703,7 @@ export default function CiBackendSimulator({
                 onClick={() => {
                   sfx.click();
                   setActiveSimTab("browser");
-                  setBrowserPath("https://simpus-mini.mhs.latihan.my.id/buku");
+                  setBrowserPath("https://simpus-mini.mhs.latihan.my.id/index.php");
                   setFlashMessage("Membuka aplikasi live di domain hosting publik!");
                 }}
                 className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs cursor-pointer"
@@ -729,11 +729,11 @@ export default function CiBackendSimulator({
             <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
               <p className="text-sky-400 font-bold mb-1">▶ HTTP REQUEST HEADER:</p>
               <pre className="text-[11px] text-slate-300 leading-relaxed overflow-x-auto">
-{`${httpMethod} /buku HTTP/1.1
-Host: localhost:8080
+{`${httpMethod} /index.php HTTP/1.1
+Host: localhost:8000
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
 Accept: text/html,application/xhtml+xml
-Cookie: ci_session=8f7e2c91b4a3...`}
+Cookie: PHPSESSID=8f7e2c91b4a3901f4...`}
               </pre>
             </div>
 
@@ -742,7 +742,7 @@ Cookie: ci_session=8f7e2c91b4a3...`}
               <pre className="text-[11px] text-slate-300 leading-relaxed overflow-x-auto">
 {`HTTP/1.1 ${httpStatus} ${httpStatus === 200 ? "OK" : "Found"}
 Server: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
-X-Powered-By: CodeIgniter 4
+X-Powered-By: PHP/8.2.12
 Content-Type: text/html; charset=UTF-8`}
               </pre>
             </div>
@@ -775,27 +775,27 @@ Content-Type: text/html; charset=UTF-8`}
       )}
       <div className="p-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2 overflow-x-auto">
-          <span className="text-slate-500 font-mono text-[10px]">Terminal Spark:</span>
+          <span className="text-slate-500 font-mono text-[10px]">Terminal PHP:</span>
           <button
-            onClick={() => onExecuteCmd("php spark serve")}
+            onClick={() => onExecuteCmd("php -S localhost:8000")}
             className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 font-mono text-[10px] cursor-pointer"
           >
-            $ php spark serve
+            $ php -S localhost:8000
           </button>
           <button
-            onClick={() => onExecuteCmd("php spark routes")}
+            onClick={() => onExecuteCmd("php -v")}
             className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 font-mono text-[10px] cursor-pointer"
           >
-            $ php spark routes
+            $ php -v
           </button>
           <button
-            onClick={() => onExecuteCmd("composer show")}
+            onClick={() => onExecuteCmd("mysql -u root -p")}
             className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 font-mono text-[10px] cursor-pointer"
           >
-            $ composer show
+            $ mysql -u root
           </button>
         </div>
-        <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">Port 8080</span>
+        <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">Port 80/8000</span>
       </div>
     </div>
   );

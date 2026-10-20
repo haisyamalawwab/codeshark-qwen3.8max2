@@ -1,7 +1,7 @@
 /* ==========================================================================
-   KURIKULUM SISTEM APLIKASI WEB - BACKEND DASAR (CODEIGNITER 4 & PHP)
+   KURIKULUM SISTEM APLIKASI WEB - BACKEND DASAR (PHP & MYSQL NATIVE)
    3 SKS (1 Teori + 2 Praktikum) | Semester 3 (SI/TI) & 5 (TI) | Level Pemula
-   Fokus Utama: Database MySQL, MVC Architecture & Web Hosting cPanel
+   Fokus Utama: PHP 8 Native, Database MySQL, phpMyAdmin & Web Hosting cPanel
    Standard DIKTI / BAN-PT berbasis Outcome Based Education (OBE)
    ========================================================================== */
 
@@ -58,111 +58,103 @@ export interface BackendMeeting {
 }
 
 export const CI_CPMK_LIST = [
-  { id: "CPMK1", desc: "Mampu menjelaskan konsep dasar arsitektur web client-server dan cara kerja backend (C2)" },
-  { id: "CPMK2", desc: "Mampu merancang & mengimplementasikan basis data MySQL serta operasi CRUD dengan MVC CodeIgniter 4 (C3)" },
-  { id: "CPMK3", desc: "Mampu mengimplementasikan autentikasi session-based login/register dan otorisasi role admin-user (C3)" },
-  { id: "CPMK4", desc: "Mampu men-deploy aplikasi web dan database MySQL ke layanan shared hosting cPanel serta menyusun dokumentasi (C3)" },
-  { id: "CPMK5", desc: "Mampu menyelesaikan proyek aplikasi backend sederhana secara mandiri/tim sesuai standar dasar industri (C4)" },
+  { id: "CPMK1", desc: "Mampu menjelaskan konsep dasar arsitektur web client-server dan siklus HTTP request-response dengan runtime PHP (C2)" },
+  { id: "CPMK2", desc: "Mampu merancang basis data relasional MySQL dan mengimplementasikan operasi CRUD lengkap dengan PHP 8 Native (C3)" },
+  { id: "CPMK3", desc: "Mampu mengimplementasikan keamanan form, validasi server-side, sanitasi XSS/SQLi, dan autentikasi session PHP (C3)" },
+  { id: "CPMK4", desc: "Mampu men-deploy aplikasi web PHP dan database MySQL ke layanan shared hosting cPanel serta mengonfigurasi domain (C3)" },
+  { id: "CPMK5", desc: "Mampu menyelesaikan proyek aplikasi backend mandiri (SIMPUS-Mini) sesuai standar industri dasar (C4)" },
 ];
 
 export const CI_BACKEND_MEETINGS: BackendMeeting[] = [
   {
     no: 1,
     phase: "Fase 1: Setup & Dasar",
-    title: "Pengantar Arsitektur Web & Backend",
+    title: "Pengantar Arsitektur Web & HTTP Request-Response",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
     cpmk: "CPMK1: Menjelaskan konsep dasar arsitektur aplikasi web (C2)",
-    subCpmk: "Mahasiswa mampu menjelaskan konsep arsitektur client-server dan siklus HTTP request-response pada aplikasi web.",
+    subCpmk: "Mahasiswa mampu menjelaskan konsep arsitektur client-server dan siklus HTTP request-response pada aplikasi web PHP.",
     indikator: [
-      "Dapat menggambarkan bagan alur HTTP request-response antara browser dan server",
-      "Dapat membedakan peran frontend (tampilan/browser) dan backend (logika/database)",
-      "Memahami HTTP method dasar (GET untuk membaca, POST untuk mengirim data)",
+      "Dapat menggambarkan bagan alur HTTP request-response antara browser, Apache, PHP, dan MySQL",
+      "Dapat membedakan peran frontend (tampilan di browser) dan backend (eksekusi di server)",
+      "Memahami HTTP method dasar (GET untuk membaca, POST untuk mengirim data sensitif/form)",
     ],
-    problemStatement: "Saat kamu membuka marketplace online di HP dan menekan tombol 'Beli', siapa yang sebenarnya memproses pesanan dan memotong stok barang di balik layar?",
-    goal: "Memahami konsep client-server, perbedaan frontend vs backend, cara browser berkomunikasi dengan web server, dan project brief PjBL SIMPUS-Mini.",
+    problemStatement: "Saat kamu membuka website perpustakaan di laptop dan mengklik tombol 'Cari Buku', siapa yang memproses permintaan tersebut dan mengirimkan hasilnya kembali?",
+    goal: "Memahami konsep client-server, cara browser berkomunikasi dengan web server Apache & PHP, serta gambaran proyek akhir SIMPUS-Mini.",
     outputPraktikum: "Diagram alur request-response dan rancangan ide proyek PjBL SIMPUS-Mini",
-    projectMilestone: "Pembentukan tim & pemilihan tema proyek aplikasi backend CRUD (SIMPUS-Mini)",
+    projectMilestone: "Pemahaman arsitektur dan inisialisasi brief proyek SIMPUS-Mini",
     tools: ["Browser Chrome/Firefox", "Diagram Arsitektur", "VS Code"],
-    alokasiWaktu: "150 Menit (50 menit konsep teori + 100 menit diskusi studi kasus & pengenalan brief proyek)",
+    alokasiWaktu: "150 Menit (50 menit teori + 100 menit studi kasus & diskusi)",
     teori: [
       {
-        title: "Arsitektur Client-Server & Siklus Request-Response",
+        title: "Arsitektur Client-Server & Alur PHP",
         points: [
-          "Client (Browser/Mobile App): Mengirim HTTP Request ke server melalui jaringan internet.",
-          "Web Server (Apache/Nginx): Menerima request, meneruskannya ke runtime PHP/Framework.",
-          "Backend Application (CodeIgniter 4): Menjalankan logika bisnis, memeriksa input, dan memproses session.",
-          "Database Server (MySQL): Menyimpan data permanen (tabel users, buku, peminjaman).",
-          "HTTP Response: Server mengirimkan kembali status code (200 OK, 302 Redirect, 404 Not Found) beserta konten HTML/JSON ke browser.",
+          "Client (Browser): Mengirim HTTP Request (URL, Headers, Data) ke server.",
+          "Web Server (Apache Port 80): Menerima request dan meneruskannya ke PHP Interpreter.",
+          "PHP Script: Mengeksekusi logika bisnis, memeriksa session, dan mengeksekusi query database.",
+          "MySQL Database (Port 3306): Menyimpan dan mengambil record tabel secara terstruktur.",
+          "HTTP Response: Server mengirimkan kembali status code (200 OK) beserta markup HTML murni.",
         ],
-        explanation: "Backend adalah 'dapur restoran' tempat pesanan diracik dan bahan diambil dari gudang (database), sedangkan frontend adalah pelayan yang menyajikan menu dan membawa makanan ke meja pelanggan.",
-      },
-      {
-        title: "Perbedaan Frontend vs Backend",
-        points: [
-          "Frontend berjalan di lingkungan client (mesin pengguna), fokus pada estetika UI, interaktivitas, dan responsivitas.",
-          "Backend berjalan di server yang aman, fokus pada integritas data, validasi keamanan, hak akses, dan interaksi database.",
-        ],
-        explanation: "Data rahasia seperti password, query database, dan kunci API tidak boleh berada di frontend karena dapat dimodifikasi oleh pengguna di browser.",
+        explanation: "Kode PHP dieksekusi 100% di server. Pengunjung di browser hanya menerima hasil render HTML-nya saja, sehingga kode sumber dan password database aman.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Uji Coba Inspect Jaringan (Network Tab) di Browser",
-        desc: "Buka DevTools Chrome (F12) -> Tab Network -> Kunjungi halaman web apa pun. Amati Request Method (GET), Status Code (200 OK), dan Response Header.",
+        title: "Inspeksi Jaringan Browser (Network Tab)",
+        desc: "Buka DevTools Chrome (F12) -> Tab Network -> Akses halaman web apa pun. Amati Request Method, Status Code, dan Response Headers.",
       },
       {
         step: 2,
-        title: "Mempelajari Perbedaan HTTP GET vs POST",
-        desc: "GET menaruh parameter di URL (query string), cocok untuk mencari dan membaca data. POST menyembunyikan parameter di Request Body, wajib untuk form login, create, update, dan data sensitif.",
+        title: "Mempelajari Perbedaan GET vs POST",
+        desc: "GET menaruh parameter di URL (cocok untuk search/paging), sedangkan POST menaruh data di body (wajib untuk form login & tambah data).",
       },
     ],
     files: [
       {
-        name: "alur_request_response.txt",
+        name: "arsitektur_alur_php.txt",
         lang: "bash",
-        code: `[Browser Client] 
+        code: `[Browser Client]
      │
-     │  1. HTTP GET /katalog-buku
+     │ 1. HTTP GET /katalog.php?search=php
      ▼
 [Web Server Apache (Port 80)]
      │
-     │  2. Meneruskan ke public/index.php
+     │ 2. Parsing skrip PHP
      ▼
-[CodeIgniter 4 Router -> Controller Buku::index()]
+[PHP Engine: katalog.php]
      │
-     │  3. Query ke Database
+     │ 3. Query SELECT data
      ▼
-[MySQL Database (Port 3306)]
+[MySQL Server (Port 3306)]
      │
-     │  4. Mengembalikan baris data tabel buku
+     │ 4. Mengembalikan baris data
      ▼
-[Controller merender View buku/index.php]
+[PHP merender HTML dinamis]
      │
-     │  5. HTTP 200 OK + HTML Tampilan
+     │ 5. HTTP Response 200 OK + HTML
      ▼
-[Browser merender halaman katalog ke pengguna]`,
-        description: "Bagan visual 5 langkah siklus request-response dari browser hingga MySQL",
+[Browser merender tampilan web]`,
+        description: "Alur siklus 5 tahap pemrosesan PHP dan MySQL",
       },
     ],
     simId: "p1-arsitektur-client-server",
     quiz: {
-      question: "Manakah pernyataan yang paling tepat mengenai perbedaan antara HTTP GET dan POST dalam aplikasi backend pemula?",
+      question: "Di manakah kode PHP dieksekusi ketika seorang pengguna membuka halaman website?",
       options: [
-        "GET digunakan untuk membaca data dan parameternya tampak di URL, sedangkan POST digunakan untuk mengirim data form melalui request body",
-        "GET digunakan untuk menghapus database, sedangkan POST hanya untuk mengunggah gambar",
-        "GET dieksekusi di database MySQL, sedangkan POST dieksekusi di CSS browser",
-        "GET tidak memerlukan server backend sama sekali",
+        "Dieksekusi di komputer server oleh PHP interpreter sebelum dikirimkan sebagai HTML ke browser",
+        "Dieksekusi di browser pengguna bersama JavaScript",
+        "Dieksekusi di dalam harddisk pengguna oleh sistem operasi Windows",
+        "PHP tidak perlu dieksekusi karena langsung dibaca oleh CSS",
       ],
       answer: 0,
-      explanation: "HTTP GET mengirim parameter melalui query string URL untuk operasi idempotent (membaca data), sedangkan POST membungkus data di dalam body request untuk form input seperti pendaftaran dan pembuatan data baru.",
+      explanation: "PHP adalah bahasa server-side yang seluruh baris kodenya diterjemahkan di server, lalu hasilnya dikirimkan berupa dokumen HTML biasa ke browser klien.",
     },
     tugas: {
       title: "RTM-1: Analisis Alur Request-Response & Identitas Proyek SIMPUS-Mini",
-      description: "Tuliskan ringkasan alur request-response saat seorang pengguna melakukan login ke sebuah situs web. Gambarkan apa yang dikirim oleh form, apa yang diperiksa backend, dan response apa yang diterima jika login berhasil atau gagal.",
+      description: "Tuliskan ringkasan alur request-response saat pengguna melakukan login ke web PHP. Gambarkan apa yang dikirim oleh form, apa yang diperiksa skrip PHP, dan response apa yang dikirimkan.",
       rubrik: [
         { criteria: "Ketepatan penjelasan alur HTTP Request dan Response", bobot: "50%" },
-        { criteria: "Pemahaman perbedaan data di URL vs Body", bobot: "30%" },
+        { criteria: "Pemahaman perbedaan data di URL (GET) vs Body (POST)", bobot: "30%" },
         { criteria: "Kerapian ringkasan identitas proyek PjBL", bobot: "20%" },
       ],
     },
@@ -170,1886 +162,1474 @@ export const CI_BACKEND_MEETINGS: BackendMeeting[] = [
   {
     no: 2,
     phase: "Fase 1: Setup & Dasar",
-    title: "Instalasi Environment & Setup CodeIgniter 4",
+    title: "Instalasi Environment PHP 8 & Web Server XAMPP",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Setup & Konfigurasi Framework Backend (C3)",
-    subCpmk: "Mahasiswa mampu melakukan instalasi dan konfigurasi environment XAMPP, PHP 8, Composer, dan CodeIgniter 4.",
+    cpmk: "CPMK1: Setup & Konfigurasi Lingkungan Server Lokal (C3)",
+    subCpmk: "Mahasiswa mampu melakukan instalasi dan konfigurasi XAMPP (Apache & MySQL) serta mengelola folder web root htdocs.",
     indikator: [
-      "Berhasil menjalankan Apache & MySQL melalui Control Panel XAMPP",
-      "Memverifikasi versi PHP >= 8.1 dan extension php-intl, php-mbstring aktif",
-      "Membuat project CodeIgniter 4 baru via Composer dan menjalankannya via spark",
+      "Berhasil menjalankan service Apache & MySQL melalui XAMPP Control Panel",
+      "Memverifikasi instalasi PHP versi 8.1+ di Command Prompt / Terminal",
+      "Membuat folder project di htdocs dan mengaksesnya via http://localhost/",
     ],
-    problemStatement: "Sebelum mendirikan sebuah rumah makan, kita perlu lahan, kompor, dan perlengkapan memasak. Apa saja piranti wajib yang harus diinstal untuk mulai coding backend PHP modern?",
-    goal: "Mahasiswa berhasil mengonfigurasi XAMPP, Composer, membuat proyek CodeIgniter 4 baru, memahami struktur folder MVC, dan mengakses halaman default di localhost:8080.",
-    outputPraktikum: "Proyek CodeIgniter 4 berjalan di http://localhost:8080 via `php spark serve`",
-    projectMilestone: "Inisialisasi repositori proyek SIMPUS-Mini dengan CodeIgniter 4",
-    tools: ["XAMPP / Laragon", "PHP 8.2+", "Composer", "VS Code", "Terminal"],
-    alokasiWaktu: "150 Menit (30 menit teori struktur MVC + 120 menit hands-on instalasi & troubleshooting)",
+    problemStatement: "Mengapa berkas .php tidak bisa dibuka dengan cara klik ganda seperti membuka gambar atau file Word? Di manakah letak folder khusus tempat meletakkan skrip PHP?",
+    goal: "Menguasai cara mengaktifkan web server Apache, memahami peran DocumentRoot htdocs, dan menjalankan skrip PHP pertama.",
+    outputPraktikum: "Halaman pengujian info.php berjalan sukses di http://localhost/simpus-mini/",
+    projectMilestone: "Inisialisasi struktur folder kerja proyek SIMPUS-Mini di htdocs",
+    tools: ["XAMPP / Laragon", "PHP 8.2+", "VS Code", "Browser"],
+    alokasiWaktu: "150 Menit (30 menit teori + 120 menit hands-on instalasi)",
     teori: [
       {
-        title: "Peran XAMPP & Composer dalam Backend PHP",
+        title: "Peran XAMPP & Folder htdocs",
         points: [
-          "XAMPP: Paket bundel yang berisi Apache (web server), MySQL (database), dan PHP interpreter.",
-          "Composer: Dependency manager untuk PHP yang mengunduh framework dan pustaka pendukung secara otomatis.",
-          "php spark serve: Built-in development server bawaan CodeIgniter 4 yang memudahkan pengujian tanpa konfigurasi virtual host rumit.",
+          "Apache: Web server yang bertugas menerima dan melayani request HTTP port 80.",
+          "htdocs: Satu-satunya folder yang dipublikasikan oleh Apache ke alamat http://localhost/.",
+          "PHP Built-in Server: Opsi praktis menjalankan server tanpa XAMPP via perintah `php -S localhost:8000`.",
         ],
-        explanation: "Dengan `php spark serve`, web root secara otomatis diarahkan ke folder `public/`, yang mengamankan kode backend di folder `app/` agar tidak bisa diakses langsung lewat URL browser.",
-      },
-      {
-        title: "Struktur Folder Utama CodeIgniter 4",
-        points: [
-          "app/Controllers: Tempat menulis logika pemrosesan request dan alur data.",
-          "app/Models: Tempat berinteraksi dengan tabel database MySQL.",
-          "app/Views: Tempat menulis template tampilan antarmuka (HTML + PHP).",
-          "app/Config: Konfigurasi sistem, routing, dan filter keamanan.",
-          "public: Satu-satunya folder yang terbuka untuk publik (index.php, css, js, gambar).",
-          ".env: Tempat konfigurasi rahasia lokal (koneksi database, mode development/production).",
-        ],
-        explanation: "Pemisahan MVC (Model-View-Controller) membuat kode teratur: tidak ada lagi query SQL bercampur aduk di dalam tag HTML tampilan.",
+        explanation: "Setiap file yang diletakkan di luar folder htdocs tidak akan bisa diakses melalui URL web browser.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Cek Versi PHP & Ekstensi di Terminal",
-        command: "php -v && composer -V",
-        desc: "Pastikan PHP versi 8.1 ke atas sudah terdeteksi di PATH terminal.",
+        title: "Cek Versi PHP di Terminal",
+        command: "php -v",
+        desc: "Pastikan PHP versi 8.1 ke atas sudah terdeteksi di sistem.",
       },
       {
         step: 2,
-        title: "Membuat Project CodeIgniter 4 Baru",
-        command: "composer create-project codeigniter4/appstarter simpus-mini",
-        desc: "Composer akan mengunduh skeleton project CodeIgniter 4 versi stabil terbaru.",
+        title: "Membuat Folder Proyek di htdocs",
+        command: "mkdir C:\\xampp\\htdocs\\simpus-mini",
+        desc: "Buat folder kerja proyek simpus-mini di dalam direktori web root htdocs.",
       },
       {
         step: 3,
-        title: "Mengaktifkan Mode Development (.env)",
-        command: "cp env .env",
-        desc: "Salin file env menjadi .env lalu ubah CI_ENVIRONMENT = development agar pesan error ditampilkan jelas saat debugging.",
-      },
-      {
-        step: 4,
-        title: "Menjalankan Local Development Server",
-        command: "php spark serve",
-        desc: "Buka browser ke http://localhost:8080 untuk melihat halaman sambutan resmi CodeIgniter 4.",
+        title: "Menjalankan PHP Server Alternatif (CLI)",
+        command: "php -S localhost:8000",
+        desc: "Jalankan built-in development server PHP jika ingin menguji proyek tanpa XAMPP penuh.",
       },
     ],
     files: [
       {
-        name: ".env",
-        lang: "env",
-        code: `# Konfigurasi Lingkungan CodeIgniter 4
-CI_ENVIRONMENT = development
-
-# URL Aplikasi Lokal
-app.baseURL = 'http://localhost:8080/'
-
-# Database Konfigurasi (MySQL Lokal XAMPP)
-database.default.hostname = localhost
-database.default.database = simpus_mini
-database.default.username = root
-database.default.password = 
-database.default.DBDriver = MySQLi
-database.default.port = 3306`,
-        description: "Berkas konfigurasi lingkungan lokal untuk menyalakan mode development dan database MySQL",
+        name: "index.php",
+        lang: "php",
+        code: `<?php
+// Pengujian server lokal PHP
+echo "<h1>SIMPUS-Mini - Server PHP Siap!</h1>";
+echo "<p>Versi PHP: " . phpversion() . "</p>";
+echo "<p>Waktu Server: " . date('Y-m-d H:i:s') . "</p>";
+?>`,
+        description: "Skrip pengujian perdana konektivitas web server PHP",
       },
     ],
-    simId: "p2-setup-ci4-spark",
+    simId: "p2-setup-php-xampp",
     quiz: {
-      question: "Mengapa pada CodeIgniter 4 berkas publik seperti index.php, css, dan gambar diletakkan di dalam folder 'public/' terpisah dari folder 'app/'?",
+      question: "Pada paket instalasi XAMPP di Windows, di folder manakah berkas website PHP harus diletakkan agar bisa dibuka lewat http://localhost/?",
       options: [
-        "Demi keamanan, agar pengguna luar tidak bisa mengunduh file kode sumber PHP, Model, dan konfigurasi sensitif secara langsung lewat URL browser",
-        "Agar browser tidak memerlukan CSS dan JavaScript",
-        "Karena MySQL hanya bisa membaca data dari folder public",
-        "Supaya file PHP tidak perlu dikompilasi oleh Apache",
+        "C:\\xampp\\htdocs\\",
+        "C:\\xampp\\php\\",
+        "C:\\Windows\\System32\\",
+        "C:\\Program Files\\Apache\\",
       ],
       answer: 0,
-      explanation: "Meletakkan DocumentRoot di folder public/ adalah standar keamanan web modern agar berkas logika inti di folder app/ dan file konfigurasi rahasia seperti .env tidak dapat diakses langsung oleh pengunjung website.",
+      explanation: "Folder htdocs (HyperText Documents) adalah DocumentRoot standar Apache pada XAMPP tempat seluruh berkas web dieksekusi.",
     },
     tugas: {
-      title: "RTM-2: Setup Environment & Halaman Welcome Lokal",
-      description: "Jalankan server CodeIgniter 4 di laptopmu, salin file env menjadi .env, aktifkan CI_ENVIRONMENT = development, dan capture tangkapan layar terminal dan browser.",
+      title: "RTM-2: Setup Server XAMPP & Berkas info.php",
+      description: "Nyalakan Apache di XAMPP, buat folder simpus-mini di htdocs, buat file info.php dan capture tangkapan layar browser yang menampilkan info PHP.",
       rubrik: [
-        { criteria: "Aplikasi CI4 berjalan sukses di port 8080", bobot: "50%" },
-        { criteria: "Pengaturan .env development berhasil aktif", bobot: "30%" },
-        { criteria: "Dokumentasi tangkapan layar jelas", bobot: "20%" },
+        { criteria: "Apache menyala sukses di port 80/8080", bobot: "50%" },
+        { criteria: "Skrip PHP dieksekusi sempurna di browser", bobot: "30%" },
+        { criteria: "Tangkapan layar rapi dan jelas", bobot: "20%" },
       ],
     },
   },
   {
     no: 3,
     phase: "Fase 1: Setup & Dasar",
-    title: "Routing Dasar, Controller & Passing Data ke View",
+    title: "Dasar Sintaks PHP: Variabel, Array Associative & Modularitas",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK1: Memahami alur MVC dan Routing (C3)",
-    subCpmk: "Mahasiswa mampu membuat routing dasar (GET & POST), Controller, dan melakukan passing data variabel ke View.",
+    cpmk: "CPMK1: Memahami sintaks dasar PHP dan modularisasi kode (C3)",
+    subCpmk: "Mahasiswa mampu menggunakan variabel, tipe data, array associative, perulangan, dan pemecahan file header/footer dengan require_once.",
     indikator: [
-      "Mampu mendefinisikan route GET di file `app/Config/Routes.php`",
-      "Mampu membuat Controller baru dengan method index() dan passing array data",
-      "Mampu menampilkan variabel PHP di dalam file View menggunakan sintaks <?= $nama ?>",
+      "Mampu mendeklarasikan variabel dan array associative di PHP 8",
+      "Mampu melakukan looping foreach untuk menampilkan data ke tabel HTML",
+      "Mampu memecah layout website menjadi header.php dan footer.php menggunakan require_once",
     ],
-    problemStatement: "Bagaimana cara website menampilkan halaman yang berbeda saat pengunjung mengklik menu 'Beranda', 'Katalog Buku', atau 'Tentang Kami'?",
-    goal: "Menguasai cara mendefinisikan rute URL di Routes.php, menghubungkannya ke Controller, dan mengirimkan data array untuk dirender rapi di View.",
-    outputPraktikum: "Halaman Beranda & Profil Perpustakaan Mini dengan data dinamis dari Controller",
-    projectMilestone: "Pembuatan layout dasar antarmuka (Header, Navigasi, Footer) SIMPUS-Mini",
-    tools: ["VS Code", "Browser", "Terminal"],
-    alokasiWaktu: "150 Menit (30 menit konsep alur MVC + 120 menit praktik membuat Controller & View)",
+    problemStatement: "Bagaimana cara membuat tampilan web yang konsisten di semua halaman tanpa harus menulis ulang kode navbar dan footer berulang-ulang?",
+    goal: "Menguasai sintaks PHP dasar, array associative (penampung data record), dan konsep modularitas include/require.",
+    outputPraktikum: "Struktur layout modular (header, konten, footer) dengan data tabel dinamis",
+    projectMilestone: "Pembuatan kerangka template antarmuka dasar SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "PHP 8"],
+    alokasiWaktu: "150 Menit (30 menit teori + 120 menit praktik penulisan kode)",
     teori: [
       {
-        title: "Peran Router dan Controller dalam MVC",
+        title: "Modularisasi Menggunakan require_once",
         points: [
-          "Router (app/Config/Routes.php): Polisi lalu lintas yang memetakan URL (misal: /buku) ke method Controller yang bertugas.",
-          "Controller (app/Controllers/): Manajer yang menerima input request, memanggil model jika butuh data, lalu mengirimkan data ke View.",
-          "View (app/Views/): Pekerja visual yang menyusun HTML dan mencetak variabel data yang dikirim oleh Controller.",
+          "require_once memastikan file template (header/footer) hanya dimuat satu kali dan memunculkan fatal error jika file tidak ditemukan.",
+          "Mempermudah perawatan: jika logo atau menu navigasi berubah, kita cukup mengubah satu file header.php.",
         ],
-        explanation: "Controller tidak boleh berisi kode HTML panjang, dan View tidak boleh berisi query SQL. Tugas mereka terpisah secara rapi.",
-      },
-      {
-        title: "Cara Mengirim Data (Passing Data) dari Controller ke View",
-        points: [
-          "Data dikirim dalam bentuk associative array: $data['judul'] = 'Katalog Perpustakaan';",
-          "Di dalam View, key array otomatis berubah menjadi variabel PHP: <?= $judul; ?>",
-        ],
-        explanation: "Sintaks short-echo `<?= $variabel ?>` adalah cara ringkas dan aman di PHP untuk menggantikan `<?php echo $variabel; ?>`.",
+        explanation: "Konsep DRY (Don't Repeat Yourself) adalah prinsip utama rekayasa perangkat lunak backend.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Menambahkan Route di app/Config/Routes.php",
-        desc: "Daftarkan route GET untuk halaman beranda dan katalog buku.",
-        codeSnippet: `$routes->get('/', 'Home::index');
-$routes->get('/katalog', 'Buku::index');
-$routes->get('/tentang', 'Home::tentang');`,
-        filePath: "app/Config/Routes.php",
+        title: "Membuat Folder templates/",
+        desc: "Buat subfolder templates/ di dalam simpus-mini untuk menampung komponen antarmuka yang dipakai berulang.",
       },
       {
         step: 2,
-        title: "Membuat Controller app/Controllers/Buku.php",
-        desc: "Buat class Controller Buku yang mewarisi BaseController dan siapkan method index() dengan data array.",
-        filePath: "app/Controllers/Buku.php",
+        title: "Membuat templates/header.php dan footer.php",
+        desc: "Pisahkan bagian pembuka HTML (header) dan penutup HTML (footer).",
       },
       {
         step: 3,
-        title: "Membuat File View app/Views/katalog.php",
-        desc: "Buat file tampilan HTML sederhana untuk merender judul dan data daftar buku menggunakan loop foreach.",
-        filePath: "app/Views/katalog.php",
+        title: "Menggabungkan Template di index.php",
+        desc: "Gunakan sintaks require_once 'templates/header.php' di awal file dan footer di akhir file.",
       },
     ],
     files: [
       {
-        name: "app/Config/Routes.php",
-        lang: "php",
-        code: `<?php
-
-use CodeIgniter\\Router\\RouteCollection;
-
-/**
- * @var RouteCollection $routes
- */
-$routes->get('/', 'Home::index');
-$routes->get('/katalog', 'Buku::index');
-$routes->get('/tentang', 'Home::tentang');`,
-        description: "Pemetaan route URL ke method Controller yang bersangkutan",
-      },
-      {
-        name: "app/Controllers/Buku.php",
-        lang: "php",
-        code: `<?php
-
-namespace App\\Controllers;
-
-class Buku extends BaseController
-{
-    public function index()
-    {
-        $data = [
-            'namaPerpus' => 'SIMPUS-Mini Kampus Merdeka',
-            'tahun'      => date('Y'),
-            'daftarBuku' => [
-                ['judul' => 'Pemrograman PHP Dasar', 'pengarang' => 'Ahmad Fauzi', 'stok' => 5],
-                ['judul' => 'Membangun Web Modern dengan CI4', 'pengarang' => 'Siti Nurhaliza', 'stok' => 3],
-                ['judul' => 'Database MySQL untuk Pemula', 'pengarang' => 'Budi Santoso', 'stok' => 7],
-            ]
-        ];
-
-        return view('katalog', $data);
-    }
-}`,
-        description: "Controller Buku mengirimkan associative array data ke file view katalog.php",
-      },
-      {
-        name: "app/Views/katalog.php",
+        name: "templates/header.php",
         lang: "php",
         code: `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title><?= esc($namaPerpus) ?></title>
+    <title><?= $judul_halaman ?? 'SIMPUS-Mini' ?></title>
     <style>
         body { font-family: sans-serif; margin: 2rem; background: #f8fafc; }
-        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }
-        th { background: #0284c7; color: white; }
+        header { border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 20px; }
+        nav a { margin-right: 15px; text-decoration: none; font-weight: bold; color: #0284c7; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Katalog Buku - <?= esc($namaPerpus) ?></h1>
-        <p>Tahun Akademik: <strong><?= esc($tahun) ?></strong></p>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Judul Buku</th>
-                    <th>Pengarang</th>
-                    <th>Sisa Stok</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $no = 1; foreach ($daftarBuku as $buku): ?>
-                <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= esc($buku['judul']) ?></td>
-                    <td><?= esc($buku['pengarang']) ?></td>
-                    <td><span style="color: green; font-weight: bold;"><?= $buku['stok'] ?></span></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <header>
+        <h2>📚 SIMPUS-Mini Kampus</h2>
+        <nav>
+            <a href="index.php">Katalog Buku</a>
+            <a href="tambah.php">+ Tambah Buku</a>
+            <a href="kategori.php">Kategori</a>
+            <a href="login.php">Login</a>
+        </nav>
+    </header>
+    <main>`,
+        description: "Template header modular pembuka dokumen HTML",
+      },
+      {
+        name: "templates/footer.php",
+        lang: "php",
+        code: `    </main>
+    <footer style="margin-top: 30px; border-top: 1px solid #cbd5e1; padding-top: 10px; color: #64748b;">
+        <p>&copy; <?= date('Y') ?> SIMPUS-Mini - Sistem Informasi Perpustakaan Berbasis PHP Native & MySQL.</p>
+    </footer>
 </body>
 </html>`,
-        description: "View menerima array data dan merendernya dalam tabel dengan perulangan foreach",
+        description: "Template footer modular penutup dokumen HTML",
       },
     ],
-    simId: "p3-routing-passing-view",
+    simId: "p3-sintaks-array-modular",
     quiz: {
-      question: "Di dalam Controller CodeIgniter 4, jika kita mengirimkan array `['namaWeb' => 'Perpustakaan Mini']` ke view('beranda', $data), bagaimana cara mencetak nilai tersebut di dalam file View?",
+      question: "Apa fungsi utama dari perintah `require_once 'templates/header.php'` dalam pemrograman PHP?",
       options: [
-        "Menggunakan <?= esc($namaWeb) ?> atau <?php echo $namaWeb; ?>",
-        "Menggunakan $data['namaWeb'] secara langsung tanpa echo",
-        "Menggunakan SELECT namaWeb FROM database",
-        "Variabel tidak bisa dicetak di View karena terkunci di Controller",
+        "Menyisipkan isi file header.php ke halaman saat ini dan memastikan file tersebut hanya dimuat satu kali",
+        "Menghapus file header.php dari server setelah dibaca",
+        "Mengunggah file header.php ke database MySQL",
+        "Mengeksekusi JavaScript di komputer klien",
       ],
       answer: 0,
-      explanation: "CodeIgniter secara otomatis mengekstrak key array associative menjadi variabel mandiri di dalam View, sehingga key 'namaWeb' diakses sebagai variabel $namaWeb.",
+      explanation: "require_once menyisipkan berkas eksternal dan mencegah kesalahan duplikasi deklarasi fungsi jika file terpanggil lebih dari satu kali.",
     },
     tugas: {
-      title: "RTM-3: Routing Halaman Profil & Katalog Statis",
-      description: "Buat controller Profil dengan method index() yang menampilkan data nama perpustakaan, alamat, visi misi, dan jam operasional yang dikirimkan via array $data ke view.",
+      title: "RTM-3: Desain Template Modular & Data Array Dinamis",
+      description: "Buat header.php, footer.php, dan tampilkan array buku berisi 4 judul menggunakan foreach di index.php.",
       rubrik: [
-        { criteria: "Route terdaftar dengan benar di Routes.php", bobot: "30%" },
-        { criteria: "Controller berhasil menyusun array data dinamis", bobot: "40%" },
-        { criteria: "View menampilkan data rapi menggunakan escaping esc()", bobot: "30%" },
+        { criteria: "Template modular terpisah dengan benar", bobot: "40%" },
+        { criteria: "Array associative berhasil dirender ke tabel HTML", bobot: "40%" },
+        { criteria: "Kerapian styling CSS dasar", bobot: "20%" },
       ],
     },
   },
   {
     no: 4,
-    phase: "Fase 2: MySQL & CRUD",
-    title: "Database MySQL, phpMyAdmin & Koneksi Aplikasi",
+    phase: "Fase 1: Setup & Dasar",
+    title: "Perancangan Basis Data MySQL, phpMyAdmin & Skema SIMPUS-Mini",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Merancang Database MySQL & Koneksi (C3)",
-    subCpmk: "Mahasiswa mampu merancang tabel MySQL di phpMyAdmin, menentukan Primary Key, dan mengonfigurasi koneksi database di CodeIgniter 4.",
+    cpmk: "CPMK2: Merancang Basis Data Relasional MySQL (C3)",
+    subCpmk: "Mahasiswa mampu merancang tabel relasional, tipe data SQL, primary key, foreign key, dan mengeksekusi DDL via phpMyAdmin.",
     indikator: [
-      "Mampu membuat database baru `simpus_mini` melalui phpMyAdmin / SQL query",
-      "Mampu merancang struktur tabel `kategori` dan `buku` dengan tipe data yang tepat (INT, VARCHAR, TEXT)",
-      "Mampu menghubungkan aplikasi CodeIgniter 4 ke database MySQL via berkas `.env`",
-      "Lolos uji coba query koneksi database tanpa error 'Database connection failed'",
+      "Memahami tipe data SQL: INT, VARCHAR, TEXT, ENUM, TIMESTAMP",
+      "Mampu membuat database simpus_mini dan tabel kategori, buku, users",
+      "Membuat relasi Foreign Key antara tabel buku dan kategori",
     ],
-    problemStatement: "Selama ini data buku disimpan di buku catatan fisik atau array statis di controller. Jika server di-restart, data hilang! Bagaimana cara menyimpan data secara permanen dan terstruktur di database MySQL?",
-    goal: "Memahami konsep basis data relasional MySQL, tabel, kolom, primary key (auto increment), dan berhasil mengonfigurasi koneksi MySQL ke CodeIgniter 4.",
-    outputPraktikum: "Database `simpus_mini` berisi tabel `kategori` dan `buku` berhasil terkoneksi ke CodeIgniter 4",
-    projectMilestone: "Skema database MySQL SIMPUS-Mini aktif & terhubung",
-    tools: ["XAMPP phpMyAdmin (localhost/phpmyadmin)", "MySQL 8 / MariaDB", "VS Code (.env)"],
-    alokasiWaktu: "150 Menit (40 menit teori konsep database & primary key + 110 menit praktik phpMyAdmin & koneksi)",
+    problemStatement: "Mengapa sistem perpustakaan membutuhkan basis data relasional dan tidak cukup hanya disimpan dalam file teks biasa?",
+    goal: "Mampu menyusun skema tabel normalisasi 1:N dan mengeksekusi script SQL DDL melalui antarmuka phpMyAdmin.",
+    outputPraktikum: "Database simpus_mini aktif di phpMyAdmin dengan 3 tabel relasional",
+    projectMilestone: "Pembuatan skema database relasional proyek SIMPUS-Mini",
+    tools: ["phpMyAdmin", "MySQL Server", "SQL DDL"],
+    alokasiWaktu: "150 Menit (40 menit teori ERD + 110 menit eksekusi SQL di phpMyAdmin)",
     teori: [
       {
-        title: "Konsep Dasar Relational Database Management System (RDBMS) MySQL",
+        title: "Konsep Relasi Tabel One-to-Many (1:N)",
         points: [
-          "Database: Wadah besar yang menampung sekumpulan tabel terstruktur.",
-          "Tabel: Kumpulan baris (records) dan kolom (fields) yang merepresentasikan satu entitas (misal: buku, kategori).",
-          "Primary Key: Kolom penanda unik untuk setiap baris data (wajib unik, tidak boleh null, biasanya integer AUTO_INCREMENT).",
-          "Tipe Data Penting: INT (angka bulat), VARCHAR(n) (teks pendek berbatas), TEXT (teks panjang), DATETIME (waktu).",
+          "Satu kategori dapat menaungi banyak buku (One-to-Many).",
+          "Tabel induk: `kategori` (Primary Key: id).",
+          "Tabel anak: `buku` (Foreign Key: kategori_id).",
         ],
-        explanation: "Tanpa Primary Key, kita tidak bisa membedakan dua buku yang memiliki judul yang sama persis.",
-      },
-      {
-        title: "Konfigurasi Koneksi Database di CodeIgniter 4",
-        points: [
-          "Hostname: localhost (server database berjalan di komputer yang sama)",
-          "Database Name: simpus_mini",
-          "Username: root (default XAMPP tanpa password)",
-          "Password: kosong secara default pada instalasi XAMPP",
-          "DBDriver: MySQLi (driver PHP standar untuk berkomunikasi dengan MySQL)",
-        ],
-        explanation: "Selalu lakukan konfigurasi di file `.env` bukan langsung mengedit `app/Config/Database.php` agar kredensial lokal tidak tertimpa saat proyek dipindah.",
+        explanation: "Foreign key menjamin konsistensi data (integritas referensial), mencegah buku memiliki ID kategori fiktif yang tidak terdaftar.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Buka phpMyAdmin dan Buat Database",
-        desc: "Kunjungi http://localhost/phpmyadmin -> Klik menu 'Databases' -> Ketik nama database: simpus_mini -> Collation: utf8mb4_general_ci -> Klik 'Create'.",
+        title: "Buka phpMyAdmin di Browser",
+        desc: "Ketik URL http://localhost/phpmyadmin/ dan buka tab SQL.",
       },
       {
         step: 2,
-        title: "Eksekusi Script SQL Pembuatan Tabel",
-        desc: "Buka tab 'SQL' di phpMyAdmin lalu jalankan query DDL untuk membuat tabel kategori dan buku.",
-        filePath: "database.sql",
-      },
-      {
-        step: 3,
-        title: "Ubah Konfigurasi Database di .env",
-        desc: "Buka file .env dan aktifkan konfigurasi database.default.* dengan nama database simpus_mini.",
-        filePath: ".env",
-      },
-      {
-        step: 4,
-        title: "Uji Koneksi dengan Controller Test",
-        desc: "Jalankan method sederhana di controller untuk menguji $db = \\Config\\Database::connect();",
+        title: "Eksekusi Script DDL",
+        desc: "Salin dan jalankan script SQL pembuatan database dan tabel simpus_mini.",
       },
     ],
     files: [
       {
-        name: "database.sql",
+        name: "simpus_mini_schema.sql",
         lang: "sql",
-        code: `-- Buat Database
-CREATE DATABASE IF NOT EXISTS \`simpus_mini\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE \`simpus_mini\`;
+        code: `CREATE DATABASE IF NOT EXISTS simpus_mini;
+USE simpus_mini;
 
--- 1. Tabel Kategori Buku
-CREATE TABLE IF NOT EXISTS \`kategori\` (
-    \`id\` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    \`nama_kategori\` VARCHAR(100) NOT NULL,
-    \`created_at\` DATETIME DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS kategori (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_kategori VARCHAR(100) NOT NULL,
+    keterangan TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- 2. Tabel Buku
-CREATE TABLE IF NOT EXISTS \`buku\` (
-    \`id\` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    \`kategori_id\` INT(11) UNSIGNED NULL,
-    \`judul\` VARCHAR(255) NOT NULL,
-    \`pengarang\` VARCHAR(150) NOT NULL,
-    \`penerbit\` VARCHAR(100) NOT NULL,
-    \`tahun_terbit\` INT(4) NOT NULL,
-    \`stok\` INT(11) NOT NULL DEFAULT 1,
-    \`created_at\` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    \`updated_at\` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS buku (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kategori_id INT NOT NULL,
+    judul VARCHAR(255) NOT NULL,
+    pengarang VARCHAR(150) NOT NULL,
+    penerbit VARCHAR(150) NOT NULL,
+    tahun_terbit INT NOT NULL,
+    stok INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (kategori_id) REFERENCES kategori(id) ON DELETE CASCADE
+);
 
--- Data Dummy Awal
-INSERT INTO \`kategori\` (\`id\`, \`nama_kategori\`) VALUES 
-(1, 'Teknologi Informasi'),
-(2, 'Sains & Matematika'),
-(3, 'Sastra & Fiksi');
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    nama_lengkap VARCHAR(100) NOT NULL,
+    role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-INSERT INTO \`buku\` (\`kategori_id\`, \`judul\`, \`pengarang\`, \`penerbit\`, \`tahun_terbit\`, \`stok\`) VALUES
-(1, 'Pemrograman Web PHP & CI4', 'Budi Santoso', 'Informatika Press', 2023, 10),
-(1, 'Mastering MySQL Database', 'Ahmad Fauzi', 'Media Komputindo', 2022, 5),
-(3, 'Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2008, 4);`,
-        description: "Script DDL dan data dummy awal untuk tabel kategori dan buku di MySQL",
+INSERT INTO kategori (id, nama_kategori, keterangan) VALUES
+(1, 'Teknologi Informasi', 'Buku pemrograman dan komputer'),
+(2, 'Sains & Alam', 'Buku sains dan fisika');
+
+INSERT INTO buku (kategori_id, judul, pengarang, penerbit, tahun_terbit, stok) VALUES
+(1, 'Pemrograman PHP 8 & MySQL', 'Budi Santoso', 'Informatika', 2023, 10),
+(2, 'Fisika Dasar Terapan', 'Ahmad Fauzi', 'Media Ilmu', 2022, 5);`,
+        description: "Script DDL lengkap skema database SIMPUS-Mini",
       },
     ],
-    simId: "p4-mysql-phpmyadmin-koneksi",
-    asesmenTerkait: {
-      nama: "Asesmen Formatif 1 (Pra-UTS)",
-      bobot: "20%",
-      tipe: "formatif",
-    },
+    simId: "p4-desain-mysql-schema",
     quiz: {
-      question: "Apa fungsi utama dari properti PRIMARY KEY dengan AUTO_INCREMENT pada kolom 'id' di tabel MySQL?",
+      question: "Mengapa kolom `kategori_id` pada tabel `buku` dijadikan sebagai Foreign Key ke kolom `id` pada tabel `kategori`?",
       options: [
-        "Menjamin setiap baris data memiliki nomor identitas unik yang otomatis bertambah 1 setiap ada insert baru",
-        "Menghapus data buku yang sudah terlalu lama tidak dipinjam",
-        "Mengenkripsi judul buku agar tidak bisa dibaca pengguna lain",
-        "Menghubungkan komputer laptop langsung ke satelit internet",
+        "Untuk menjaga integritas referensial agar buku tidak bisa merujuk ke kategori yang tidak ada di tabel kategori",
+        "Agar buku otomatis terhapus setiap 24 jam",
+        "Untuk mempercepat loading CSS di browser",
+        "Karena MySQL mewajibkan semua kolom bernilai angka menjadi Foreign Key",
       ],
       answer: 0,
-      explanation: "PRIMARY KEY menjamin keunikan identitas tiap baris data sehingga operasi update dan delete dapat menyasar data yang tepat tanpa salah sasaran, dan AUTO_INCREMENT memudahkan pengisian id otomatis oleh mesin database.",
+      explanation: "Foreign Key menjamin integritas relasional antar tabel sehingga data buku selalu terhubung dengan kategori yang valid.",
     },
     tugas: {
-      title: "ASESMEN FORMATIF 1 (Bobot 20%): Kuis Konsep DB & Tugas Koneksi MySQL",
-      description: "Buat database simpus_mini di phpMyAdmin, buat tabel kategori dan buku sesuai skema, hubungkan dengan CodeIgniter 4 via file .env, dan pastikan aplikasi tidak menampilkan error koneksi saat diakses di browser.",
+      title: "RTM-4: Pembuatan Database & Seeding Awal",
+      description: "Eksekusi script DDL di phpMyAdmin lokal, tambahkan 2 data buku baru, dan ekspor database ke simpus_mini.sql.",
       rubrik: [
-        { criteria: "Pemahaman konsep database (tabel, PK, tipe data)", bobot: "30%" },
-        { criteria: "Struktur tabel kategori & buku sesuai rancangan", bobot: "35%" },
-        { criteria: "Koneksi aplikasi ke database via .env berjalan mulus tanpa error", bobot: "35%" },
+        { criteria: "Ketiga tabel berhasil dibuat dengan foreign key", bobot: "50%" },
+        { criteria: "Data sampel tersimpan dengan benar", bobot: "30%" },
+        { criteria: "File ekspor sql tersimpan rapi", bobot: "20%" },
       ],
     },
   },
   {
     no: 5,
     phase: "Fase 2: MySQL & CRUD",
-    title: "CRUD - CREATE: Form Input & Simpan Data ke MySQL",
+    title: "Koneksi Database PHP ke MySQL (mysqli & Error Handling)",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Implementasi Operasi Create ke Basis Data (C3)",
-    subCpmk: "Mahasiswa mampu membuat form input HTML, Model CodeIgniter 4, dan method Controller untuk menyimpan data baru ke database MySQL.",
+    cpmk: "CPMK2: Membuat Skrip Koneksi Database PHP (C3)",
+    subCpmk: "Mahasiswa mampu menghubungkan skrip PHP ke MySQL menggunakan fungsi mysqli_connect dengan penanganan error try-catch.",
     indikator: [
-      "Mampu membuat Model `BukuModel` yang mewarisi `CodeIgniter\\Model` dengan `$allowedFields`",
-      "Mampu membuat form input dengan method POST dan token CSRF `csrf_field()`",
-      "Mampu mengambil input form di controller menggunakan `$this->request->getPost()`",
-      "Mampu menyimpan data ke database dengan method `$model->save()` / `$model->insert()`",
+      "Mampu membuat skrip terpusat config/koneksi.php",
+      "Menangani eksepsi koneksi gagal dengan mysqli_report dan try-catch",
+      "Mengamankan kredensial database agar pesan error tidak membocorkan password",
     ],
-    problemStatement: "Admin perpustakaan ingin menambahkan buku baru yang baru saja dibeli. Bagaimana alur sistem menerima isian dari form web dan menyimpannya secara aman ke dalam tabel MySQL?",
-    goal: "Menguasai pembuatan Model Eloquent/Active Record di CI4, form input POST, keamanan CSRF, dan eksekusi insert data ke tabel MySQL.",
-    outputPraktikum: "Form 'Tambah Buku Baru' yang berhasil menyimpan data ke tabel `buku` di MySQL",
-    projectMilestone: "Fitur Tambah Buku (Create) SIMPUS-Mini berfungsi",
-    tools: ["VS Code", "Browser", "phpMyAdmin"],
-    alokasiWaktu: "150 Menit (30 menit teori form handling & CSRF + 120 menit praktik coding Create)",
+    problemStatement: "Bagaimana cara skrip PHP berbicara ke server MySQL port 3306 secara aman tanpa menyebabkan website hang ketika database sedang offline?",
+    goal: "Membangun skrip koneksi database terpusat yang tangguh terhadap kegagalan jaringan.",
+    outputPraktikum: "File config/koneksi.php yang siap diimpor oleh seluruh modul aplikasi",
+    projectMilestone: "Integrasi layer koneksi database PHP ke MySQL",
+    tools: ["VS Code", "PHP 8", "MySQL Server"],
+    alokasiWaktu: "150 Menit (30 menit teori + 120 menit praktik)",
     teori: [
       {
-        title: "Alur Operasi CREATE dalam Arsitektur MVC",
+        title: "Pustaka mysqli vs PDO di PHP",
         points: [
-          "1. Browser meminta halaman form: GET /buku/tambah -> Controller Buku::tambah() -> view('buku/tambah').",
-          "2. Pengguna mengisi form dan klik tombol 'Simpan'.",
-          "3. Browser mengirim data form: POST /buku/simpan -> Controller Buku::simpan().",
-          "4. Controller mengambil data dengan $this->request->getPost().",
-          "5. Controller memanggil Model: $bukuModel->save($data).",
-          "6. Model mengeksekusi query SQL: INSERT INTO buku (...) VALUES (...).",
-          "7. Controller mengalihkan (redirect) pengguna kembali ke daftar buku dengan pesan sukses.",
+          "mysqli: Pustaka resmi khusus database MySQL/MariaDB, mendukung gaya prosedural yang mudah dipahami pemula.",
+          "mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT): Memaksa mysqli melempar Exception jika query atau koneksi gagal.",
         ],
-        explanation: "Pemisahan antara method GET untuk menampilkan form dan method POST untuk memproses penyimpanan adalah best practice standar industri.",
-      },
-      {
-        title: "Pentingnya Keamanan CSRF Token (csrf_field)",
-        points: [
-          "CSRF (Cross-Site Request Forgery): Serangan di mana situs jahat memaksa browser pengguna mengirim request palsu ke aplikasi kita.",
-          "CodeIgniter 4 menyediakan fungsi `<?= csrf_field() ?>` yang menyisipkan token acak tersembunyi ke dalam form.",
-          "Server akan menolak request POST jika token tersebut tidak cocok.",
-        ],
-        explanation: "Selalu sertakan `<?= csrf_field() ?>` di setiap tag `<form method='post'>` pada aplikasi CodeIgniter 4.",
+        explanation: "Dengan menangani error secara terstruktur, pengguna disajikan pesan ramah dan detail error teknis disimpan aman di log server.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membuat Model app/Models/BukuModel.php",
-        desc: "Definisikan nama tabel dan daftar kolom yang diizinkan untuk diisi massal ($allowedFields).",
-        filePath: "app/Models/BukuModel.php",
+        title: "Membuat Folder config/",
+        desc: "Buat folder config/ di dalam simpus-mini untuk menyimpan koneksi dan helper sistem.",
       },
       {
         step: 2,
-        title: "Menambahkan Route Tambah & Simpan",
-        desc: "Daftarkan route GET untuk menampilkan form dan route POST untuk memproses simpan.",
-        filePath: "app/Config/Routes.php",
-      },
-      {
-        step: 3,
-        title: "Membuat Method tambah() & simpan() di Controller",
-        desc: "Ambil data post lalu teruskan ke method save() milik BukuModel.",
-        filePath: "app/Controllers/Buku.php",
-      },
-      {
-        step: 4,
-        title: "Membuat Form Input di app/Views/buku/tambah.php",
-        desc: "Sediakan input judul, pengarang, penerbit, tahun, dan stok dengan csrf_field().",
-        filePath: "app/Views/buku/tambah.php",
+        title: "Menulis Skrip config/koneksi.php",
+        desc: "Tulis kode koneksi dengan penanganan try-catch.",
       },
     ],
     files: [
       {
-        name: "app/Models/BukuModel.php",
+        name: "config/koneksi.php",
         lang: "php",
         code: `<?php
+// config/koneksi.php
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "simpus_mini";
+$port = 3306;
 
-namespace App\\Models;
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-use CodeIgniter\\Model;
-
-class BukuModel extends Model
-{
-    protected $table            = 'buku';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $allowedFields    = [
-        'kategori_id',
-        'judul',
-        'pengarang',
-        'penerbit',
-        'tahun_terbit',
-        'stok'
-    ];
-
-    // Aktifkan timestamp otomatis
-    protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-}`,
-        description: "Model Buku mendefinisikan tabel target dan kolom yang boleh diisi ($allowedFields)",
-      },
-      {
-        name: "app/Views/buku/tambah.php",
-        lang: "php",
-        code: `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Tambah Buku Baru - SIMPUS-Mini</title>
-    <style>
-        body { font-family: sans-serif; margin: 2rem; background: #f1f5f9; }
-        .form-box { max-width: 500px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-weight: bold; margin-bottom: 0.4rem; font-size: 13px; }
-        input, select { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-        button { background: #0284c7; color: white; padding: 10px 18px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #0369a1; }
-        .btn-back { margin-left: 8px; color: #64748b; text-decoration: none; font-size: 13px; }
-    </style>
-</head>
-<body>
-    <div class="form-box">
-        <h2>Tambah Data Buku</h2>
-        
-        <form action="/buku/simpan" method="post">
-            <?= csrf_field() ?>
-
-            <div class="form-group">
-                <label for="judul">Judul Buku *</label>
-                <input type="text" id="judul" name="judul" required placeholder="Contoh: Belajar PHP Modern">
-            </div>
-
-            <div class="form-group">
-                <label for="pengarang">Pengarang *</label>
-                <input type="text" id="pengarang" name="pengarang" required placeholder="Nama lengkap pengarang">
-            </div>
-
-            <div class="form-group">
-                <label for="penerbit">Penerbit *</label>
-                <input type="text" id="penerbit" name="penerbit" required placeholder="Nama penerbit buku">
-            </div>
-
-            <div class="form-group">
-                <label for="tahun_terbit">Tahun Terbit *</label>
-                <input type="number" id="tahun_terbit" name="tahun_terbit" required min="1900" max="2099" value="2023">
-            </div>
-
-            <div class="form-group">
-                <label for="stok">Jumlah Stok *</label>
-                <input type="number" id="stok" name="stok" required min="1" value="5">
-            </div>
-
-            <button type="submit">💾 Simpan Buku</button>
-            <a href="/buku" class="btn-back">Batal</a>
-        </form>
-    </div>
-</body>
-</html>`,
-        description: "Form input tambah buku dengan CSRF token dan validasi atribut required HTML5",
+try {
+    $conn = mysqli_connect($host, $user, $pass, $db, $port);
+    mysqli_set_charset($conn, "utf8mb4");
+} catch (mysqli_sql_exception $e) {
+    error_log("Database Error: " . $e->getMessage());
+    die("<div style='color:red; font-family:sans-serif;'>
+            <h3>Gagal Terhubung ke Database MySQL</h3>
+            <p>Pastikan MySQL di XAMPP sudah menyala dan database 'simpus_mini' sudah dibuat.</p>
+         </div>");
+}
+?>`,
+        description: "Berkas koneksi database terpusat dengan error handling",
       },
     ],
-    simId: "p5-crud-create-form",
+    simId: "p5-koneksi-mysql-php",
     quiz: {
-      question: "Mengapa properti `$allowedFields` di Model CodeIgniter 4 wajib diisi dengan nama kolom yang diperbolehkan?",
+      question: "Mengapa kredensial koneksi database sebaiknya dikumpulkan di satu file terpisah (misal: config/koneksi.php)?",
       options: [
-        "Untuk mencegah serangan Mass Assignment, di mana pengguna nakal menyusupkan input ilegal ke kolom yang tidak seharusnya diubah",
-        "Supaya MySQL otomatis menghapus tabel jika kolom tidak terdaftar",
-        "Karena browser tidak bisa merender tag input tanpa allowedFields",
-        "Agar file gambar otomatis terunggah ke server",
+        "Agar jika ada perubahan password atau server database, kita hanya perlu mengubah satu file saja dan tidak perlu mengedit puluhan file lainnya",
+        "Supaya file PHP lain otomatis terhapus",
+        "Karena browser tidak bisa membaca file PHP tanpa folder config",
+        "Agar MySQL tidak membutuhkan username dan password",
       ],
       answer: 0,
-      explanation: "$allowedFields melindungi aplikasi dari Mass Assignment Vulnerability sehingga hanya field-field yang terdaftar secara eksplisit yang dapat disimpan melalui method save() atau insert().",
+      explanation: "Prinsip sentralisasi konfigurasi memudahkan pemeliharaan dan persiapan deployment ke server hosting di kemudian hari.",
     },
     tugas: {
-      title: "RTM-4A: Implementasi Form Create Data Buku",
-      description: "Buat form Tambah Buku lengkap dengan CSRF token dan method simpan di BukuModel. Ujilah dengan menambahkan 3 buku baru melalui form dan periksa keberhasilannya di tabel phpMyAdmin.",
+      title: "RTM-5: Konfigurasi Koneksi & Uji Penanganan Error",
+      description: "Buat config/koneksi.php dan buat file uji coba. Coba sengaja salah ketik nama database untuk menguji blok catch.",
       rubrik: [
-        { criteria: "Model Buku dibuat dengan $allowedFields tepat", bobot: "30%" },
-        { criteria: "Form input menggunakan method POST & csrf_field()", bobot: "35%" },
-        { criteria: "Data baru berhasil masuk ke database MySQL", bobot: "35%" },
+        { criteria: "Koneksi berhasil terhubung saat parameter benar", bobot: "50%" },
+        { criteria: "Penanganan error catch bekerja ramah", bobot: "30%" },
+        { criteria: "Kerapian struktur folder", bobot: "20%" },
       ],
     },
   },
   {
     no: 6,
     phase: "Fase 2: MySQL & CRUD",
-    title: "CRUD - READ: Menampilkan Daftar Data & Detail Buku",
+    title: "Operasi READ: Menampilkan Data MySQL ke Tabel HTML Dinamis",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Implementasi Operasi Read dari Basis Data (C3)",
-    subCpmk: "Mahasiswa mampu mengambil data dari MySQL menggunakan Model (`findAll()`, `find($id)`) dan menampilkannya dalam tabel list dan halaman detail.",
+    cpmk: "CPMK2: Mengambil dan Menampilkan Data MySQL (C3)",
+    subCpmk: "Mahasiswa mampu mengeksekusi query SELECT, mengambil baris record dengan mysqli_fetch_assoc, dan merendernya ke tabel HTML.",
     indikator: [
-      "Mampu menggunakan method `$model->findAll()` untuk mengambil seluruh baris data",
-      "Mampu menggunakan method `$model->find($id)` untuk mengambil satu baris data berdasarkan Primary Key",
-      "Mampu merender daftar buku dalam tabel HTML dengan tombol aksi (Detail, Edit, Hapus)",
-      "Mampu menangani kondisi saat data buku tidak ditemukan (404 PageNotFound)",
+      "Mampu menjalankan query SELECT dengan LEFT JOIN",
+      "Melakukan iterasi data menggunakan perulangan while ($row = mysqli_fetch_assoc($result))",
+      "Menampilkan notifikasi feedback jika data kosong atau ada pesan status",
     ],
-    problemStatement: "Setelah data tersimpan di database, bagaimana cara menampilkannya kembali ke layar pengguna dalam bentuk daftar tabel yang rapi dan halaman detail per buku?",
-    goal: "Menguasai query SELECT dasar melalui Model CI4, menampilkan tabel dinamis di View, dan membuat routing dinamis dengan parameter slug/ID `/buku/detail/1`.",
-    outputPraktikum: "Halaman Daftar Buku lengkap dengan link ke Halaman Detail Buku",
-    projectMilestone: "Fitur Tampil Data (Read List & Detail) SIMPUS-Mini berfungsi",
-    tools: ["VS Code", "Browser", "phpMyAdmin"],
-    alokasiWaktu: "150 Menit (20 menit teori query SELECT + 130 menit praktik coding Read List & Detail)",
+    problemStatement: "Bagaimana cara menghubungkan tabel buku di MySQL ke halaman web utama sehingga daftar buku yang tampil selalu diperbarui secara realtime?",
+    goal: "Menguasai operasi READ (Retrieve) penuh dari query database hingga tabel antarmuka pengguna.",
+    outputPraktikum: "Halaman katalog utama index.php yang merender data tabel buku secara dinamis",
+    projectMilestone: "Penyelesaian modul Read pada SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (30 menit konsep query + 120 menit praktik)",
     teori: [
       {
-        title: "Perbedaan Operasi Read: List vs Detail",
+        title: "Perulangan while dan mysqli_fetch_assoc",
         points: [
-          "List (Daftar): Mengambil banyak baris sekaligus dengan `findAll()`. Query setara: `SELECT * FROM buku ORDER BY id DESC`.",
-          "Detail (Spesifik): Mengambil tepat satu baris berdasarkan ID dengan `find($id)`. Query setara: `SELECT * FROM buku WHERE id = 1 LIMIT 1`.",
-          "Pengecekan Data: Jika hasil `find($id)` bernilai null, lempar exception `throw new \\CodeIgniter\\Exceptions\\PageNotFoundException(...)` agar pengguna tahu data tidak ada.",
+          "mysqli_query() mengembalikan objek mysqli_result berisi kumpulan baris data.",
+          "mysqli_fetch_assoc() mengambil satu baris data sebagai array associative key-value.",
+          "Loop while terus berjalan hingga baris data terakhir habis (mengembalikan null/false).",
         ],
-        explanation: "Halaman detail memberikan ruang yang cukup untuk menampilkan informasi lengkap buku tanpa membuat tabel katalog utama menjadi sesak.",
+        explanation: "mysqli_fetch_assoc adalah cara paling efisien dan mudah dibaca untuk memetakan nama kolom SQL ke array PHP.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Menambahkan Method index() & detail($id) di Controller",
-        desc: "Panggil findAll() untuk halaman list dan find($id) untuk halaman detail.",
-        filePath: "app/Controllers/Buku.php",
+        title: "Mengimpor Koneksi di index.php",
+        desc: "Sertakan config/koneksi.php dan templates/header.php.",
       },
       {
         step: 2,
-        title: "Membuat Route Dinamis di Routes.php",
-        desc: "Gunakan placeholder (:num) untuk menangkap parameter ID angka pada URL.",
-        codeSnippet: `$routes->get('/buku', 'Buku::index');
-$routes->get('/buku/detail/(:num)', 'Buku::detail/$1');`,
-        filePath: "app/Config/Routes.php",
-      },
-      {
-        step: 3,
-        title: "Membuat View app/Views/buku/index.php & detail.php",
-        desc: "Buat tabel katalog buku dengan tombol 'Lihat Detail' yang mengarah ke /buku/detail/ID.",
+        title: "Mengeksekusi Query SELECT",
+        desc: "Jalankan kueri SQL dan tampilkan baris buku menggunakan loop while.",
       },
     ],
     files: [
       {
-        name: "app/Views/buku/index.php",
+        name: "index.php",
         lang: "php",
-        code: `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Daftar Buku - SIMPUS-Mini</title>
-    <style>
-        body { font-family: sans-serif; margin: 2rem; background: #f8fafc; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .btn-add { background: #16a34a; color: white; padding: 8px 14px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 13px; }
-        th { background: #0284c7; color: white; }
-        .btn-detail { background: #0284c7; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 11px; font-weight: bold; }
-        .btn-edit { background: #d97706; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 11px; font-weight: bold; margin-left: 4px; }
-        .btn-delete { background: #dc2626; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 11px; font-weight: bold; margin-left: 4px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header-bar">
-            <h2>Katalog Buku Perpustakaan</h2>
-            <a href="/buku/tambah" class="btn-add">➕ Tambah Buku Baru</a>
-        </div>
+        code: `<?php
+$judul_halaman = "Daftar Koleksi Buku - SIMPUS Mini";
+require_once "config/koneksi.php";
+require_once "templates/header.php";
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 40px;">No</th>
-                    <th>Judul Buku</th>
-                    <th>Pengarang</th>
-                    <th>Tahun</th>
-                    <th>Stok</th>
-                    <th style="width: 170px;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($daftarBuku)): ?>
-                    <tr><td colspan="6" style="text-align: center; color: #64748b;">Belum ada data buku.</td></tr>
-                <?php else: ?>
-                    <?php $no = 1; foreach ($daftarBuku as $b): ?>
-                    <tr>
-                        <td><?= $no++ ?></td>
-                        <td><strong><?= esc($b['judul']) ?></strong></td>
-                        <td><?= esc($b['pengarang']) ?></td>
-                        <td><?= esc($b['tahun_terbit']) ?></td>
-                        <td><span style="color: #16a34a; font-weight: bold;"><?= $b['stok'] ?></span></td>
-                        <td>
-                            <a href="/buku/detail/<?= $b['id'] ?>" class="btn-detail">Detail</a>
-                            <a href="/buku/edit/<?= $b['id'] ?>" class="btn-edit">Edit</a>
-                            <a href="/buku/hapus/<?= $b['id'] ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus buku ini?')">Hapus</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>`,
-        description: "View daftar buku dengan tombol aksi Detail, Edit, dan Hapus",
+$sql = "SELECT b.*, k.nama_kategori 
+        FROM buku b 
+        LEFT JOIN kategori k ON b.kategori_id = k.id 
+        ORDER BY b.id DESC";
+$result = mysqli_query($conn, $sql);
+$total = mysqli_num_rows($result);
+?>
+
+<h2>Katalog Buku Perpustakaan (<?= $total ?> Koleksi)</h2>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <tr style="background: #e2e8f0;">
+        <th>No</th>
+        <th>Judul Buku</th>
+        <th>Kategori</th>
+        <th>Pengarang</th>
+        <th>Stok</th>
+        <th>Aksi</th>
+    </tr>
+    <?php $no = 1; while ($row = mysqli_fetch_assoc($result)): ?>
+    <tr>
+        <td><?= $no++ ?></td>
+        <td><strong><?= htmlspecialchars($row['judul']) ?></strong></td>
+        <td><?= htmlspecialchars($row['nama_kategori'] ?? 'Umum') ?></td>
+        <td><?= htmlspecialchars($row['pengarang']) ?></td>
+        <td><?= $row['stok'] ?> eks</td>
+        <td>
+            <a href="edit.php?id=<?= $row['id'] ?>">Edit</a> | 
+            <a href="hapus.php?id=<?= $row['id'] ?>" onclick="return confirm('Hapus buku ini?')">Hapus</a>
+        </td>
+    </tr>
+    <?php endwhile; ?>
+</table>
+
+<?php
+mysqli_free_result($result);
+require_once "templates/footer.php";
+?>`,
+        description: "Halaman katalog utama yang merender data dinamis dari MySQL",
       },
     ],
-    simId: "p6-crud-read-tabel",
+    simId: "p6-operasi-read-mysql",
     quiz: {
-      question: "Bagaimana cara mendefinisikan rute di CodeIgniter 4 agar URL `/buku/detail/5` dapat menangkap angka '5' sebagai parameter ID ke method Controller?",
+      question: "Fungsi manakah dalam pustaka mysqli PHP yang digunakan untuk mengambil satu baris hasil query database sebagai array associative?",
       options: [
-        "$routes->get('/buku/detail/(:num)', 'Buku::detail/$1');",
-        "$routes->get('/buku/detail/5', 'Buku::detail');",
-        "$routes->post('/buku/detail', 'Buku::detail');",
-        "$routes->get('/buku/detail/*', 'Buku::all');",
+        "mysqli_fetch_assoc()",
+        "mysqli_fetch_css()",
+        "mysqli_table_open()",
+        "mysqli_print_row()",
       ],
       answer: 0,
-      explanation: "Placeholder (:num) di Routes.php menangkap parameter numerik dan meneruskannya sebagai argumen pertama ($1) ke method controller tujuan (function detail($id)).",
+      explanation: "mysqli_fetch_assoc() mengembalikan baris record dalam format array asosiatif dengan nama kolom sebagai kuncinya.",
     },
     tugas: {
-      title: "RTM-4B: Implementasi Halaman List & Detail Buku",
-      description: "Buat halaman index() untuk menampilkan seluruh katalog buku dari database MySQL, serta halaman detail($id) yang menampilkan informasi lengkap buku beserta status ketersediaan stok.",
+      title: "RTM-6: Halaman Katalog Buku Dinamis",
+      description: "Sempurnakan index.php agar menampilkan nama kategori buku melalui LEFT JOIN.",
       rubrik: [
-        { criteria: "Data dari tabel MySQL tampil lengkap di tabel HTML", bobot: "50%" },
-        { criteria: "Halaman detail berhasil mengambil 1 data per ID", bobot: "30%" },
-        { criteria: "Penanganan data kosong / ID tidak ditemukan", bobot: "20%" },
+        { criteria: "Query SELECT LEFT JOIN berhasil berjalan", bobot: "50%" },
+        { criteria: "Data tampil dinamis di tabel HTML", bobot: "30%" },
+        { criteria: "Escape htmlspecialchars diterapkan", bobot: "20%" },
       ],
     },
   },
   {
     no: 7,
     phase: "Fase 2: MySQL & CRUD",
-    title: "CRUD - UPDATE & DELETE: Mengubah & Menghapus Data",
+    title: "Operasi CREATE: Form HTML, Metode POST & INSERT ke Database",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Implementasi Operasi Update dan Delete (C3)",
-    subCpmk: "Mahasiswa mampu membuat form edit dengan nilai awal (prefilled data), memperbarui data di MySQL, dan menghapus baris data dengan konfirmasi.",
+    cpmk: "CPMK2: Menyimpan Data Baru ke MySQL (C3)",
+    subCpmk: "Mahasiswa mampu membuat formulir input HTML, menangani metode POST, dan menyimpan data baru menggunakan query INSERT.",
     indikator: [
-      "Mampu membuat form edit yang terisi data lama berdasarkan ID",
-      "Mampu memproses update data ke MySQL menggunakan method `$model->update($id, $data)`",
-      "Mampu menghapus data dari MySQL menggunakan method `$model->delete($id)`",
-      "Menerapkan konfirmasi JavaScript sebelum penghapusan (`onclick=\"return confirm('...')\"`)",
+      "Membuat form input dengan elemen text, number, dan select dropdown kategori",
+      "Memeriksa request method POST dan mengambil nilai $_POST",
+      "Mengeksekusi query INSERT dan melakukan redirection header Location",
     ],
-    problemStatement: "Admin salah mengetik tahun terbit buku atau ada buku yang hilang sehingga harus dihapus dari sistem. Bagaimana alur sistem memperbarui baris data tanpa merusak data lain, dan menghapus data secara aman?",
-    goal: "Menguasai alur UPDATE (ambil data lama -> tampilkan di form -> kirim POST -> simpan perubahan) dan DELETE (tangkap ID -> validasi -> eksekusi delete di MySQL).",
-    outputPraktikum: "Operasi CRUD Buku LENGKAP (Create, Read, Update, Delete) berfungsi 100%",
-    projectMilestone: "Modul CRUD Buku SIMPUS-Mini selesai sempurna (Checkpoint Pra-UTS)",
-    tools: ["VS Code", "Browser", "phpMyAdmin"],
-    alokasiWaktu: "150 Menit (30 menit teori update/delete + 90 menit praktik + 30 menit review persiapan UTS)",
+    problemStatement: "Bagaimana cara staf perpustakaan mendaftarkan buku baru lewat antarmuka web tanpa harus mengotak-atik query SQL di phpMyAdmin?",
+    goal: "Menguasai operasi CREATE (Insert) dari formulir HTML hingga tersimpan permanen di MySQL.",
+    outputPraktikum: "Modul tambah.php yang berfungsi penuh menambah data buku",
+    projectMilestone: "Penyelesaian modul Create pada SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (30 menit konsep form + 120 menit praktik)",
     teori: [
       {
-        title: "Alur Kerja Operasi UPDATE",
+        title: "Pola Post-Redirect-Get (PRG)",
         points: [
-          "1. Pengguna mengklik tombol 'Edit' pada baris buku ID=3: GET /buku/edit/3.",
-          "2. Controller mengambil data buku ID=3 dari model: $buku = $model->find(3).",
-          "3. Controller mengirimkan data tersebut ke form edit sebagai nilai awal atribut `value=\"<?= esc($buku['judul']) ?>\"`.",
-          "4. Pengguna mengubah data lalu submit form: POST /buku/perbarui/3.",
-          "5. Controller memanggil `$model->update(3, $dataBaru)`.",
-          "6. Query yang dieksekusi: `UPDATE buku SET judul='...', tahun_terbit=... WHERE id = 3`.",
+          "Setelah mengeksekusi query INSERT, jangan biarkan halaman tetap di state POST.",
+          "Gunakan `header('Location: index.php')` untuk mengalihkan browser kembali ke metode GET.",
+          "Ini mencegah data terkirim ganda (*duplicate submission*) jika pengguna menekan tombol refresh (F5).",
         ],
-        explanation: "Klausa WHERE id = 3 sangat vital! Tanpa klausul WHERE spesifik pada query UPDATE/DELETE, seluruh baris tabel di database bisa terhapus atau tertimpa secara tidak sengaja.",
-      },
-      {
-        title: "Keamanan Operasi DELETE",
-        points: [
-          "Data yang sudah terhapus permanen dari MySQL sulit dikembalikan jika tidak ada backup.",
-          "Selalu beri dialog konfirmasi JavaScript sebelum mengirim request hapus.",
-          "Gunakan HTTP method POST atau simulasikan DELETE saat memungkinkan.",
-        ],
-        explanation: "Konfirmasi mencegah kecelakaan 'salah klik' yang sering terjadi pada pengguna pemula.",
+        explanation: "Pola PRG adalah standar industri pengembangan web untuk memastikan integritas pengiriman form.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membuat Method edit($id) & perbarui($id) di Controller",
-        desc: "Method edit mengambil data lama untuk form, method perbarui memanggil $model->update().",
-        filePath: "app/Controllers/Buku.php",
+        title: "Membuat Berkas tambah.php",
+        desc: "Buat form input HTML dan blok penanganan $_POST di bagian atas.",
       },
       {
         step: 2,
-        title: "Membuat View app/Views/buku/edit.php",
-        desc: "Form edit mirip dengan form tambah, namun setiap input diberi atribut value dari data buku lama.",
-        filePath: "app/Views/buku/edit.php",
-      },
-      {
-        step: 3,
-        title: "Membuat Method hapus($id) di Controller",
-        desc: "Panggil $model->delete($id) lalu redirect kembali ke /buku.",
-        filePath: "app/Controllers/Buku.php",
+        title: "Menyiapkan Dropdown Kategori Dinamis",
+        desc: "Ambil data kategori dari tabel kategori agar pilihan dropdown selalu mutakhir.",
       },
     ],
     files: [
       {
-        name: "app/Views/buku/edit.php",
+        name: "tambah.php",
         lang: "php",
-        code: `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit Buku - SIMPUS-Mini</title>
-    <style>
-        body { font-family: sans-serif; margin: 2rem; background: #f1f5f9; }
-        .form-box { max-width: 500px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-weight: bold; margin-bottom: 0.4rem; font-size: 13px; }
-        input { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-        button { background: #d97706; color: white; padding: 10px 18px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #b45309; }
-        .btn-back { margin-left: 8px; color: #64748b; text-decoration: none; font-size: 13px; }
-    </style>
-</head>
-<body>
-    <div class="form-box">
-        <h2>Ubah Data Buku #<?= $buku['id'] ?></h2>
-        
-        <form action="/buku/perbarui/<?= $buku['id'] ?>" method="post">
-            <?= csrf_field() ?>
+        code: `<?php
+$judul_halaman = "Tambah Buku Baru - SIMPUS Mini";
+require_once "config/koneksi.php";
 
-            <div class="form-group">
-                <label for="judul">Judul Buku *</label>
-                <input type="text" id="judul" name="judul" required value="<?= esc($buku['judul']) ?>">
-            </div>
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $judul        = trim($_POST['judul'] ?? '');
+    $kategori_id  = (int)($_POST['kategori_id'] ?? 1);
+    $pengarang    = trim($_POST['pengarang'] ?? '');
+    $penerbit     = trim($_POST['penerbit'] ?? '');
+    $tahun_terbit = (int)($_POST['tahun_terbit'] ?? date('Y'));
+    $stok         = (int)($_POST['stok'] ?? 0);
 
-            <div class="form-group">
-                <label for="pengarang">Pengarang *</label>
-                <input type="text" id="pengarang" name="pengarang" required value="<?= esc($buku['pengarang']) ?>">
-            </div>
+    $stmt = mysqli_prepare($conn, "INSERT INTO buku (kategori_id, judul, pengarang, penerbit, tahun_terbit, stok) VALUES (?, ?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "isssii", $kategori_id, $judul, $pengarang, $penerbit, $tahun_terbit, $stok);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
-            <div class="form-group">
-                <label for="penerbit">Penerbit *</label>
-                <input type="text" id="penerbit" name="penerbit" required value="<?= esc($buku['penerbit']) ?>">
-            </div>
+    header("Location: index.php?pesan=" . urlencode("Buku baru berhasil disimpan!"));
+    exit;
+}
 
-            <div class="form-group">
-                <label for="tahun_terbit">Tahun Terbit *</label>
-                <input type="number" id="tahun_terbit" name="tahun_terbit" required value="<?= esc($buku['tahun_terbit']) ?>">
-            </div>
+$kategori_res = mysqli_query($conn, "SELECT * FROM kategori ORDER BY nama_kategori ASC");
+require_once "templates/header.php";
+?>
 
-            <div class="form-group">
-                <label for="stok">Jumlah Stok *</label>
-                <input type="number" id="stok" name="stok" required value="<?= esc($buku['stok']) ?>">
-            </div>
+<h2>+ Tambah Koleksi Buku Baru</h2>
+<form action="tambah.php" method="POST">
+    <p>
+        <label>Kategori:</label><br>
+        <select name="kategori_id">
+            <?php while ($k = mysqli_fetch_assoc($kategori_res)): ?>
+                <option value="<?= $k['id'] ?>"><?= htmlspecialchars($k['nama_kategori']) ?></option>
+            <?php endwhile; ?>
+        </select>
+    </p>
+    <p><label>Judul Buku:</label><br><input type="text" name="judul" required style="width: 300px;"></p>
+    <p><label>Pengarang:</label><br><input type="text" name="pengarang" required style="width: 300px;"></p>
+    <p><label>Penerbit:</label><br><input type="text" name="penerbit" style="width: 300px;"></p>
+    <p><label>Tahun:</label><br><input type="number" name="tahun_terbit" value="<?= date('Y') ?>"></p>
+    <p><label>Stok:</label><br><input type="number" name="stok" value="1" min="0"></p>
+    <button type="submit">Simpan Buku</button>
+</form>
 
-            <button type="submit">💾 Perbarui Data</button>
-            <a href="/buku" class="btn-back">Batal</a>
-        </form>
-    </div>
-</body>
-</html>`,
-        description: "Form edit buku dengan pengisian nilai awal (prefilled value) dari database",
+<?php require_once "templates/footer.php"; ?>`,
+        description: "Formulir input dan proses penyimpanan data buku baru",
       },
     ],
-    simId: "p7-crud-update-delete",
+    simId: "p7-operasi-create-insert",
     quiz: {
-      question: "Mengapa pada perintah SQL UPDATE dan DELETE wajib menyertakan klausa `WHERE id = ...`?",
+      question: "Mengapa setelah skrip PHP berhasil mengeksekusi query INSERT, kita sebaiknya mengalihkan browser menggunakan `header('Location: index.php')`?",
       options: [
-        "Agar perubahan atau penghapusan hanya berdampak pada 1 baris rekaman spesifik, bukan seluruh isi tabel di database",
-        "Agar query dijalankan lebih lambat oleh CPU",
-        "Karena klausa WHERE wajib ada di semua sintaks PHP",
-        "Untuk mengubah nama database MySQL",
+        "Untuk mencegah pengiriman data form secara ganda saat pengguna me-refresh halaman (Pola PRG)",
+        "Agar database MySQL otomatis membuat backup harian",
+        "Untuk menghapus riwayat pencarian browser klien",
+        "Karena PHP tidak mengizinkan form dikirim lebih dari satu kali seumur hidup",
       ],
       answer: 0,
-      explanation: "Jika kita mengeksekusi `DELETE FROM buku;` tanpa klausul `WHERE id = 1`, seluruh baris buku di tabel akan terhapus seketika tanpa bisa di-undo.",
+      explanation: "Pola Post-Redirect-Get (PRG) mengalihkan halaman ke metode GET sehingga refresh browser tidak memicu pengiriman ulang payload form POST.",
     },
     tugas: {
-      title: "RTM-4C: Review & Uji Coba CRUD Lengkap",
-      description: "Lengkapi fitur Edit dan Hapus pada modul Buku. Lakukan testing menyeluruh: Tambah 1 buku baru, periksa di daftar, ubah judulnya, dan hapus. Pastikan semua fitur CRUD berjalan lancar.",
+      title: "RTM-7: Formulir Tambah Buku & Dropdown Kategori",
+      description: "Buat tambah.php dan uji coba menambahkan 3 buku baru melalui formulir web di browser.",
       rubrik: [
-        { criteria: "Form edit menampilkan nilai lama buku secara tepat", bobot: "35%" },
-        { criteria: "Operasi update berhasil memperbarui data di MySQL", bobot: "35%" },
-        { criteria: "Operasi delete berhasil menghapus data dengan konfirmasi", bobot: "30%" },
+        { criteria: "Formulir POST bekerja dan data masuk ke MySQL", bobot: "50%" },
+        { criteria: "Dropdown kategori dinamis dari database", bobot: "30%" },
+        { criteria: "Redirection header bekerja mulus", bobot: "20%" },
       ],
     },
   },
   {
     no: 8,
     phase: "UTS",
-    title: "UJIAN TENGAH SEMESTER (UTS): Praktik CRUD Mandiri",
-    sks: "3 SKS (Praktik Mandiri 150 Menit)",
-    cpmk: "CPMK2 & CPMK5: Membangun Aplikasi CRUD Sederhana secara Mandiri (C3)",
-    subCpmk: "Mahasiswa mampu membangun aplikasi web CRUD sederhana dari nol untuk studi kasus baru dalam waktu terbatas secara mandiri.",
+    title: "UJIAN TENGAH SEMESTER (UTS): Evaluasi Proyek Praktik CRUD Dasar",
+    sks: "3 SKS (1 Teori + 2 Praktikum)",
+    cpmk: "CPMK1 & CPMK2: Evaluasi Penguasaan Database & Dasar CRUD (C3)",
+    subCpmk: "Mahasiswa membuktikan penguasaan membuat database MySQL, koneksi PHP, serta modul Read dan Create secara mandiri.",
     indikator: [
-      "Mampu membuat database & tabel MySQL baru secara mandiri",
-      "Mampu mengonfigurasi koneksi CodeIgniter 4 (.env)",
-      "Mampu mengimplementasikan fitur Create, Read, Update, Delete berjalan fungsional",
-      "Struktur kode rapi mengikuti kaidah MVC tanpa error fatal",
+      "Ketepatan struktur database relasional kategori dan buku",
+      "Koneksi terpusat dengan penanganan error yang baik",
+      "Keberhasilan menampilkan data dinamis dan menambah data via form",
     ],
-    problemStatement: "Sebuah unit bisnis kecil membutuhkan sistem pencatatan data inventaris barang sederhana. Buatkan aplikasi CRUD lengkap dalam waktu 150 menit!",
-    goal: "Menguji kemandirian mahasiswa dalam merancang basis data dan membangun fitur CRUD lengkap menggunakan framework CodeIgniter 4.",
-    outputPraktikum: "Proyek mini CRUD mandiri fungsional yang dikumpulkan via repositori / berkas ZIP",
-    projectMilestone: "Evaluasi kompetensi tengah semester (UTS)",
-    tools: ["VS Code", "XAMPP (Apache & MySQL)", "phpMyAdmin", "Browser"],
-    alokasiWaktu: "150 Menit (Praktik Langsung / Live Coding)",
+    problemStatement: "Uji kompetensi paruh semester: Bangun modul katalog dan penambahan buku perpustakaan dari nol dalam waktu 120 menit.",
+    goal: "Mengevaluasi kompetensi mandiri mahasiswa dalam menghubungkan PHP dan MySQL serta membangun fondasi CRUD.",
+    outputPraktikum: "Proyek mini SIMPUS-Mini paruh semester (Katalog + Tambah Buku)",
+    projectMilestone: "Milestone UTS - Validasi kelayakan modul dasar SIMPUS-Mini",
+    tools: ["VS Code", "XAMPP", "Browser"],
+    alokasiWaktu: "150 Menit (30 menit pengarahan + 120 menit pengerjaan ujian mandiri)",
     teori: [
       {
-        title: "Panduan Teknis Ujian Tengah Semester",
+        title: "Rubrik Evaluasi Paruh Semester",
         points: [
-          "Boleh membuka dokumentasi resmi (codeigniter.com/user_guide) dan w3schools.",
-          "Dilarang saling menyalin kode sumber dengan teman lain (plagiarisme = gugur).",
-          "Prioritas penilaian: Apakah fitur Create, Read, Update, Delete berfungsi di browser.",
+          "Skema Basis Data & Integritas: 25%",
+          "Koneksi & Modularitas: 20%",
+          "Implementasi READ: 25%",
+          "Implementasi CREATE & Sanitasi: 30%",
         ],
-        explanation: "Fokus utama UTS pemula adalah fungsionalitas: sistem dapat menyimpan, menampilkan, mengedit, dan menghapus data tanpa error fatal 500.",
+        explanation: "Asesmen sumatif 1 untuk memastikan seluruh mahasiswa telah menguasai fondasi mutlak backend sebelum masuk ke fitur update/delete.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membaca Soal Kasus UTS",
-        desc: "Studi kasus: Sistem Inventaris Barang Toko (id, kode_barang, nama_barang, kategori, harga, stok).",
-      },
-      {
-        step: 2,
-        title: "Membuat Database & Tabel di phpMyAdmin",
-        desc: "Buat database db_inventaris dan tabel barang.",
-      },
-      {
-        step: 3,
-        title: "Mengembangkan Model, Controller & Views",
-        desc: "Buat rute /barang, /barang/tambah, /barang/edit/(:num), /barang/hapus/(:num).",
-      },
-      {
-        step: 4,
-        title: "Pengujian & Pengumpulan",
-        desc: "Uji seluruh fitur CRUD di browser lalu arsipkan ke format ZIP / push ke GitHub.",
+        title: "Pengerjaan Soal Mandiri UTS",
+        desc: "Selesaikan instruksi soal ujian dan pastikan seluruh fitur CRUD dasar dapat didemonstrasikan.",
       },
     ],
     files: [
       {
-        name: "soal_uts_inventaris.sql",
-        lang: "sql",
-        code: `CREATE DATABASE IF NOT EXISTS \`db_inventaris\`;
-USE \`db_inventaris\`;
-
-CREATE TABLE \`barang\` (
-    \`id\` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    \`kode_barang\` VARCHAR(20) NOT NULL UNIQUE,
-    \`nama_barang\` VARCHAR(150) NOT NULL,
-    \`kategori\` VARCHAR(50) NOT NULL,
-    \`harga\` INT(11) NOT NULL,
-    \`stok\` INT(11) NOT NULL,
-    \`created_at\` DATETIME DEFAULT CURRENT_TIMESTAMP
-);`,
-        description: "Skema basis data untuk studi kasus inventaris barang pada Ujian Tengah Semester",
+        name: "evaluasi_uts.txt",
+        lang: "bash",
+        code: `=== RUBRIK PENILAIAN UTS (Bobot 25%) ===
+1. Skema Database MySQL (Tabel kategori & buku): 25 Poin
+2. Modul config/koneksi.php & Penanganan Error: 20 Poin
+3. Tampilan Katalog Dinamis (index.php): 25 Poin
+4. Form Tambah Data & Redirection (tambah.php): 30 Poin
+TOTAL: 100 Poin`,
+        description: "Panduan komponen penilaian Ujian Tengah Semester",
       },
     ],
-    simId: "p8-uts-crud-live",
-    asesmenTerkait: {
-      nama: "Asesmen Sumatif 1 (UTS)",
-      bobot: "25%",
-      tipe: "sumatif",
-    },
+    simId: "p8-uts-evaluasi-crud",
     quiz: {
-      question: "Dalam implementasi CRUD MVC, apa urutan pengerjaan yang paling efektif dan sistematis bagi pemula?",
+      question: "Apa tujuan utama dari dilaksanakannya Ujian Tengah Semester pada mata kuliah Backend Dasar ini?",
       options: [
-        "Database & Tabel -> Konfigurasi .env -> Model -> Routes -> Controller -> Views",
-        "Views -> CSS -> baru memikirkan database di akhir semester",
-        "Langsung mengunggah ke hosting sebelum membuat tabel",
-        "Menulis HTML tanpa Model dan Controller",
+        "Memverifikasi bahwa mahasiswa telah menguasai fondasi relasi database MySQL, koneksi PHP, dan operasi dasar Create & Read secara mandiri",
+        "Menghapus seluruh akun mahasiswa dari database server",
+        "Mengganti bahasa pemrograman PHP dengan bahasa C++",
+        "Mematikan server Apache kampus",
       ],
       answer: 0,
-      explanation: "Urutan dari fondasi data (Database/Model) menuju alur logika (Routes/Controller) lalu ke antarmuka (View) adalah cara paling terstruktur dan minim bug.",
+      explanation: "UTS bertujuan mengukur capaian pembelajaran CPMK1 dan CPMK2 agar mahasiswa siap melanjutkan ke tahap update, delete, dan session auth.",
     },
     tugas: {
-      title: "ASESMEN SUMATIF 1 (UTS - Bobot 25%): Praktik CRUD Mandiri",
-      description: "Kerjakan studi kasus pembuatan CRUD inventaris barang toko sesuai lembar soal. Kumpulkan berkas proyek (zip) dan file export SQL database.",
+      title: "Asesmen Sumatif 1 (UTS): Demonstrasi Proyek Mini",
+      description: "Demonstrasikan aplikasi SIMPUS-Mini paruh semester di hadapan dosen/asisten dan kumpulkan berkas zip proyek beserta file .sql.",
       rubrik: [
-        { criteria: "Fungsi Create berfungsi dengan validasi dasar", bobot: "25%" },
-        { criteria: "Fungsi Read (tabel list dan detail) tampil rapi", bobot: "25%" },
-        { criteria: "Fungsi Update berfungsi memperbarui data di MySQL", bobot: "25%" },
-        { criteria: "Fungsi Delete berfungsi dengan dialog konfirmasi", bobot: "25%" },
+        { criteria: "Fungsionalitas form dan tabel berjalan 100%", bobot: "60%" },
+        { criteria: "Penguasaan logika saat ditanya kode sumber", bobot: "40%" },
       ],
+    },
+    asesmenTerkait: {
+      nama: "Ujian Tengah Semester (UTS)",
+      bobot: "25%",
+      tipe: "sumatif",
     },
   },
   {
     no: 9,
     phase: "Fase 3: Fitur Menengah",
-    title: "Validasi Form Input & Flash Messages",
+    title: "Operasi UPDATE: Mengambil Data Berdasarkan ID & Memperbarui Record",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Validasi Form & Error Handling Dasar (C3)",
-    subCpmk: "Mahasiswa mampu menerapkan validasi data pada form input (required, numeric, min_length) dan menampilkan pesan error serta flash message sukses.",
+    cpmk: "CPMK2: Mengimplementasikan Operasi Update Data (C3)",
+    subCpmk: "Mahasiswa mampu menerima parameter ID dari URL GET, menampilkan data lama di form, dan mengeksekusi query UPDATE.",
     indikator: [
-      "Mampu mendefinisikan aturan validasi `$this->validate()` di Controller",
-      "Mampu menampilkan pesan peringatan error spesifik per input form jika data tidak valid",
-      "Mampu mempertahankan isian data lama menggunakan helper `old('field')`",
-      "Mampu menampilkan notifikasi sukses menggunakan flashdata session",
+      "Mengambil parameter ID dengan $_GET['id'] dan melakukan casting integer",
+      "Menjalankan query SELECT WHERE id = ? untuk mengisi nilai form (pre-fill)",
+      "Mengeksekusi query UPDATE menggunakan Prepared Statements",
     ],
-    problemStatement: "Bagaimana jika admin lupa mengisi judul buku atau keliru mengisikan teks pada kolom stok yang seharusnya angka? Sistem tidak boleh crash dan harus memberi tahu apa yang salah!",
-    goal: "Mencegah data kotor masuk ke database dengan aturan validasi server-side dan memberikan umpan balik (feedback) ramah bagi pengguna.",
-    outputPraktikum: "Form buku yang memiliki validasi input otomatis dan notifikasi alert sukses/gagal",
-    projectMilestone: "Semua form input SIMPUS-Mini memiliki validasi server-side dan flash message",
-    tools: ["VS Code", "Browser"],
-    alokasiWaktu: "150 Menit (30 menit teori validasi & session flashdata + 120 menit praktik)",
+    problemStatement: "Jika stok buku berubah atau ada salah ketik pada nama pengarang, bagaimana membuat form edit yang otomatis terisi data lama buku tersebut?",
+    goal: "Menguasai operasi UPDATE (Edit) penuh dengan validasi ID record.",
+    outputPraktikum: "Modul edit.php yang dapat memperbarui informasi buku",
+    projectMilestone: "Penyelesaian modul Update pada SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (30 menit konsep + 120 menit praktik)",
     teori: [
       {
-        title: "Mengapa Validasi Sisi Server (Backend) Itu Wajib?",
+        title: "Dua Fase pada Operasi Update",
         points: [
-          "Validasi HTML5 di browser (atribut required) mudah dibobol atau dimatikan oleh pengguna lewat Inspect Element.",
-          "Validasi Backend adalah garis pertahanan terakhir sebelum data kotor dieksekusi ke database MySQL.",
-          "Aturan dasar umum: `required` (wajib isi), `min_length[3]` (minimal 3 karakter), `numeric` (wajib angka), `is_unique[tabel.kolom]` (data tidak boleh kembar).",
+          "Fase 1 (GET): Mengambil record lama dari database dan mengisikannya ke atribut value input form.",
+          "Fase 2 (POST): Menangkap data baru dan menjalankan query UPDATE ... WHERE id = ?.",
         ],
-        explanation: "Jangan pernah percaya pada input yang dikirim dari browser (Never trust user input). Selalu validasi di sisi server.",
-      },
-      {
-        title: "Helper old() dan Session Flashdata",
-        points: [
-          "old('nama_field'): Menjaga agar form tidak kosong kembali saat validasi gagal, sehingga pengguna tidak perlu mengetik ulang dari awal.",
-          "Flashdata: Data session sementara yang hanya bertahan selama 1 request (sangat cocok untuk pesan 'Data berhasil disimpan!').",
-        ],
-        explanation: "Kombinasi old() dan pesan error membuat aplikasi terasa profesional dan ramah pengguna.",
+        explanation: "Klausa WHERE id = ? mutlak wajib disertakan pada query UPDATE agar tidak mengubah seluruh baris di tabel secara tidak sengaja.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Menambahkan Aturan Validasi di Method simpan()",
-        desc: "Gunakan method $this->validate() dengan rules array.",
-        filePath: "app/Controllers/Buku.php",
+        title: "Membuat Berkas edit.php",
+        desc: "Tangkap $_GET['id'] dan isi nilai form dengan data buku dari database.",
       },
       {
         step: 2,
-        title: "Menampilkan Pesan Error di Form",
-        desc: "Gunakan session()->getFlashdata('errors') atau service('validation') di view.",
-        filePath: "app/Views/buku/tambah.php",
-      },
-      {
-        step: 3,
-        title: "Menerapkan old() pada Atribut Value Input",
-        desc: "Contoh: value=\"<?= old('judul') ?>\".",
+        title: "Menangani Proses Simpan Perubahan",
+        desc: "Jalankan UPDATE dan redirect kembali ke index.php.",
       },
     ],
     files: [
       {
-        name: "contoh_validasi_controller.php",
+        name: "edit.php",
         lang: "php",
-        code: `public function simpan()
-{
-    // Aturan validasi input
-    $rules = [
-        'judul'        => 'required|min_length[3]|max_length[255]',
-        'pengarang'    => 'required|min_length[3]',
-        'tahun_terbit' => 'required|numeric|exact_length[4]',
-        'stok'         => 'required|numeric|greater_than_equal_to[1]',
-    ];
+        code: `<?php
+$judul_halaman = "Edit Buku - SIMPUS Mini";
+require_once "config/koneksi.php";
 
-    $messages = [
-        'judul' => [
-            'required'   => 'Judul buku wajib diisi.',
-            'min_length' => 'Judul buku minimal terdiri dari 3 karakter.',
-        ],
-        'stok' => [
-            'required' => 'Jumlah stok harus ditentukan.',
-            'numeric'  => 'Stok harus berupa angka positif.',
-        ]
-    ];
+$id = (int)($_GET['id'] ?? 0);
+if ($id <= 0) {
+    header("Location: index.php");
+    exit;
+}
 
-    if (! $this->validate($rules, $messages)) {
-        // Validasi gagal: kembalikan ke form dengan input lama dan pesan error
-        return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-    }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $judul        = trim($_POST['judul'] ?? '');
+    $pengarang    = trim($_POST['pengarang'] ?? '');
+    $stok         = (int)($_POST['stok'] ?? 0);
+    $kategori_id  = (int)($_POST['kategori_id'] ?? 1);
 
-    // Jika validasi lolos: simpan ke database
-    $this->bukuModel->save([
-        'judul'        => $this->request->getPost('judul'),
-        'pengarang'    => $this->request->getPost('pengarang'),
-        'penerbit'     => $this->request->getPost('penerbit'),
-        'tahun_terbit' => $this->request->getPost('tahun_terbit'),
-        'stok'         => $this->request->getPost('stok'),
-    ]);
+    $stmt = mysqli_prepare($conn, "UPDATE buku SET kategori_id=?, judul=?, pengarang=?, stok=? WHERE id=?");
+    mysqli_stmt_bind_param($stmt, "issii", $kategori_id, $judul, $pengarang, $stok, $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
-    // Berikan pesan sukses via flashdata
-    return redirect()->to('/buku')->with('pesan', 'Buku baru berhasil ditambahkan!');
-}`,
-        description: "Contoh implementasi validasi server-side dan pesan flashdata di Controller",
+    header("Location: index.php?pesan=" . urlencode("Data buku berhasil diperbarui!"));
+    exit;
+}
+
+$stmt = mysqli_prepare($conn, "SELECT * FROM buku WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$buku = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+require_once "templates/header.php";
+?>
+
+<h2>Edit Data Buku #<?= $id ?></h2>
+<form action="edit.php?id=<?= $id ?>" method="POST">
+    <p><label>Judul Buku:</label><br><input type="text" name="judul" value="<?= htmlspecialchars($buku['judul']) ?>" required style="width:300px;"></p>
+    <p><label>Pengarang:</label><br><input type="text" name="pengarang" value="<?= htmlspecialchars($buku['pengarang']) ?>" required style="width:300px;"></p>
+    <p><label>Stok:</label><br><input type="number" name="stok" value="<?= $buku['stok'] ?>" min="0"></p>
+    <button type="submit">Simpan Perubahan</button>
+</form>
+
+<?php require_once "templates/footer.php"; ?>`,
+        description: "Formulir edit data buku berdasarkan ID",
       },
     ],
-    simId: "p9-validasi-flash-message",
+    simId: "p9-operasi-update-edit",
     quiz: {
-      question: "Apa kegunaan dari fungsi `old('judul')` saat ditampilkan di atribut value `<input name='judul' ...>` ketika validasi form gagal?",
+      question: "Apa akibat fatal jika seorang programmer mengeksekusi query `UPDATE buku SET stok = 10` tanpa menyertakan klausa `WHERE id = ?`?",
       options: [
-        "Menampilkan kembali teks judul yang tadi sempat diketik oleh pengguna sehingga mereka tidak perlu mengetik ulang dari awal",
-        "Menghapus seluruh database buku yang sudah tua",
-        "Menghitung umur buku secara otomatis dari tahun terbit",
-        "Menonaktifkan keamanan CSRF",
+        "Semua buku yang ada di tabel buku stoknya akan berubah menjadi 10 tanpa terkecuali",
+        "Hanya buku pertama yang berubah",
+        "Database MySQL akan otomatis mati",
+        "Tidak ada perubahan karena MySQL menolak query update",
       ],
       answer: 0,
-      explanation: "Fungsi old('field') mengambil nilai input yang dikirim pada request sebelumnya dari session, sehingga jika validasi gagal, form tidak menjadi kosong melompong.",
+      explanation: "Klausa WHERE menentukan baris spesifik yang diupdate. Tanpa WHERE, perintah UPDATE berlaku untuk seluruh baris tabel.",
     },
     tugas: {
-      title: "RTM-5: Penerapan Validasi & Flash Message",
-      description: "Tambahkan validasi pada form Tambah Buku dan Edit Buku. Tampilkan pesan alert hijau jika sukses menyimpan, dan pesan merah jika ada input yang tidak sesuai aturan.",
+      title: "RTM-9: Modul Edit Data Buku",
+      description: "Buat modul edit.php dan pastikan data lama tampil saat form dibuka dan tersimpan saat disubmit.",
       rubrik: [
-        { criteria: "Aturan validasi server-side berjalan aktif", bobot: "40%" },
-        { criteria: "Helper old() berfungsi mempertahankan isian form", bobot: "30%" },
-        { criteria: "Flash message sukses/error muncul dengan jelas", bobot: "30%" },
+        { criteria: "Data lama terisi otomatis di form", bobot: "40%" },
+        { criteria: "Query UPDATE berhasil memperbarui record", bobot: "40%" },
+        { criteria: "Validasi integer ID URL diterapkan", bobot: "20%" },
       ],
     },
   },
   {
     no: 10,
     phase: "Fase 3: Fitur Menengah",
-    title: "Relasi Antar Tabel MySQL & Query JOIN Dasar",
+    title: "Operasi DELETE: Menghapus Data Secara Aman & Konfirmasi JavaScript",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK2: Merancang Relasi One-to-Many & JOIN (C3)",
-    subCpmk: "Mahasiswa mampu merancang relasi One-to-Many antara tabel `kategori` dan `buku` menggunakan Foreign Key serta menampilkan datanya dengan query JOIN.",
+    cpmk: "CPMK2: Mengimplementasikan Operasi Delete Aman (C3)",
+    subCpmk: "Mahasiswa mampu menghapus record database berdasarkan ID dengan konfirmasi JavaScript browser untuk mencegah kecelakaan hapus.",
     indikator: [
-      "Mampu menjelaskan konsep relasi One-to-Many (Satu kategori memiliki banyak buku)",
-      "Mampu menambahkan kolom Foreign Key `kategori_id` pada tabel `buku`",
-      "Mampu membuat query SQL JOIN antara tabel `buku` dan `kategori`",
-      "Mampu menampilkan nama kategori buku pada tabel daftar katalog di View",
+      "Mengambil parameter ID dengan sanitasi integer casting",
+      "Membuat konfirmasi dialog browser onclick='return confirm(...)'",
+      "Mengeksekusi query DELETE FROM ... WHERE id = ?",
     ],
-    problemStatement: "Bagaimana aplikasi perpustakaan tahu buku 'Pemrograman PHP' masuk kategori 'Teknologi Informasi' tanpa admin harus mengetik ulang kata 'Teknologi Informasi' berkali-kali di setiap judul buku?",
-    goal: "Menguasai konsep normalisasi data dasar, relasi One-to-Many, Foreign Key, dan query SQL JOIN untuk menggabungkan dua tabel di CodeIgniter 4.",
-    outputPraktikum: "Daftar buku yang menampilkan kolom Nama Kategori yang diambil dari tabel `kategori` via JOIN",
-    projectMilestone: "Relasi Kategori-Buku aktif dan dropdown pilihan kategori tersedia di form buku",
-    tools: ["phpMyAdmin", "VS Code", "Browser"],
-    alokasiWaktu: "150 Menit (40 menit teori relasi & JOIN + 110 menit praktik query JOIN di Model)",
+    problemStatement: "Penghapusan data di basis data bersifat permanen. Bagaimana membuat skrip penghapus yang aman dan meminta persetujuan pengguna sebelum mengeksekusi?",
+    goal: "Menguasai operasi DELETE penuh dan proteksi konfirmasi tindakan pengguna.",
+    outputPraktikum: "Modul hapus.php yang aman dan terintegrasi di tabel katalog",
+    projectMilestone: "Penyelesaian modul Delete pada SIMPUS-Mini (CRUD Lengkap)",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (30 menit konsep + 120 menit praktik)",
     teori: [
       {
-        title: "Konsep Relasi One-to-Many (1:N)",
+        title: "Prinsip Keamanan Operasi Delete",
         points: [
-          "Satu kategori bisa memiliki banyak buku (One-to-Many).",
-          "Setiap satu buku hanya terdaftar dalam satu kategori utama.",
-          "Foreign Key (Kunci Tamu): Kolom `kategori_id` di tabel `buku` yang nilainya merujuk pada nilai `id` di tabel `kategori`.",
-          "Keuntungan: Jika nama kategori diubah (misal dari 'IT' menjadi 'Teknologi Informasi'), kita hanya perlu mengubah 1 baris di tabel kategori, bukan ribuan baris buku.",
+          "Selalu gunakan sanitasi integer casting `(int)$_GET['id']` agar parameter URL tidak disisipi injeksi teks jahat.",
+          "Tambahkan dialog konfirmasi JavaScript di tautan aksi: `onclick=\"return confirm('Apakah Anda yakin?')\"`.",
         ],
-        explanation: "Relasi mencegah redundansi (duplikasi) data dan menjaga konsistensi database (Data Integrity).",
-      },
-      {
-        title: "Query SQL INNER JOIN Dasar",
-        points: [
-          "Sintaks SQL: `SELECT buku.*, kategori.nama_kategori FROM buku JOIN kategori ON buku.kategori_id = kategori.id`",
-          "Di CodeIgniter 4 Query Builder: `$this->select('buku.*, kategori.nama_kategori')->join('kategori', 'kategori.id = buku.kategori_id')`",
-        ],
-        explanation: "JOIN menggabungkan kolom dari dua tabel yang berbeda berdasarkan kecocokan kunci Primary Key dan Foreign Key.",
+        explanation: "Jika pengguna menekan tombol Batal pada dialog confirm, browser akan membatalkan navigasi dan skrip hapus tidak akan terpanggil.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membuat Relasi di phpMyAdmin",
-        desc: "Pastikan tabel kategori terisi data dan kolom buku.kategori_id bertipe INT UNSIGNED sama seperti kategori.id.",
+        title: "Membuat Berkas hapus.php",
+        desc: "Tangkap ID, jalankan DELETE query, lalu kembalikan ke index.php.",
       },
       {
         step: 2,
-        title: "Menambahkan Method getBukuDenganKategori() di BukuModel",
-        desc: "Gunakan Query Builder CodeIgniter 4 untuk melakukan join ke tabel kategori.",
-        filePath: "app/Models/BukuModel.php",
-      },
-      {
-        step: 3,
-        title: "Membuat Dropdown Kategori di Form Tambah Buku",
-        desc: "Kirim daftar kategori dari KategoriModel ke view tambah.php lalu buat elemen <select>.",
-        filePath: "app/Views/buku/tambah.php",
+        title: "Menambahkan Konfirmasi di index.php",
+        desc: "Pasang atribut onclick pada tautan tombol hapus.",
       },
     ],
     files: [
       {
-        name: "contoh_join_model.php",
+        name: "hapus.php",
         lang: "php",
-        code: `// Di dalam app/Models/BukuModel.php
+        code: `<?php
+require_once "config/koneksi.php";
 
-public function getBukuDenganKategori()
-{
-    return $this->select('buku.*, kategori.nama_kategori')
-                ->join('kategori', 'kategori.id = buku.kategori_id', 'left')
-                ->orderBy('buku.id', 'DESC')
-                ->findAll();
-}`,
-        description: "Method model yang menggabungkan tabel buku dan kategori menggunakan LEFT JOIN",
+$id = (int)($_GET['id'] ?? 0);
+
+if ($id > 0) {
+    $stmt = mysqli_prepare($conn, "DELETE FROM buku WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    header("Location: index.php?pesan=" . urlencode("Buku berhasil dihapus dari sistem!"));
+    exit;
+}
+
+header("Location: index.php");
+exit;
+?>`,
+        description: "Skrip pemroses penghapusan buku berdasarkan ID",
       },
     ],
-    simId: "p10-relasi-join-mysql",
+    simId: "p10-operasi-delete-hapus",
     quiz: {
-      question: "Pada relasi One-to-Many antara tabel 'kategori' dan tabel 'buku', di manakah kolom Foreign Key diletakkan?",
+      question: "Apa fungsi dari penulisan kode JavaScript `onclick=\"return confirm('Yakin?')\"` pada tag `<a>` tautan hapus?",
       options: [
-        "Di tabel 'buku' sebagai kolom 'kategori_id'",
-        "Di tabel 'kategori' sebagai kolom 'buku_id'",
-        "Di dalam file CSS aplikasi",
-        "Di server Apache XAMPP",
+        "Memunculkan kotak dialog peringatan persetujuan; jika pengguna memilih 'Batal', browser membatalkan proses penghapusan",
+        "Menghapus database secara otomatis",
+        "Mengubah warna teks tautan menjadi merah",
+        "Mengunci browser agar tidak bisa ditutup",
       ],
       answer: 0,
-      explanation: "Pada relasi One-to-Many (1:N), Foreign Key selalu diletakkan pada tabel sisi 'Many' (banyak), yaitu tabel buku, untuk menyimpan referensi ID dari kategori induknya.",
+      explanation: "Dialog confirm() mengembalikan nilai false jika pengguna memilih Batal, sehingga browser membatalkan request ke file hapus.php.",
     },
     tugas: {
-      title: "RTM-6: Implementasi Relasi One-to-Many & JOIN",
-      description: "Tambahkan dropdown pilihan Kategori pada form tambah buku, simpan kategori_id ke MySQL, dan tampilkan nama kategori tersebut di tabel daftar buku menggunakan query JOIN.",
+      title: "RTM-10: Modul Hapus Data & Dialog Konfirmasi",
+      description: "Terapkan hapus.php dan uji coba menambahkan buku sementara lalu menghapusnya dengan konfirmasi dialog.",
       rubrik: [
-        { criteria: "Dropdown kategori di form mengambil data dinamis dari tabel kategori", bobot: "35%" },
-        { criteria: "Query JOIN di model berjalan mengambil nama_kategori", bobot: "35%" },
-        { criteria: "Nama kategori berhasil tampil di tabel daftar buku", bobot: "30%" },
+        { criteria: "Buku berhasil terhapus dari MySQL", bobot: "50%" },
+        { criteria: "Dialog konfirmasi browser bekerja dengan baik", bobot: "30%" },
+        { criteria: "Redirection kembali ke index.php", bobot: "20%" },
       ],
     },
   },
   {
     no: 11,
     phase: "Fase 3: Fitur Menengah",
-    title: "Autentikasi Sederhana: Session-Based Login & Register",
+    title: "Validasi Form Server-Side, Proteksi XSS & SQL Injection",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK3: Implementasi Autentikasi Session Sederhana (C3)",
-    subCpmk: "Mahasiswa mampu membuat fitur pendaftaran (register) dengan hashing password dan sistem login berbasis session di CodeIgniter 4.",
+    cpmk: "CPMK3: Keamanan Aplikasi Web & Validasi Input (C3)",
+    subCpmk: "Mahasiswa mampu mengamankan aplikasi dari SQL Injection menggunakan Prepared Statements dan XSS menggunakan htmlspecialchars.",
     indikator: [
-      "Mampu membuat tabel `users` dengan kolom password yang di-hash menggunakan `password_hash()`",
-      "Mampu membuat form register dan menyimpan akun baru ke MySQL",
-      "Mampu memverifikasi login menggunakan `password_verify()`",
-      "Mampu menyimpan status login di `session()->set()` dan menghapusnya saat logout",
+      "Mampu membuat fungsi sanitasi input dan validasi field kosong",
+      "Mencegah celah SQL Injection dengan Parameterized Query",
+      "Mencegah celah Cross-Site Scripting (XSS) dengan htmlspecialchars",
     ],
-    problemStatement: "Bagaimana sistem mengenali siapa yang sedang membuka website, sehingga data peminjaman buku tidak tertukar dengan anggota lain?",
-    goal: "Menguasai konsep autentikasi berbasis session, keamanan hashing password satu arah (bcrypt), alur login/register, dan logout.",
-    outputPraktikum: "Modul Register, Login, dan Logout berbasis Session berfungsi",
-    projectMilestone: "Sistem login pengguna SIMPUS-Mini aktif",
-    tools: ["VS Code", "Browser", "phpMyAdmin"],
-    alokasiWaktu: "150 Menit (30 menit konsep session & hashing + 120 menit praktik coding Auth)",
+    problemStatement: "Bagaimana jika ada pengunjung usil yang memasukkan skrip JavaScript atau tanda kutip jahat ke form buku? Bagaimana PHP menolak atau menetralisir input tersebut?",
+    goal: "Menguasai prinsip pertahanan web dasar: sanitasi input dan pencegahan celah keamanan OWASP Top 10.",
+    outputPraktikum: "Modul helpers.php dan form input yang kebal terhadap serangan injeksi dasar",
+    projectMilestone: "Penerapan standar keamanan form pada SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "Tools Pengujian Input"],
+    alokasiWaktu: "150 Menit (40 menit teori keamanan + 110 menit praktik)",
     teori: [
       {
-        title: "Perbedaan Autentikasi vs Otorisasi",
+        title: "Prepared Statements & htmlspecialchars",
         points: [
-          "Autentikasi (Authentication): 'Siapa kamu?' -> Pembuktian identitas pengguna via username/email & password.",
-          "Otorisasi (Authorization): 'Apa yang boleh kamu lakukan?' -> Pembatasan hak akses berdasarkan role (misal: Admin boleh hapus buku, Anggota hanya boleh membaca/meminjam).",
+          "Prepared Statements memisahkan antara teks perintah SQL dan nilai data pengguna, sehingga input sejahat apa pun tidak bisa dieksekusi sebagai perintah SQL.",
+          "htmlspecialchars mengonversi karakter khusus seperti `<` dan `>` menjadi entitas HTML aman (`&lt;` dan `&gt;`).",
         ],
-        explanation: "Seseorang harus terautentikasi (login) terlebih dahulu sebelum sistem dapat mengotorisasi hak aksesnya.",
-      },
-      {
-        title: "Keamanan Password Hashing (password_hash vs Plaintext)",
-        points: [
-          "FATAL: DILARANG KERAS menyimpan password dalam bentuk teks polos (plaintext) di database!",
-          "Gunakan fungsi bawaan PHP: `password_hash($password, PASSWORD_DEFAULT)` yang menghasilkan hash bcrypt acak dengan salt unik.",
-          "Verifikasi saat login menggunakan `password_verify($passwordInput, $passwordHashDiDB)`.",
-        ],
-        explanation: "Hashing adalah fungsi satu arah: jika database bocor, penyerang tidak bisa melihat kata sandi asli pengguna.",
-      },
-      {
-        title: "Cara Kerja Session di Sisi Server",
-        points: [
-          "Saat login berhasil, server menyimpan data pengguna di memori server: `session()->set(['logged_in' => true, 'user_id' => $user['id'], 'role' => $user['role']])`.",
-          "Server mengirimkan cookie kecil `ci_session` yang berisi ID acak ke browser pengguna.",
-          "Di setiap request berikutnya, browser mengirimkan cookie tersebut sehingga server tahu pengguna sudah login.",
-        ],
-        explanation: "Session membuat protokol HTTP yang stateless menjadi stateful (mengingat status pengguna antar halaman).",
+        explanation: "Validasi di sisi server (PHP) adalah lapis pertahanan mutlak, karena validasi HTML/JS di sisi klien bisa dimatikan atau dilewati oleh pengguna.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membuat Tabel users di phpMyAdmin",
-        desc: "Buat tabel users: id, nama, email, password (VARCHAR 255), role (ENUM 'admin', 'user').",
+        title: "Membuat File config/helpers.php",
+        desc: "Buat fungsi esc() dan clean_input() yang dapat dipanggil di semua file.",
       },
       {
         step: 2,
-        title: "Membuat Controller Auth.php",
-        desc: "Siapkan method login(), prosesLogin(), register(), prosesRegister(), dan logout().",
-        filePath: "app/Controllers/Auth.php",
-      },
-      {
-        step: 3,
-        title: "Membuat Form Login & Register",
-        desc: "Buat view login.php dan register.php dengan CSRF token.",
-        filePath: "app/Views/auth/login.php",
+        title: "Menguji Celah XSS",
+        desc: "Coba input judul buku berupa tag <script> dan pastikan teks tersebut tidak memicu popup alert.",
       },
     ],
     files: [
       {
-        name: "app/Controllers/Auth.php",
+        name: "config/helpers.php",
         lang: "php",
         code: `<?php
+// config/helpers.php
+function esc(string $str): string {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
 
-namespace App\\Controllers;
-
-use App\\Models\\UserModel;
-
-class Auth extends BaseController
-{
-    public function login()
-    {
-        return view('auth/login');
-    }
-
-    public function prosesLogin()
-    {
-        $email    = $this->request->getPost('email');
-        $password = $this->request->getPost('password');
-
-        $userModel = new UserModel();
-        $user = $userModel->where('email', $email)->first();
-
-        if ($user) {
-            // Verifikasi password hash
-            if (password_verify($password, $user['password'])) {
-                // Set data session
-                session()->set([
-                    'logged_in' => true,
-                    'user_id'   => $user['id'],
-                    'nama'      => $user['nama'],
-                    'email'     => $user['email'],
-                    'role'      => $user['role'],
-                ]);
-
-                return redirect()->to('/buku')->with('pesan', 'Selamat datang kembali, ' . $user['nama'] . '!');
-            }
-        }
-
-        return redirect()->back()->with('error', 'Email atau password salah!');
-    }
-
-    public function logout()
-    {
-        session()->destroy();
-        return redirect()->to('/login')->with('pesan', 'Anda berhasil keluar dari sistem.');
-    }
-}`,
-        description: "Controller Auth untuk login, verifikasi password hash, set session, dan logout",
+function clean_input(string $data): string {
+    return htmlspecialchars(stripslashes(trim($data)), ENT_QUOTES, 'UTF-8');
+}
+?>`,
+        description: "Fungsi pembantu sanitasi input dan proteksi XSS",
       },
     ],
-    simId: "p11-auth-session-login",
+    simId: "p11-validasi-keamanan-form",
     quiz: {
-      question: "Mengapa menyimpan kata sandi pengguna dalam bentuk teks biasa (plaintext) di tabel MySQL dianggap sebagai kesalahan fatal?",
+      question: "Manakah teknik yang paling efektif dalam PHP untuk mencegah serangan berbahaya SQL Injection?",
       options: [
-        "Karena jika database bocor atau diakses pihak ketiga, kata sandi seluruh pengguna langsung terbongkar tanpa perlindungan",
-        "Karena MySQL akan menolak menyimpan huruf vokal pada password",
-        "Karena browser tidak bisa merender halaman web jika password tidak di-hash",
-        "Karena ukuran database menjadi 10 kali lipat lebih besar",
+        "Menggunakan Prepared Statements dan Parameterized Queries (mysqli_prepare & bind_param)",
+        "Mengubah warna font formulir menjadi biru",
+        "Hanya menggunakan JavaScript di sisi browser",
+        "Menyembunyikan tombol submit form",
       ],
       answer: 0,
-      explanation: "Password wajib di-hash menggunakan algoritma satu arah yang kuat (seperti bcrypt via password_hash) sehingga teks asli kata sandi tidak pernah disimpan di database.",
+      explanation: "Prepared Statements memisahkan query dan parameter data secara struktural di engine database sehingga SQL Injection mustahil dieksekusi.",
     },
     tugas: {
-      title: "RTM-7: Implementasi Fitur Register & Login",
-      description: "Buat tabel users, buat form register dengan password_hash(), dan buat form login yang menyimpan session login. Ujilah login dengan akun admin dan anggota.",
+      title: "RTM-11: Audit Keamanan Input & Pembersihan Karakter",
+      description: "Pasang fungsi esc() pada semua tempat pencetakan data di antarmuka SIMPUS-Mini dan buktikan sistem kebal dari payload XSS.",
       rubrik: [
-        { criteria: "Password tersimpan dalam bentuk hash di database MySQL", bobot: "35%" },
-        { criteria: "Proses verifikasi login dan set session berfungsi", bobot: "35%" },
-        { criteria: "Fungsi logout berhasil membersihkan session", bobot: "30%" },
+        { criteria: "Fungsi helpers.php terintegrasi sempurna", bobot: "50%" },
+        { criteria: "Uji coba payload XSS berhasil dinetralisir", bobot: "30%" },
+        { criteria: "Prepared statements aktif di semua file", bobot: "20%" },
       ],
     },
   },
   {
     no: 12,
     phase: "Fase 3: Fitur Menengah",
-    title: "Otorisasi Dasar: Role Sederhana (Admin vs User) & Filter Proteksi",
+    title: "Relasi Tabel One-to-Many & Modul Kategori Buku",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK3: Implementasi Otorisasi Role & Filter Keamanan (C3)",
-    subCpmk: "Mahasiswa mampu membatasi hak akses halaman berdasarkan role (Admin vs Anggota) menggunakan Filter/Middleware di CodeIgniter 4.",
+    cpmk: "CPMK2: Relasi Antar Tabel & Manajemen Data Terhubung (C3)",
+    subCpmk: "Mahasiswa mampu membuat modul manajemen kategori (tabel induk) dan menampilkannya terhubung dengan tabel buku via query JOIN.",
     indikator: [
-      "Mampu membuat Filter `AuthFilter` untuk mencegat pengunjung yang belum login",
-      "Mampu membuat pengecekan role: Hanya Admin yang boleh mengakses form Tambah, Edit, dan Hapus Buku",
-      "Mampu menyembunyikan tombol aksi Admin di View bagi pengguna dengan role Anggota",
-      "Mampu mempresentasikan kemajuan proyek SIMPUS-Mini",
+      "Membuat modul kategori.php untuk menambah dan melihat daftar klasifikasi buku",
+      "Menghitung jumlah buku per kategori menggunakan query GROUP BY dan COUNT()",
+      "Menampilkan relasi dinamis di seluruh sistem",
     ],
-    problemStatement: "Bagaimana sistem mencegah anggota biasa membuka URL `/buku/hapus/1` dan menghapus data buku sesuka hati? Halaman manajemen harus dikunci hanya untuk role Admin!",
-    goal: "Menguasai konsep otorisasi, pembuatan Filter di CodeIgniter 4, proteksi rute, dan penyembunyian elemen UI berdasarkan role.",
-    outputPraktikum: "Halaman admin terproteksi aman; anggota biasa tidak bisa menambah/mengubah/menghapus data",
-    projectMilestone: "Sistem autentikasi & otorisasi SIMPUS-Mini selesai (Checkpoint Pra-UAS)",
-    tools: ["VS Code", "Browser"],
-    alokasiWaktu: "150 Menit (30 menit teori filter/middleware + 90 menit praktik + 30 menit presentasi progress)",
+    problemStatement: "Bagaimana cara membuat halaman khusus agar admin perpustakaan bisa menambah kategori baru (misal: 'Sains Komputer') dan otomatis muncul di form tambah buku?",
+    goal: "Menguasai manajemen tabel relasi induk (Parent-Child) dan agregasi data SQL.",
+    outputPraktikum: "Modul kategori.php terintegrasi lengkap pada SIMPUS-Mini",
+    projectMilestone: "Penyelesaian manajemen master data kategori",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (30 menit konsep + 120 menit praktik)",
     teori: [
       {
-        title: "Konsep Filter / Middleware di CodeIgniter 4",
+        title: "Agregasi SQL: COUNT() dan GROUP BY",
         points: [
-          "Filter bertindak sebagai satpam sebelum request mencapai Controller (before filter).",
-          "Jika session `logged_in` belum ada, filter langsung mengalihkan (redirect) pengguna ke halaman login dengan pesan 'Silakan login terlebih dahulu'.",
-          "Jika pengguna mencoba mengakses fitur admin padahal rolenya 'user', filter dapat menolak dengan error 403 Forbidden atau redirect dengan pesan error.",
+          "Query `SELECT k.*, COUNT(b.id) FROM kategori k LEFT JOIN buku b ON k.id = b.kategori_id GROUP BY k.id` menghitung total buku di tiap kategori.",
+          "LEFT JOIN memastikan kategori yang belum memiliki koleksi buku tetap tampil dengan angka 0.",
         ],
-        explanation: "Filter diletakkan secara terpusat di `app/Config/Filters.php` sehingga kita tidak perlu menulis kode pengecekan session manual berulang-ulang di setiap controller.",
+        explanation: "Agregasi data memberikan wawasan analitik instan bagi pengelola sistem tanpa perlu menghitung baris secara manual.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membuat Filter app/Filters/AuthFilter.php",
-        desc: "Periksa apakah session logged_in bernilai true di dalam method before().",
-        filePath: "app/Filters/AuthFilter.php",
-      },
-      {
-        step: 2,
-        title: "Mendaftarkan Filter di app/Config/Filters.php",
-        desc: "Beri alias 'auth' untuk AuthFilter agar siap dipasang pada routes.",
-        filePath: "app/Config/Filters.php",
-      },
-      {
-        step: 3,
-        title: "Menerapkan Filter pada Grup Route",
-        desc: "Pasang ['filter' => 'auth'] pada rute /buku/tambah, /buku/edit, dan /buku/hapus.",
-        filePath: "app/Config/Routes.php",
-      },
-      {
-        step: 4,
-        title: "Kondisional Tampilan Tombol di View Berdasarkan Role",
-        desc: "Tampilkan tombol Tambah/Edit/Hapus hanya jika session()->get('role') === 'admin'.",
+        title: "Membuat Halaman kategori.php",
+        desc: "Buat form tambah kategori dan tabel daftar kategori yang ada di database.",
       },
     ],
     files: [
       {
-        name: "app/Filters/AuthFilter.php",
+        name: "kategori.php",
         lang: "php",
         code: `<?php
+$judul_halaman = "Kelola Kategori - SIMPUS Mini";
+require_once "config/koneksi.php";
 
-namespace App\\Filters;
-
-use CodeIgniter\\Filters\\FilterInterface;
-use CodeIgniter\\HTTP\\RequestInterface;
-use CodeIgniter\\HTTP\\ResponseInterface;
-
-class AuthFilter implements FilterInterface
-{
-    public function before(RequestInterface $request, $arguments = null)
-    {
-        // Jika belum login, alihkan ke login
-        if (! session()->get('logged_in')) {
-            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu untuk mengakses halaman ini.');
-        }
-
-        // Jika rute membutuhkan role admin
-        if ($arguments && in_array('admin', $arguments)) {
-            if (session()->get('role') !== 'admin') {
-                return redirect()->to('/buku')->with('error', 'Akses ditolak: Anda bukan Admin!');
-            }
-        }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nama = trim($_POST['nama_kategori'] ?? '');
+    $ket  = trim($_POST['keterangan'] ?? '');
+    if (!empty($nama)) {
+        $stmt = mysqli_prepare($conn, "INSERT INTO kategori (nama_kategori, keterangan) VALUES (?, ?)");
+        mysqli_stmt_bind_param($stmt, "ss", $nama, $ket);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        header("Location: kategori.php?pesan=Kategori+berhasil+ditambahkan");
+        exit;
     }
+}
 
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
-        // Kosong
-    }
-}`,
-        description: "Filter keamanan untuk memeriksa status login dan otorisasi role pengguna",
+$sql = "SELECT k.*, COUNT(b.id) AS total_buku 
+        FROM kategori k 
+        LEFT JOIN buku b ON k.id = b.kategori_id 
+        GROUP BY k.id 
+        ORDER BY k.nama_kategori ASC";
+$res = mysqli_query($conn, $sql);
+require_once "templates/header.php";
+?>
+
+<h2>Manajemen Kategori Buku</h2>
+<form action="kategori.php" method="POST" style="margin-bottom: 20px;">
+    <input type="text" name="nama_kategori" required placeholder="Nama Kategori Baru">
+    <input type="text" name="keterangan" placeholder="Keterangan singkat">
+    <button type="submit">Tambah Kategori</button>
+</form>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr style="background:#f1f5f9;">
+        <th>ID</th>
+        <th>Nama Kategori</th>
+        <th>Keterangan</th>
+        <th>Total Koleksi</th>
+    </tr>
+    <?php while ($k = mysqli_fetch_assoc($res)): ?>
+    <tr>
+        <td><?= $k['id'] ?></td>
+        <td><strong><?= htmlspecialchars($k['nama_kategori']) ?></strong></td>
+        <td><?= htmlspecialchars($k['keterangan'] ?? '-') ?></td>
+        <td><?= $k['total_buku'] ?> buku</td>
+    </tr>
+    <?php endwhile; ?>
+</table>
+
+<?php require_once "templates/footer.php"; ?>`,
+        description: "Modul manajemen kategori buku dengan agregasi total koleksi",
       },
     ],
-    simId: "p12-otorisasi-role-admin",
-    asesmenTerkait: {
-      nama: "Asesmen Formatif 2 (Pra-UAS)",
-      bobot: "20%",
-      tipe: "formatif",
-    },
+    simId: "p12-relasi-kategori-join",
     quiz: {
-      question: "Mengapa proteksi halaman berdasarkan role TIDAK CUKUP hanya dengan menyembunyikan tombol 'Hapus' di tampilan View?",
+      question: "Mengapa kita menggunakan LEFT JOIN dan bukan INNER JOIN saat ingin menampilkan semua kategori beserta jumlah bukunya?",
       options: [
-        "Karena pengguna yang tahu URL langsung (misal: /buku/hapus/5) tetap bisa mengeksekusi aksi tersebut jika controller/filter di backend tidak memeriksa hak akses",
-        "Karena tombol di view tidak bisa diubah warnanya",
-        "Karena MySQL tidak mendukung tag HTML",
-        "Supaya tampilan website lebih menarik",
+        "Agar kategori baru yang belum memiliki buku tetap muncul di tabel dengan jumlah 0 dan tidak tersembunyi",
+        "Karena LEFT JOIN mengeksekusi lebih lambat",
+        "Karena INNER JOIN hanya untuk tabel yang tidak punya primary key",
+        "Agar file gambar buku otomatis terunduh",
       ],
       answer: 0,
-      explanation: "Menyembunyikan tombol hanyalah kosmetik UI. Keamanan sejati wajib ditegakkan di sisi backend (via Filter atau pengecekan controller) untuk menggagalkan akses langsung melalui URL.",
+      explanation: "INNER JOIN hanya menampilkan baris yang berpasangan. Jika ada kategori baru tanpa buku, INNER JOIN akan menyembunyikannya. LEFT JOIN mempertahankan seluruh baris tabel kiri (kategori).",
     },
     tugas: {
-      title: "ASESMEN FORMATIF 2 (Bobot 20%): Progress Project (Login+Role) + Presentasi",
-      description: "Terapkan otorisasi role Admin vs Anggota pada aplikasi SIMPUS-Mini. Demonstrasikan bahwa anggota biasa tidak bisa mengakses URL tambah/edit/hapus, dan presentasikan progress proyek di depan kelas.",
+      title: "RTM-12: Manajemen Kategori & Relasi 1:N",
+      description: "Buat kategori.php, tambahkan 2 kategori baru, dan daftarkan buku ke dalam kategori tersebut.",
       rubrik: [
-        { criteria: "Fitur register & login dengan password hashing berfungsi", bobot: "30%" },
-        { criteria: "Proteksi role (Admin vs User) aktif via Filter", bobot: "35%" },
-        { criteria: "Kelancaran presentasi progress & tanya jawab", bobot: "35%" },
+        { criteria: "Form tambah kategori berhasil berfungsi", bobot: "50%" },
+        { criteria: "Query agregasi COUNT() akurat", bobot: "30%" },
+        { criteria: "Kategori baru muncul di form tambah buku", bobot: "20%" },
       ],
     },
   },
   {
     no: 13,
-    phase: "Fase 4: Hosting & Deploy",
-    title: "Pengenalan Web Hosting, Domain & Kontrol Panel (cPanel)",
+    phase: "Fase 3: Fitur Menengah",
+    title: "Autentikasi Pengguna: Session PHP & Password Hashing",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK4: Pengenalan Infrastruktur Web Hosting & cPanel (C2)",
-    subCpmk: "Mahasiswa mampu menjelaskan konsep web hosting, domain, nameserver, serta mengoperasikan fitur-fitur dasar cPanel (File Manager, MySQL Databases).",
+    cpmk: "CPMK3: Implementasi Autentikasi Pengguna (C3)",
+    subCpmk: "Mahasiswa mampu membangun sistem login, session_start(), memverifikasi password dengan password_verify(), dan logout dengan session_destroy().",
     indikator: [
-      "Dapat menjelaskan perbedaan antara Localhost vs Shared Hosting vs VPS",
-      "Memahami fungsi Domain dan DNS (Domain Name System)",
-      "Mampu mengidentifikasi direktori root web di cPanel (`public_html/`)",
-      "Mampu membuat database baru dan database user di cPanel 'MySQL Databases'",
+      "Menggunakan fungsi session_start() untuk inisialisasi state login",
+      "Membuat password terenkripsi kuat menggunakan password_hash() BCRYPT",
+      "Membuat halaman login.php dan logout.php yang aman",
     ],
-    problemStatement: "Aplikasi yang selama ini kita buat hanya berjalan di laptop sendiri (`http://localhost:8080`). Teman di tempat lain tidak bisa membukanya! Bagaimana cara membuat aplikasi bisa diakses di internet oleh siapa saja?",
-    goal: "Memahami cara kerja hosting, domain, control panel cPanel, dan mempersiapkan akun hosting untuk proses deployment.",
-    outputPraktikum: "Akun hosting siap pakai dengan database MySQL yang telah dibuat di cPanel",
-    projectMilestone: "Infrastruktur server hosting & database online siap",
-    tools: ["Browser", "cPanel Demo / Shared Hosting", "phpMyAdmin Hosting"],
-    alokasiWaktu: "150 Menit (60 menit teori hosting & DNS + 90 menit eksplorasi cPanel)",
+    problemStatement: "Bagaimana cara server mengenali bahwa seorang staf sudah login dan menjaga hak aksesnya saat berpindah-pindah menu di website?",
+    goal: "Menguasai siklus Session PHP dan keamanan password modern standar industri.",
+    outputPraktikum: "Modul login.php dan logout.php berbasis session",
+    projectMilestone: "Penerapan sistem autentikasi login pengguna SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (40 menit konsep session + 110 menit praktik)",
     teori: [
       {
-        title: "Localhost vs Web Hosting",
+        title: "Session vs Cookie & Password Hash BCRYPT",
         points: [
-          "Localhost (127.0.0.1): Server hanya berjalan di laptop pribadi, mati saat laptop dimatikan, tidak bisa diakses publik.",
-          "Web Hosting: Komputer server di data center yang menyala 24 jam nonstop dengan IP publik dan koneksi internet berkecepatan tinggi.",
-          "Shared Hosting: Satu server fisik digunakan bersama oleh ratusan website, hemat biaya, dan dikelola lewat antarmuka grafis ramah pemula (cPanel).",
+          "Session disimpan di server secara aman, browser klien hanya memegang ID session acak (kuki PHPSESSID).",
+          "password_hash() dengan BCRYPT otomatis menyertakan salt acak dan tahan terhadap serangan brute-force dictionary.",
+          "Jangan pernah menggunakan MD5 atau SHA1 untuk password karena sudah terbukti rentan.",
         ],
-        explanation: "Shared hosting adalah pintu masuk terbaik bagi mahasiswa pemula untuk belajar online-kan aplikasi tanpa harus mengkonfigurasi Linux server tingkat tinggi.",
-      },
-      {
-        title: "Peran Domain dan DNS",
-        points: [
-          "IP Address: Alamat numerik komputer server (misal: 103.24.56.78).",
-          "Domain: Nama mudah diingat yang menggantikan IP (misal: perpustakaan-mini.my.id).",
-          "DNS (Domain Name System): 'Buku telepon internet' yang menerjemahkan nama domain menjadi IP address server hosting.",
-        ],
-        explanation: "Domain membuat aplikasi mudah diakses dan diingat oleh dosen penguji maupun pengguna umum.",
-      },
-      {
-        title: "Fitur Wajib cPanel untuk Backend Developer",
-        points: [
-          "File Manager: Mengunggah, mengekstrak file ZIP, dan mengelola struktur folder di `public_html/`.",
-          "MySQL Database Wizard: Membuat database, membuat user database, dan memberikan hak akses (ALL PRIVILEGES).",
-          "phpMyAdmin Hosting: Mengimpor file backup `.sql` dari localhost ke server.",
-        ],
-        explanation: "Ketiga fitur ini adalah kunci utama proses deployment aplikasi PHP MySQL ke shared hosting.",
+        explanation: "password_verify() mengecek kecocokan string password input dengan hash tersimpan tanpa perlu mendekripsi hash tersebut.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Login ke Dashboard cPanel",
-        desc: "Akses url hosting (misal: https://cpanel.domain-anda.com) dengan username dan password yang diberikan.",
+        title: "Membuat User Admin Default",
+        desc: "Buat user admin di tabel users dengan password ter-hash.",
       },
       {
         step: 2,
-        title: "Mengenal Struktur Direktori File Manager",
-        desc: "Buka menu 'File Manager' -> Perhatikan folder `public_html/`. Semua file yang ingin dilihat pengunjung ditaruh di sini.",
-      },
-      {
-        step: 3,
-        title: "Membuat Database & User via 'MySQL Database Wizard'",
-        desc: "Langkah 1: Beri nama database (contoh: u1234_simpus). Langkah 2: Buat username & password. Langkah 3: Centang 'ALL PRIVILEGES' lalu klik Next Step.",
+        title: "Membuat Halaman login.php dan logout.php",
+        desc: "Tulis verifikasi login dan pembersihan session.",
       },
     ],
     files: [
       {
-        name: "ringkasan_cpanel.txt",
-        lang: "bash",
-        code: `PANDUAN LOKASI BERKAS DI CPANEL:
---------------------------------------------------------
-/home/username/                 -> Folder privat server (Aman, tidak bisa diakses publik)
-/home/username/public_html/     -> Web Root (Hanya file publik CI4 yang ditaruh di sini)
-/home/username/ci4_app/         -> Folder kode inti app/ (Direkomendasikan di luar public_html)
+        name: "login.php",
+        lang: "php",
+        code: `<?php
+session_start();
+require_once "config/koneksi.php";
 
-KREDENSIAL DATABASE CPANEL:
---------------------------------------------------------
-DB Name: u1234567_simpus
-DB User: u1234567_admin
-DB Pass: Rahasia123!@#
-Host   : localhost (Tetap localhost karena MySQL berada di mesin yang sama dengan Apache)`,
-        description: "Catatan struktur folder server cPanel dan format kredensial database hosting",
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    header("Location: index.php");
+    exit;
+}
+
+$error = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE username = ?");
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['logged_in'] = true;
+        $_SESSION['user_id']   = $user['id'];
+        $_SESSION['username']  = $user['username'];
+        $_SESSION['nama']      = $user['nama_lengkap'];
+        $_SESSION['role']      = $user['role'];
+        header("Location: index.php?pesan=Selamat+datang+" . urlencode($user['nama_lengkap']));
+        exit;
+    } else {
+        $error = "Username atau password salah!";
+    }
+}
+
+$judul_halaman = "Login - SIMPUS Mini";
+require_once "templates/header.php";
+?>
+
+<div style="max-width:350px; margin: 2rem auto; background:white; padding:1.5rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <h3>Masuk ke SIMPUS-Mini</h3>
+    <?php if ($error): ?><p style="color:red;"><?= $error ?></p><?php endif; ?>
+    <form action="login.php" method="POST">
+        <p><label>Username:</label><br><input type="text" name="username" required style="width:100%;"></p>
+        <p><label>Password:</label><br><input type="password" name="password" required style="width:100%;"></p>
+        <button type="submit" style="width:100%; padding:8px; background:#0284c7; color:white; border:none; font-weight:bold;">Login</button>
+    </form>
+</div>
+
+<?php require_once "templates/footer.php"; ?>`,
+        description: "Halaman formulir login autentikasi pengguna",
       },
     ],
-    simId: "p13-hosting-cpanel-intro",
+    simId: "p13-autentikasi-session-login",
     quiz: {
-      question: "Pada server web hosting cPanel standar, folder manakah yang secara default menjadi Document Root yang isinya dapat diakses langsung oleh pengunjung website lewat browser?",
+      question: "Fungsi PHP manakah yang digunakan untuk memverifikasi kecocokan antara password teks biasa yang diketik pengguna dengan hash password yang tersimpan di MySQL?",
       options: [
-        "public_html/",
-        "etc/",
-        "mail/",
-        "ssl/",
+        "password_verify()",
+        "password_hash()",
+        "md5()",
+        "string_compare()",
       ],
       answer: 0,
-      explanation: "Folder `public_html/` adalah web root utama pada cPanel; semua file yang diletakkan di dalamnya dapat diakses publik melalui URL domain.",
+      explanation: "password_verify() adalah fungsi standar PHP modern untuk mencocokkan password teks dengan hash BCRYPT secara aman.",
     },
     tugas: {
-      title: "RTM-8A: Eksplorasi cPanel & Pembuatan Database Server",
-      description: "Login ke akun cPanel latihan, buat database dan user baru via MySQL Database Wizard, simpan kredensialnya, dan ambil tangkapan layar dashboard cPanel Anda.",
+      title: "RTM-13: Implementasi Modul Login & Logout",
+      description: "Buat login.php dan logout.php, uji login dengan username admin, lalu pastikan nama admin muncul di navbar header.",
       rubrik: [
-        { criteria: "Berhasil login ke cPanel", bobot: "30%" },
-        { criteria: "Database dan user MySQL berhasil dibuat di cPanel", bobot: "40%" },
-        { criteria: "Hak akses ALL PRIVILEGES berhasil diberikan", bobot: "30%" },
+        { criteria: "Login berhasil dengan akun valid", bobot: "50%" },
+        { criteria: "Peringatan muncul jika password salah", bobot: "30%" },
+        { criteria: "Logout membersihkan session dengan bersih", bobot: "20%" },
       ],
     },
   },
   {
     no: 14,
-    phase: "Fase 4: Hosting & Deploy",
-    title: "Praktik Deployment: Upload File, Import Database & Konfigurasi Server",
+    phase: "Fase 3: Fitur Menengah",
+    title: "Otorisasi & Hak Akses: Role Admin vs Anggota & Proteksi Halaman",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK4: Melakukan Deployment Aplikasi & Database ke Hosting (C3)",
-    subCpmk: "Mahasiswa mampu mengekspor database lokal, mengimpor ke server hosting, mengunggah kode aplikasi, dan mengonfigurasi koneksi database di file `.env` server.",
+    cpmk: "CPMK3: Otorisasi & Hak Akses Berbasis Role (C3)",
+    subCpmk: "Mahasiswa mampu membatasi akses halaman tambah, edit, dan hapus hanya untuk pengguna berstatus Admin.",
     indikator: [
-      "Mampu melakukan export database `simpus_mini.sql` dari phpMyAdmin lokal",
-      "Mampu mengimpor file `.sql` ke phpMyAdmin hosting tanpa error",
-      "Mampu mengunggah file ZIP proyek dan mengekstraknya di cPanel File Manager",
-      "Mampu memperbarui konfigurasi `app.baseURL` dan kredensial database di `.env` server",
-      "Aplikasi berhasil dibuka secara publik melalui URL domain asli",
+      "Membuat middleware auth_check.php dengan fungsi require_admin()",
+      "Mengunci halaman sensitif dari akses pengguna yang belum login",
+      "Menyembunyikan tombol aksi manajemen dari pengguna biasa",
     ],
-    problemStatement: "Setelah database dan akun hosting siap, bagaimana memindahkan seluruh kode aplikasi dari laptop ke server dan menghubungkan database online-nya agar tidak muncul '500 Server Error'?",
-    goal: "Mahasiswa berhasil men-deploy aplikasi CodeIgniter 4 dan database MySQL ke web hosting hingga aplikasi dapat diakses secara online (live URL).",
-    outputPraktikum: "Aplikasi SIMPUS-Mini BERHASIL ONLINE di internet dan bisa diakses dosen/teman",
-    projectMilestone: "Aplikasi SIMPUS-Mini resmi LIVE di Web Hosting!",
-    tools: ["phpMyAdmin Lokal & Hosting", "cPanel File Manager", "Browser"],
-    alokasiWaktu: "150 Menit (20 menit panduan deployment + 130 menit live deployment & troubleshooting bersama)",
+    problemStatement: "Bagaimana jika ada pengunjung umum yang langsung mengetik URL tambah.php atau hapus.php di address bar? Bagaimana cara menolak akses tersebut?",
+    goal: "Mampu membangun sistem kontrol akses berbasis peran (Role-Based Access Control / RBAC) sederhana.",
+    outputPraktikum: "Sistem proteksi halaman terpusat auth_check.php",
+    projectMilestone: "Penerapan otorisasi role admin vs anggota pada SIMPUS-Mini",
+    tools: ["VS Code", "Browser", "PHP 8 & MySQL"],
+    alokasiWaktu: "150 Menit (30 menit konsep otorisasi + 120 menit praktik)",
     teori: [
       {
-        title: "Trik Penataan Folder CodeIgniter 4 di Shared Hosting (cPanel)",
+        title: "Pencegahan Akses Ilegal (Access Control Guard)",
         points: [
-          "Opsi 1 (Paling Aman): Letakkan folder `app/`, `vendor/`, `writable/`, `system/` di `/home/username/ci_project/`, dan pindahkan isi folder `public/*` ke dalam `/home/username/public_html/`.",
-          "Opsi 2 (.htaccess Redirect): Seluruh folder proyek ditaruh di `public_html/` dengan file `.htaccess` yang meneruskan request ke folder `public/`.",
-          "Perbarui path `index.php` di public_html agar merujuk ke lokasi folder `app` yang tepat.",
+          "Memeriksa `$_SESSION['logged_in']` sebelum mengeksekusi konten halaman.",
+          "Jika belum login -> alihkan langsung ke `login.php`.",
+          "Jika sudah login tapi bukan admin -> tampilkan HTTP 403 Forbidden.",
         ],
-        explanation: "Pemisahan folder menjamin keamanan kode sumber agar file konfigurasi .env tidak bisa diunduh oleh pengunjung luar.",
-      },
-      {
-        title: "Langkah Penyesuaian Berkas .env di Server",
-        points: [
-          "Ubah `CI_ENVIRONMENT = production` (agar pesan error sistem tidak mengekspos username database ke publik jika ada error).",
-          "Ubah `app.baseURL = 'https://namadomain-anda.my.id/'` (gunakan protokol HTTPS).",
-          "Isi `database.default.database`, `username`, dan `password` sesuai kredensial yang tadi dibuat di cPanel MySQL Wizard.",
-        ],
-        explanation: "Koneksi database lokal berbeda dengan hosting: username biasanya memiliki prefix akun cPanel (contoh: u1234_admin).",
+        explanation: "Proteksi backend mutlak diperlukan karena URL file PHP di server publik bisa diakses langsung lewat browser.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Export Database MySQL Lokal",
-        desc: "Buka phpMyAdmin lokal -> Pilih database simpus_mini -> Klik tab 'Export' -> Pilih Quick -> Klik Export (download file .sql).",
+        title: "Membuat config/auth_check.php",
+        desc: "Buat fungsi require_login() dan require_admin().",
       },
       {
         step: 2,
-        title: "Import Database ke phpMyAdmin Hosting",
-        desc: "Buka phpMyAdmin di cPanel -> Pilih database hosting yang tadi dibuat -> Klik tab 'Import' -> Pilih file .sql -> Klik Import.",
-      },
-      {
-        step: 3,
-        title: "Kompres Proyek Lokal ke ZIP (Kecuali folder vendor jika internet lambat)",
-        desc: "Di laptop, kompres folder simpus-mini menjadi simpus-mini.zip.",
-      },
-      {
-        step: 4,
-        title: "Upload & Ekstrak di cPanel File Manager",
-        desc: "Upload simpus-mini.zip ke cPanel File Manager -> Klik kanan file ZIP -> Pilih 'Extract'.",
-      },
-      {
-        step: 5,
-        title: "Edit Konfigurasi .env di Server",
-        desc: "Buka file .env di cPanel File Manager -> Klik 'Edit' -> Sesuaikan baseURL dan nama database hosting.",
-      },
-      {
-        step: 6,
-        title: "Uji Coba Live URL di Browser HP / Teman",
-        desc: "Buka alamat web di browser, coba lakukan login dan tambah buku baru secara online.",
+        title: "Memasang di tambah.php, edit.php, dan hapus.php",
+        desc: "Panggil require_admin() di baris pertama file.",
       },
     ],
     files: [
       {
-        name: ".env.production",
-        lang: "env",
-        code: `# Konfigurasi Server Produksi cPanel
-CI_ENVIRONMENT = production
+        name: "config/auth_check.php",
+        lang: "php",
+        code: `<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-# URL Domain Live
-app.baseURL = 'https://simpus-mini.mhs.latihan.my.id/'
+function require_login() {
+    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+        header("Location: login.php?pesan=Silakan+login+terlebih+dahulu");
+        exit;
+    }
+}
 
-# Database Server Hosting (Gunakan kredensial cPanel Anda)
-database.default.hostname = localhost
-database.default.database = u1234567_simpus
-database.default.username = u1234567_admin
-database.default.password = PasswordSuperAman2024!
-database.default.DBDriver = MySQLi
-database.default.port = 3306`,
-        description: "Contoh konfigurasi .env production pada web hosting cPanel",
+function require_admin() {
+    require_login();
+    if ($_SESSION['role'] !== 'admin') {
+        die("<h2 style='color:red;'>403 Akses Ditolak: Khusus Administrator!</h2><p><a href='index.php'>Kembali</a></p>");
+    }
+}
+?>`,
+        description: "Middleware pengecekan status login dan role pengguna",
       },
     ],
-    simId: "p14-deployment-upload-mysql",
+    simId: "p14-otorisasi-role-guard",
     quiz: {
-      question: "Mengapa di server hosting live (produksi), nilai `CI_ENVIRONMENT` pada berkas `.env` wajib diset ke `production` dan bukan `development`?",
+      question: "Apa kode status HTTP standar internasional yang menandakan bahwa pengguna dilarang mengakses sebuah halaman karena tidak memiliki izin/role yang cukup?",
       options: [
-        "Agar jika terjadi error, detail kredensial database dan baris kode sensitif tidak ditampilkan secara terbuka kepada pengunjung asing di internet",
-        "Supaya warna tampilan website menjadi lebih terang",
-        "Karena server hosting tidak mendukung PHP",
-        "Agar Apache otomatis mematikan komputer server",
+        "403 Forbidden",
+        "404 Not Found",
+        "200 OK",
+        "500 Internal Server Error",
       ],
       answer: 0,
-      explanation: "Mode development menampilkan Whoops/Debug page yang membocorkan path server, variabel env, dan query database. Di lingkungan publik wajib menggunakan mode production demi keamanan informasi.",
+      explanation: "HTTP 403 Forbidden menunjukkan bahwa server mengenali pengguna tetapi menolak memberikan akses karena kurangnya hak wewenang/role.",
     },
     tugas: {
-      title: "RTM-8B: Deployment Proyek ke Web Hosting",
-      description: "Upload aplikasi SIMPUS-Mini dan import database ke hosting. Pastikan aplikasi dapat dibuka secara publik melalui URL hosting dan fitur CRUD berfungsi normal.",
+      title: "Asesmen Formatif 2 (Bobot 20%): Progres Fitur Autentikasi & RBAC",
+      description: "Terapkan sistem proteksi admin pada tambah, edit, dan hapus. Uji akses dengan akun user biasa dan akun admin.",
       rubrik: [
-        { criteria: "Database berhasil di-import ke MySQL server hosting", bobot: "30%" },
-        { criteria: "Aplikasi berhasil online tanpa HTTP 500 error", bobot: "40%" },
-        { criteria: "Fitur CRUD dan Login berfungsi normal di server online", bobot: "30%" },
+        { criteria: "Halaman admin terkunci rapat dari pengguna umum", bobot: "50%" },
+        { criteria: "Pengguna dengan role admin dapat mengelola data", bobot: "30%" },
+        { criteria: "Navigasi navbar dinamis sesuai status login", bobot: "20%" },
       ],
+    },
+    asesmenTerkait: {
+      nama: "Asesmen Formatif 2",
+      bobot: "20%",
+      tipe: "formatif",
     },
   },
   {
     no: 15,
     phase: "Fase 4: Hosting & Deploy",
-    title: "Finalisasi Proyek, Live Debugging & Dokumentasi Sederhana",
+    title: "Fitur Pencarian, Upload Berkas Cover & Pengenalan cPanel",
     sks: "3 SKS (1 Teori + 2 Praktikum)",
-    cpmk: "CPMK4 & CPMK5: Debugging & Penyusunan Dokumentasi (C3/C4)",
-    subCpmk: "Mahasiswa mampu melakukan debugging terhadap error umum deployment dan menyusun dokumen panduan penggunaan aplikasi sederhana.",
+    cpmk: "CPMK3 & CPMK4: Fitur Pencarian Dinamis & Pengenalan Web Hosting (C3)",
+    subCpmk: "Mahasiswa mampu menambahkan pencarian kata kunci SQL LIKE, menangani upload berkas cover buku, dan memahami struktur hosting cPanel.",
     indikator: [
-      "Mampu mendiagnosis dan menyelesaikan error umum (HTTP 500, Database Access Denied, 404 Route Not Found)",
-      "Mampu menyusun dokumen README sederhana (panduan instalasi, akun demo admin & user)",
-      "Memastikan seluruh data dummy pengujian bersih dan siap dinilai",
-      "Menyiapkan slide presentasi singkat untuk Ujian Akhir Semester (UAS)",
+      "Membuat form pencarian judul dan pengarang di index.php",
+      "Memahami fungsi $_FILES dan move_uploaded_file() untuk upload berkas",
+      "Memahami fitur utama cPanel: File Manager, MySQL Database Wizard, phpMyAdmin",
     ],
-    problemStatement: "Bagaimana cara orang lain (seperti dosen penguji) bisa memahami dan menggunakan aplikasi yang kamu buat tanpa perlu kamu dampingi sepanjang waktu?",
-    goal: "Melakukan klinik debugging bersama dosen, merapikan kode, dan menyusun laporan/dokumentasi sederhana penggunaan aplikasi.",
-    outputPraktikum: "Dokumen README/Laporan Penggunaan dan Aplikasi siap uji untuk UAS",
-    projectMilestone: "Aplikasi 100% selesai, online, stabil, dan terdokumentasi",
-    tools: ["VS Code", "Word / Google Docs / Markdown", "Browser"],
-    alokasiWaktu: "150 Menit (Full praktik klinik debugging & review dokumentasi)",
+    problemStatement: "Bagaimana cara pengunjung mencari buku tertentu di antara ratusan koleksi dan bagaimana persiapan memindahkan website dari komputer lokal ke web hosting publik?",
+    goal: "Menyempurnakan fungsionalitas SIMPUS-Mini dan memahami persiapan deployment cloud hosting.",
+    outputPraktikum: "Fitur pencarian aktif dan kesiapan berkas backup SQL untuk deployment",
+    projectMilestone: "Penyelesaian seluruh fitur kode & persiapan deployment final",
+    tools: ["VS Code", "Browser", "cPanel Account"],
+    alokasiWaktu: "150 Menit (40 menit konsep cPanel + 110 menit praktik)",
     teori: [
       {
-        title: "Checklist Troubleshooting Error Umum Hosting",
+        title: "Perbedaan Localhost vs Live cPanel Hosting",
         points: [
-          "HTTP 500 Internal Server Error: Periksa permission folder `writable/` (wajib 755 atau 777), cek error log di cPanel File Manager.",
-          "Access Denied for user 'root'@'localhost': Lupa mengganti username database lokal di file `.env` hosting.",
-          "404 Not Found pada Rute selain Beranda: Module `mod_rewrite` Apache belum aktif atau file `.htaccess` tidak ikut terunggah.",
+          "Localhost: Hanya berjalan di laptop pengembang saat Apache dinyalakan.",
+          "Web Hosting cPanel: Server berbasis Linux yang menyala 24 jam dengan IP publik dan domain.",
+          "public_html: Folder DocumentRoot utama pada cPanel setara dengan folder htdocs di XAMPP lokal.",
         ],
-        explanation: "Penyebab error di hosting 90% berasal dari salah kredensial database di .env atau file .htaccess yang lupa disalin.",
-      },
-      {
-        title: "Struktur Dokumentasi Sederhana Ramah Dosen/Pengguna",
-        points: [
-          "1. Judul Aplikasi & Deskripsi Singkat.",
-          "2. Live URL Publik & Akun Pengujian (Email & Password Admin dan User).",
-          "3. Fitur Utama Aplikasi (CRUD, Validasi, Relasi, Role).",
-          "4. Petunjuk Instalasi Lokal (jika ingin dijalankan di laptop penguji).",
-          "5. Tangkapan Layar (Screenshot) setiap halaman fitur utama.",
-        ],
-        explanation: "Dokumentasi yang rapi menunjukkan profesionalitas dan mempermudah dosen memberikan nilai maksimal.",
+        explanation: "Website yang diunggah ke public_html di cPanel akan langsung dapat diakses oleh siapa saja di seluruh dunia.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Pengecekan Folder writable/ Permission",
-        desc: "Pastikan folder writable/cache, writable/logs, dan writable/session dapat ditulis oleh server (Permission 755/775).",
+        title: "Menambahkan Form Pencarian di index.php",
+        desc: "Pasang input pencarian metode GET dan kueri SQL dengan operator LIKE.",
       },
       {
         step: 2,
-        title: "Uji Skenario Pengguna (End-to-End Test)",
-        desc: "1. Login sebagai Admin -> Tambah buku baru -> Edit -> Hapus. 2. Login sebagai Anggota -> Pastikan tidak ada tombol edit/hapus.",
-      },
-      {
-        step: 3,
-        title: "Menulis File README.md",
-        desc: "Tuliskan panduan singkat penggunaan dan cantumkan akun demo.",
-        filePath: "README.md",
+        title: "Persiapan Berkas Ekspor SQL",
+        desc: "Ekspor database simpus_mini melalui phpMyAdmin untuk persiapan pertemuan 16.",
       },
     ],
     files: [
       {
-        name: "README.md",
-        lang: "bash",
-        code: `# SIMPUS-Mini (Sistem Informasi Perpustakaan Mini)
-Aplikasi Web Backend Dasar berbasis PHP 8 & CodeIgniter 4 dengan Database MySQL.
-
-## 🌐 Live URL
-- Link Aplikasi: https://simpus-mini.mhs.latihan.my.id/
-
-## 🔑 Akun Demo Pengujian
-| Role | Email | Password |
-|---|---|---|
-| **Admin** | admin@simpus.local | admin123 |
-| **Anggota** | budi@gmail.com | user123 |
-
-## 🚀 Fitur Utama
-1. Autentikasi: Register & Session-based Login (Password Hashing bcrypt).
-2. Otorisasi: Role Admin (Kelola Buku & Kategori) vs User (Katalog & Detail).
-3. CRUD Buku: Tambah, Lihat Daftar, Detail, Edit, Hapus (dengan konfirmasi).
-4. Validasi Form: Server-side validation dan Flash Messages sukses/gagal.
-5. Relasi MySQL: Relasi One-to-Many tabel kategori dan buku dengan query JOIN.
-6. Deployment: Terpasang online di cPanel Shared Hosting dengan MySQL live.`,
-        description: "Contoh format dokumentasi sederhana README.md yang wajib disertakan untuk penilaian",
+        name: "fitur_pencarian.php",
+        lang: "php",
+        code: `<?php
+// Contoh potongan logika pencarian di index.php
+$cari = trim($_GET['q'] ?? '');
+if (!empty($cari)) {
+    $stmt = mysqli_prepare($conn, "SELECT b.*, k.nama_kategori FROM buku b LEFT JOIN kategori k ON b.kategori_id = k.id WHERE b.judul LIKE ? OR b.pengarang LIKE ? ORDER BY b.id DESC");
+    $wildcard = "%" . $cari . "%";
+    mysqli_stmt_bind_param($stmt, "ss", $wildcard, $wildcard);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+} else {
+    $result = mysqli_query($conn, "SELECT b.*, k.nama_kategori FROM buku b LEFT JOIN kategori k ON b.kategori_id = k.id ORDER BY b.id DESC");
+}
+?>`,
+        description: "Potongan kueri pencarian dinamis dengan wildcard LIKE",
       },
     ],
-    simId: "p15-debugging-dokumentasi",
+    simId: "p15-pencarian-cpanel-intro",
     quiz: {
-      question: "Jika setelah mengunggah aplikasi CodeIgniter 4 ke hosting halaman beranda bisa terbuka, namun saat mengklik link `/buku` muncul error 404 Not Found, apa penyebab paling umum?",
+      question: "Pada server shared hosting yang menggunakan cPanel, di folder manakah berkas website PHP harus diletakkan agar bisa dibuka pengunjung lewat internet?",
       options: [
-        "File `.htaccess` di folder public/ tidak ikut terunggah atau tersembunyi (hidden file) sehingga fitur rewrite URL Apache tidak bekerja",
-        "Monitor laptop pengguna rusak",
-        "MySQL kehabisan RAM",
-        "CSS belum dikompilasi",
+        "public_html/",
+        "htdocs/xampp/",
+        "system/core/",
+        "backup/db/",
       ],
       answer: 0,
-      explanation: "Berkas yang diawali dengan titik seperti `.htaccess` sering tersembunyi (hidden file) di sistem operasi, sehingga saat dikompres tidak terbawa. Tanpa `.htaccess`, Apache tidak bisa mengarahkan URL rute ke `index.php`.",
+      explanation: "public_html adalah direktori root publik standar pada server hosting berbasis cPanel.",
     },
     tugas: {
-      title: "RTM-9: Penyusunan Laporan & Dokumentasi Proyek",
-      description: "Tuliskan laporan ringkas penggunaan aplikasi beserta akun demo pengujian, tautan live URL, dan tangkapan layar fitur-fitur utama sebagai persiapan sidang UAS.",
+      title: "RTM-15: Pencarian Buku & Persiapan Paket Deployment",
+      description: "Pasang form pencarian di index.php, ekspor database menjadi simpus_mini_final.sql, dan kompres seluruh berkas proyek menjadi simpus_mini.zip.",
       rubrik: [
-        { criteria: "Kelengkapan informasi akun demo & URL live", bobot: "40%" },
-        { criteria: "Kerapian petunjuk penggunaan dan screenshot", bobot: "30%" },
-        { criteria: "Aplikasi bebas dari bug fatal", bobot: "30%" },
+        { criteria: "Pencarian buku berhasil menyaring data", bobot: "50%" },
+        { criteria: "File backup SQL lengkap dan tervalidasi", bobot: "30%" },
+        { criteria: "Arsip zip proyek siap diunggah", bobot: "20%" },
       ],
     },
   },
   {
     no: 16,
     phase: "UAS",
-    title: "UJIAN AKHIR SEMESTER (UAS): Demo Aplikasi Live di Hosting & Presentasi",
-    sks: "3 SKS (Presentasi & Demo Live)",
-    cpmk: "CPMK4 & CPMK5: Presentasi & Demo Aplikasi Live di Web Hosting (C4)",
-    subCpmk: "Mahasiswa mampu mendemonstrasikan aplikasi web backend hasil karya sendiri secara live di internet, menjelaskan logika kode program, dan menjawab pertanyaan teknis.",
+    title: "UJIAN AKHIR SEMESTER (UAS): Deployment PHP & MySQL ke cPanel Live Hosting",
+    sks: "3 SKS (1 Teori + 2 Praktikum)",
+    cpmk: "CPMK4 & CPMK5: Deployment Live Hosting & Showcase Proyek Akhir (C4)",
+    subCpmk: "Mahasiswa mampu mengunggah website ke cPanel, membuat database hosting, mengimpor data, dan mempresentasikan aplikasi yang dapat diakses publik.",
     indikator: [
-      "Aplikasi berhasil dibuka secara publik melalui URL web hosting aktif tanpa error",
-      "Fitur wajib (CRUD, Validasi, Relasi One-to-Many, Session Auth, Role Admin-User) berjalan lancar saat didemokan langsung",
-      "Mampu menjelaskan alur kerja kode (MVC, Query SQL, Controller, Route) saat sesi tanya jawab",
-      "Laporan akhir dan repositori kode terkumpul rapi tepat waktu",
+      "Aplikasi SIMPUS-Mini berhasil di-deploy ke server hosting cPanel (public_html)",
+      "Database MySQL terhubung sempurna via config/koneksi.php versi server",
+      "Seluruh fitur CRUD, relasi, dan autentikasi admin berfungsi lancar di domain live",
     ],
-    problemStatement: "Momen pembuktian! Tunjukkan karyamu kepada dunia: aplikasi web backend yang kamu bangun dari nol kini telah online dan berfungsi secara nyata di internet!",
-    goal: "Mahasiswa membuktikan pencapaian seluruh Capaian Pembelajaran Mata Kuliah (CPMK 1-5) melalui demonstrasi langsung dan ujian lisan.",
-    outputPraktikum: "Nilai Akhir Kelulusan Mata Kuliah Sistem Aplikasi Web (Backend Dasar)",
-    projectMilestone: "Penyelesaian 100% Mata Kuliah Sistem Aplikasi Web (Backend Dasar)",
-    tools: ["Browser Laptop/HP", "Proyektor / Screen Share", "Laporan Akhir"],
-    alokasiWaktu: "150 Menit (Presentasi kelompok/individu, demo live, dan tanya jawab teknis)",
+    problemStatement: "Ujian pamungkas: Publikasikan website perpustakaan yang kamu buat agar bisa diakses oleh dosen dan teman-temanmu melalui link internet publik!",
+    goal: "Membuktikan kompetensi penuh web developer backend: merancang, membangun, mengamankan, hingga men-deploy aplikasi ke cloud hosting.",
+    outputPraktikum: "Link website SIMPUS-Mini LIVE di internet publik lengkap dengan dokumentasi",
+    projectMilestone: "Milestone Akhir - Rilis Publik & Demonstrasi UAS SIMPUS-Mini",
+    tools: ["cPanel Hosting", "Domain/Subdomain", "phpMyAdmin Hosting", "Browser"],
+    alokasiWaktu: "150 Menit (Demonstrasi proyek live + sesi tanya jawab lisan)",
     teori: [
       {
-        title: "Rubrik Evaluasi Ujian Akhir Semester (Bobot 35%)",
+        title: "6 Langkah Emas Deployment cPanel",
         points: [
-          "1. Keberhasilan Akses Live (25%): Aplikasi dapat dibuka lancar via domain hosting.",
-          "2. Kelengkapan Fitur (35%): CRUD, Relasi JOIN, Validasi, Session Login & Role Admin berjalan 100%.",
-          "3. Penguasaan Konsep & Tanya Jawab (25%): Mahasiswa dapat menjelaskan alasan dan alur kode yang mereka tulis.",
-          "4. Kualitas Dokumentasi & Kerapian Kode (15%): Laporan rapi, penamaan variabel konsisten, struktur folder sesuai standar.",
+          "1. Ekspor database lokal .sql via phpMyAdmin.",
+          "2. Buat database & user baru via MySQL Database Wizard di cPanel.",
+          "3. Impor file .sql ke phpMyAdmin cPanel.",
+          "4. Upload & ekstrak file zip proyek ke public_html.",
+          "5. Ubah config/koneksi.php dengan kredensial database cPanel.",
+          "6. Uji coba domain live dan pastikan website berjalan normal tanpa error.",
         ],
-        explanation: "Penilaian berorientasi pada fungsionalitas dan pemahaman logika kerja backend, bukan pada kerumitan animasi grafis.",
+        explanation: "Kelulusan mata kuliah ini dinilai langsung dari aplikasi yang hidup di internet, membuktikan kesiapan mahasiswa terjun ke dunia industri.",
       },
     ],
     steps: [
       {
         step: 1,
-        title: "Membuka URL Live di Browser",
-        desc: "Ketik URL hosting aplikasi di depan penguji (misal: https://simpus-mini.mhs.latihan.my.id).",
+        title: "Upload Berkas ke public_html",
+        desc: "Gunakan File Manager cPanel untuk mengunggah dan mengekstrak berkas proyek.",
       },
       {
         step: 2,
-        title: "Mendemonstrasikan Skenario Lengkap",
-        desc: "1. Tunjukkan halaman landing page. 2. Lakukan pendaftaran akun baru. 3. Login sebagai Admin dan tambahkan buku baru. 4. Buka phpMyAdmin hosting untuk memperlihatkan data tersimpan di MySQL. 5. Logout dan login sebagai User untuk memperlihatkan pembatasan role.",
-      },
-      {
-        step: 3,
-        title: "Menjawab Pertanyaan Teknis Dosen",
-        desc: "Jelaskan bagaimana Controller berinteraksi dengan Model dan mengapa query JOIN dibutuhkan.",
+        title: "Sesuaikan Koneksi Server",
+        desc: "Buka config/koneksi.php di cPanel, masukkan nama database dan user cPanel berprefix.",
       },
     ],
     files: [
       {
-        name: "lembar_penilaian_uas.txt",
-        lang: "bash",
-        code: `LEMBAR PENILAIAN ASESMEN SUMATIF 2 (UAS - BOBOT 35%):
--------------------------------------------------------------------------
-Nama Mahasiswa : _______________________
-NIM            : _______________________
-Live URL       : https://______________________
+        name: "koneksi_hosting_example.php",
+        lang: "php",
+        code: `<?php
+// Contoh config/koneksi.php di cPanel Hosting
+$host = "localhost";
+$user = "u1234_admin";          // Prefix cPanel wajib disertakan
+$pass = "PasswordKuatHosting2024!";
+$db   = "u1234_simpus_mini";    // Prefix cPanel wajib disertakan
+$port = 3306;
 
-KOMPONEN PENILAIAN:
-[ ] 1. Keberhasilan Akses Live di Hosting (Skor: 0 - 25)
-[ ] 2. Kelengkapan Fitur CRUD + Relasi + Auth + Role (Skor: 0 - 35)
-[ ] 3. Pemahaman Konsep saat Tanya Jawab Lisan (Skor: 0 - 25)
-[ ] 4. Kualitas Dokumentasi / Laporan Akhir (Skor: 0 - 15)
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-TOTAL SKOR UAS : ______ / 100
-Catatan Dosen  : Mahasiswa berhasil menyelesaikan proyek backend pemula sesuai standar OBE.`,
-        description: "Format lembar rubrik penilaian dosen untuk ujian akhir semester",
+try {
+    $conn = mysqli_connect($host, $user, $pass, $db, $port);
+    mysqli_set_charset($conn, "utf8mb4");
+} catch (mysqli_sql_exception $e) {
+    error_log("Hosting DB Error: " . $e->getMessage());
+    die("Sistem dalam pemeliharaan berkala.");
+}
+?>`,
+        description: "Contoh konfigurasi koneksi database di server hosting cPanel",
       },
     ],
-    simId: "p16-uas-demo-hosting",
-    asesmenTerkait: {
-      nama: "Asesmen Sumatif 2 (UAS)",
-      bobot: "35%",
-      tipe: "sumatif",
-    },
+    simId: "p16-uas-deployment-cpanel",
     quiz: {
-      question: "Apa kriteria paling esensial yang membuktikan bahwa mahasiswa telah menguasai kompetensi dasar backend web pada mata kuliah ini?",
+      question: "Saat mengonfigurasi koneksi database MySQL di cPanel hosting, mengapa nama database dan user biasanya memiliki awalan (prefix), misalnya `u1234_simpus`?",
       options: [
-        "Mampu membangun aplikasi CRUD lengkap dengan basis data MySQL, menerapkan login session & role sederhana, serta berhasil men-deploy-nya hingga online di web hosting",
-        "Mampu menghafal seluruh kode tanpa memahami fungsinya",
-        "Hanya membuat tampilan CSS tanpa menghubungkannya ke database",
-        "Membeli template website siap pakai tanpa mengetahui cara kerja backend",
+        "Karena pada shared hosting, prefix akun cPanel digunakan untuk memisahkan kepemilikan database antar pengguna server yang berbeda",
+        "Agar password database otomatis dibuatkan oleh cPanel",
+        "Supaya database hanya bisa dibuka di malam hari",
+        "Itu adalah virus yang harus segera dihapus",
       ],
       answer: 0,
-      explanation: "Target akhir OBE mata kuliah ini adalah mahasiswa mampu secara mandiri merancang database MySQL, membangun operasi CRUD dan login session, serta men-deploy aplikasinya ke web hosting hingga dapat diakses di internet.",
+      explanation: "Shared hosting menggunakan prefix username akun untuk mengisolasi dan mengidentifikasi database milik masing-masing pelanggan di satu server fisik yang sama.",
     },
     tugas: {
-      title: "ASESMEN SUMATIF 2 (UAS - Bobot 35%): Demo Live + Laporan + Tanya Jawab",
-      description: "Demonstrasikan aplikasi web backend Anda yang sudah live di hosting, jawab pertanyaan teknis penguji seputar alur kode MVC dan query database, serta kumpulkan laporan akhir lengkap.",
+      title: "UJIAN AKHIR SEMESTER (UAS) - Bobot 35%",
+      description: "Presentasikan aplikasi SIMPUS-Mini yang telah live di domain hosting cPanel publik. Demonstrasikan seluruh fitur CRUD, relasi kategori, login admin, dan jawab pertanyaan penguji.",
       rubrik: [
-        { criteria: "Aplikasi live di hosting dapat diakses lancar", bobot: "25%" },
-        { criteria: "Kelengkapan seluruh fitur wajib (CRUD+Relasi+Auth+Role)", bobot: "35%" },
-        { criteria: "Penguasaan konsep dan kemampuan menjawab tanya jawab", bobot: "25%" },
-        { criteria: "Kualitas dokumen laporan akhir", bobot: "15%" },
+        { criteria: "Website aktif dan dapat dibuka via URL publik", bobot: "25%" },
+        { criteria: "Kelengkapan fitur CRUD, relasi JOIN, dan session auth", bobot: "35%" },
+        { criteria: "Kemampuan menjelaskan alur kode dan query SQL", bobot: "25%" },
+        { criteria: "Kualitas dokumentasi README dan akun demo pengujian", bobot: "15%" },
       ],
+    },
+    asesmenTerkait: {
+      nama: "Ujian Akhir Semester (UAS)",
+      bobot: "35%",
+      tipe: "sumatif",
     },
   },
 ];

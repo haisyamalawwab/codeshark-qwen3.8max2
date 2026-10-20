@@ -22,12 +22,12 @@ export interface SubGame {
 export const SUBGAMES: Record<SubGameId, SubGame> = {
   ci_backend: {
     id: "ci_backend",
-    name: "Backend CI4 Studio",
-    short: "CodeIgniter 4",
-    tagline: "PHP 8 & CodeIgniter 4 • MySQL Database • cPanel Hosting",
-    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur MVC, CRUD MySQL, Form Validation, Relasi 1-to-N JOIN, Session-based Login & Role Admin, sampai Live Deployment ke cPanel Web Hosting!",
-    points: ["16 Pertemuan OBE", "Simulator phpMyAdmin", "cPanel Deployment"],
-    cta: "Buka CI4 Backend Lab",
+    name: "Backend PHP Studio",
+    short: "PHP 8 & MySQL",
+    tagline: "PHP 8 Native • MySQL Database • phpMyAdmin • cPanel Hosting",
+    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur Client-Server, PHP 8 Native, CRUD MySQL, Form Validation & Sanitasi XSS/SQLi, Relasi 1:N JOIN, Session Auth & Role Admin, sampai Live Deployment ke cPanel Web Hosting!",
+    points: ["16 Pertemuan OBE", "PHP 8 Native & MySQL", "cPanel Deployment"],
+    cta: "Buka PHP Backend Lab",
     mode: "backend_ci",
   },
   py_backend: {

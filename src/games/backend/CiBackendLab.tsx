@@ -172,10 +172,10 @@ export default function CiBackendLab({
   const [showRawMd, setShowRawMd] = useState(false);
   const [copiedMd, setCopiedMd] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    "› Starting CodeIgniter v4.4.6 Development Server...",
-    "› Document Root: /var/www/simpus-mini/public",
-    "› CodeIgniter development server started on http://localhost:8080",
-    "› MySQL Database connected: simpus_mini @ localhost:3306",
+    "› Starting PHP 8.2 Development Server (Document Root: htdocs/simpus-mini)...",
+    "› PHP Development server started on http://localhost:8000",
+    "› MySQL Database connected: simpus_mini @ localhost:3306 (mysqli utf8mb4)",
+    "› Press Ctrl-C to quit.",
   ]);
 
   const [completedMeetings, setCompletedMeetings] = useState<Record<number, boolean>>({});
@@ -275,7 +275,7 @@ export default function CiBackendLab({
             </button>
             <div className="h-4 w-px bg-slate-700 hidden sm:block" />
             <h1 className="font-extrabold text-sm text-white flex items-center gap-2">
-              <span className="text-sky-400">🐘 Backend CI4 Studio</span>
+              <span className="text-sky-400">🐘 Backend PHP Studio</span>
               <span className="text-slate-500 hidden sm:inline">·</span>
               <span className="text-xs text-slate-400 font-semibold hidden sm:inline">
                 P{meeting.no}: {meeting.title}
