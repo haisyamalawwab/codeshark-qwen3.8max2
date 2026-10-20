@@ -30,10 +30,10 @@ const GAMES: HubGame[] = [
     id: "ci_backend",
     name: "Sistem Aplikasi Web - Backend Dasar (CodeIgniter)",
     href: "./?subgame=ci_backend",
-    tagline: "PHP 8 & CodeIgniter 4 • MySQL Database • cPanel Hosting • 16 Pertemuan OBE",
-    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur Client-Server, MVC CodeIgniter 4, Database MySQL & phpMyAdmin, Operasi CRUD Lengkap, Validasi Form Server-Side, Relasi 1:N JOIN, Session-Based Auth, sampai Deployment cPanel Web Hosting!",
-    points: ["PHP 8.2 & CI4", "phpMyAdmin & MySQL", "16 Pertemuan OBE", "Deploy cPanel"],
-    cta: "Buka CI4 Backend Studio",
+    tagline: "PHP 8 Native • MySQL Database • phpMyAdmin • cPanel Hosting • 16 Pertemuan OBE",
+    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur Client-Server & HTTP, PHP 8 Native, Database MySQL & phpMyAdmin, Operasi CRUD Lengkap, Validasi Form Server-Side & Sanitasi XSS/SQLi, Relasi 1:N JOIN, Session-Based Auth, sampai Deployment cPanel Web Hosting!",
+    points: ["PHP 8.2 Native", "phpMyAdmin & MySQL", "16 Pertemuan OBE", "Deploy cPanel"],
+    cta: "Buka Backend PHP Studio",
     Icon: IconServer,
     accent: "#ef4444",
     live: true,
@@ -211,7 +211,7 @@ export default function HubApp() {
       <main className="max-w-6xl mx-auto px-4 pb-24">
         <section className="mt-8 md:mt-12 text-center max-w-3xl mx-auto">
           <p className="text-[11px] font-extrabold tracking-[0.28em] uppercase" style={{ color: "#45c6ff" }}>
-            Agregat • 5 sub-game live (Backend CI4, Backend Python, CrossPlatform, Tower, Shark)
+            Agregat • 5 sub-game live (Backend PHP, Backend Python, CrossPlatform, Tower, Shark)
           </p>
           <h1 className="font-extrabold text-3xl md:text-5xl tracking-tight mt-2">
             Belajar koding sambil <span style={{ color: "#2ee6c8" }}>main game</span>.
@@ -221,7 +221,7 @@ export default function HubApp() {
             tersimpan di perangkat masing-masing (<code>localStorage</code>), berbagi XP, koin, dan streak harian.
           </p>
           <div className="flex items-center justify-center gap-2 mt-4 flex-wrap text-[11px] font-bold" style={{ color: "#7ea4bd" }}>
-            <span>🐘 CI4 & MySQL</span>•<span>🐍 Python Flask & Django</span>•<span>⚡ React Native & Expo</span>•<span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>
+            <span>🐘 PHP Native & MySQL</span>•<span>🐍 Python Flask & Django</span>•<span>⚡ React Native & Expo</span>•<span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>
           </div>
         </section>
 
