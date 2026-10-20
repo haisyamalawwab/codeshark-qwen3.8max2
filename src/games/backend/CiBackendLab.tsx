@@ -23,6 +23,7 @@ interface Props {
   onDone?: (r: GameResult) => void;
   onExit: () => void;
   startMeetingNo?: number;
+  onSwitchTrack?: () => void;
 }
 
 function BackendMdView({ blocks }: { blocks: MdBlock[] }) {
@@ -156,6 +157,7 @@ export default function CiBackendLab({
   onDone,
   onExit,
   startMeetingNo = 1,
+  onSwitchTrack,
 }: Props) {
   const [currentNo, setCurrentNo] = useState<number>(() => {
     return Math.min(Math.max(1, startMeetingNo), 16);
@@ -281,6 +283,18 @@ export default function CiBackendLab({
                 P{meeting.no}: {meeting.title}
               </span>
             </h1>
+            {onSwitchTrack && (
+              <button
+                onClick={() => {
+                  sfx.click();
+                  onSwitchTrack();
+                }}
+                className="px-2.5 py-1 rounded-xl bg-emerald-950/70 border border-emerald-500/40 hover:border-emerald-400 text-emerald-300 hover:text-white text-[11px] font-bold transition-all cursor-pointer"
+                title="Pindah ke Jalur B: Python Flask / Django"
+              >
+                🐍 Jalur Python →
+              </button>
+            )}
           </div>
 
           {/* Meeting Quick Selector (1-16) */}

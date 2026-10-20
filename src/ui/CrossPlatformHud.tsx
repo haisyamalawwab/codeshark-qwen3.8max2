@@ -21,6 +21,8 @@ import {
   IconTower,
   IconFin,
   IconMobile,
+  IconServer,
+  IconDatabase,
   IconChevronDown,
   IconChevronUp,
 } from "./icons";
@@ -611,8 +613,26 @@ export default function CrossPlatformHud({
         {!lockedSubGame && onSelectSubGame && (
           <footer className="pt-2 pb-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 border-t border-slate-800/60">
             <p>CodeShark Academy · Sub-Game CrossPlatform Studio</p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[11px]">Arena Lain:</span>
+              <button
+                onClick={() => {
+                  sfx.click();
+                  onSelectSubGame("ci_backend");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <IconServer size={12} /> CI4 Backend
+              </button>
+              <button
+                onClick={() => {
+                  sfx.click();
+                  onSelectSubGame("py_backend");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <IconDatabase size={12} /> Python Backend
+              </button>
               <button
                 onClick={() => {
                   sfx.click();

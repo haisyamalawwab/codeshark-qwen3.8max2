@@ -6,8 +6,11 @@
    Desain netral (tidak meniru tema gelap shark / terang tower) agar jadi payung.
    Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi.
    Ikon kartu memakai SVG vektor (ui/icons) agar tajam di semua DPR. */
-import type { ComponentType } from "react";
+import { useState, useEffect, lazy, Suspense, type ComponentType } from "react";
 import { IconTower, IconFin, IconMobile, IconServer, IconDatabase } from "../ui/icons";
+
+const CiBackendLab = lazy(() => import("../games/backend/CiBackendLab"));
+const PyBackendLab = lazy(() => import("../games/backend/PyBackendLab"));
 
 interface HubGame {
   id: string;
@@ -25,7 +28,7 @@ interface HubGame {
 const GAMES: HubGame[] = [
   {
     id: "ci_backend",
-    name: "Backend PHP Studio",
+    name: "Sistem Aplikasi Web - Backend Dasar (CodeIgniter)",
     href: "./?subgame=ci_backend",
     tagline: "PHP 8 Native • MySQL Database • phpMyAdmin • cPanel Hosting • 16 Pertemuan OBE",
     desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur Client-Server & HTTP, PHP 8 Native, Database MySQL & phpMyAdmin, Operasi CRUD Lengkap, Validasi Form Server-Side & Sanitasi XSS/SQLi, Relasi 1:N JOIN, Session-Based Auth, sampai Deployment cPanel Web Hosting!",
@@ -37,11 +40,11 @@ const GAMES: HubGame[] = [
   },
   {
     id: "py_backend",
-    name: "Backend Python Studio",
+    name: "Sistem Aplikasi Web - Backend Dasar (Python Django/Flask)",
     href: "./?subgame=py_backend",
     tagline: "Python 3 & Flask / Django • MySQL Database • Passenger WSGI Hosting",
     desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur B): Arsitektur Web Python, WSGI & Routing Jinja2, PyMySQL & Parameterized Queries, CRUD Lengkap, Validasi Server-Side & Flash Messages, Relasi 1:N JOIN, Session Auth & Role Decorators, sampai Deployment cPanel Python App!",
-    points: ["Python 3 & Flask", "PyMySQL & WSGI", "16 Pertemuan OBE", "cPanel Python App"],
+    points: ["Python 3 & Flask/Django", "PyMySQL & WSGI", "16 Pertemuan OBE", "cPanel Python App"],
     cta: "Buka Python Backend Studio",
     Icon: IconDatabase,
     accent: "#10b981",
@@ -86,6 +89,82 @@ const GAMES: HubGame[] = [
 ];
 
 export default function HubApp() {
+  const [activeLab, setActiveLab] = useState<"ci_backend" | "py_backend" | null>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const sg = params.get("subgame");
+      if (sg === "ci_backend" || sg === "py_backend") return sg;
+    } catch {
+      /* ignore */
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    const onPopState = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const sg = params.get("subgame");
+        if (sg === "ci_backend" || sg === "py_backend") {
+          setActiveLab(sg);
+        } else {
+          setActiveLab(null);
+        }
+      } catch {
+        setActiveLab(null);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const openBackendLab = (id: "ci_backend" | "py_backend" | null) => {
+    try {
+      const nextUrl = id ? `./?subgame=${id}` : window.location.pathname;
+      window.history.pushState({}, "", nextUrl);
+    } catch {
+      /* ignore */
+    }
+    setActiveLab(id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (activeLab === "ci_backend") {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen grid place-items-center text-sm font-bold" style={{ background: "#060f1d", color: "#38bdf8" }}>
+            Memuat Sistem Aplikasi Web - Backend Dasar (CodeIgniter 4)…
+          </div>
+        }
+      >
+        <CiBackendLab
+          startMeetingNo={1}
+          onExit={() => openBackendLab(null)}
+          onSwitchTrack={() => openBackendLab("py_backend")}
+        />
+      </Suspense>
+    );
+  }
+
+  if (activeLab === "py_backend") {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen grid place-items-center text-sm font-bold" style={{ background: "#060f1d", color: "#34d399" }}>
+            Memuat Sistem Aplikasi Web - Backend Dasar (Python Django/Flask)…
+          </div>
+        }
+      >
+        <PyBackendLab
+          startMeetingNo={1}
+          onExit={() => openBackendLab(null)}
+          onSwitchTrack={() => openBackendLab("ci_backend")}
+        />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen" style={{ background: "#060f1d", color: "#e6f2f8" }}>
       <header className="sticky top-0 z-40 backdrop-blur-md" style={{ background: "rgba(6,15,29,0.86)", borderBottom: "1px solid rgba(69,198,255,0.16)" }}>
@@ -101,12 +180,22 @@ export default function HubApp() {
               Template belajar koding berbasis game
             </p>
           </div>
-          <a href="./?subgame=ci_backend" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-rose-500/40 inline-flex items-center gap-1.5" style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}>
-            <IconServer size={14} /> Backend PHP
-          </a>
-          <a href="./?subgame=py_backend" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 inline-flex items-center gap-1.5" style={{ background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
+          <button
+            type="button"
+            onClick={() => openBackendLab("ci_backend")}
+            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-rose-500/40 inline-flex items-center gap-1.5 cursor-pointer hover:brightness-110 transition-all"
+            style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}
+          >
+            <IconServer size={14} /> Backend CI4
+          </button>
+          <button
+            type="button"
+            onClick={() => openBackendLab("py_backend")}
+            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 inline-flex items-center gap-1.5 cursor-pointer hover:brightness-110 transition-all"
+            style={{ background: "rgba(16,185,129,0.15)", color: "#34d399" }}
+          >
             <IconDatabase size={14} /> Backend Python
-          </a>
+          </button>
           <a href="./crossplatform/" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
             <IconMobile size={14} /> React Native
           </a>
@@ -179,9 +268,20 @@ export default function HubApp() {
                     ))}
                   </ul>
                   {g.live ? (
-                    <a href={g.href} className="inline-flex items-center gap-2 mt-3.5 px-6 py-2.5 text-sm font-bold rounded-xl" style={{ background: g.accent, color: g.id === "shark" ? "#04222b" : "#fff" }}>
-                      {g.cta} →
-                    </a>
+                    g.id === "ci_backend" || g.id === "py_backend" ? (
+                      <button
+                        type="button"
+                        onClick={() => openBackendLab(g.id as "ci_backend" | "py_backend")}
+                        className="inline-flex items-center gap-2 mt-3.5 px-6 py-2.5 text-sm font-bold rounded-xl cursor-pointer hover:brightness-110 transition-all"
+                        style={{ background: g.accent, color: "#fff" }}
+                      >
+                        {g.cta} →
+                      </button>
+                    ) : (
+                      <a href={g.href} className="inline-flex items-center gap-2 mt-3.5 px-6 py-2.5 text-sm font-bold rounded-xl" style={{ background: g.accent, color: g.id === "shark" ? "#04222b" : "#fff" }}>
+                        {g.cta} →
+                      </a>
+                    )
                   ) : (
                     <button disabled className="mt-3.5 px-6 py-2.5 text-sm font-bold rounded-xl border border-slate-500/30 text-slate-400 cursor-not-allowed">
                       {g.cta}
@@ -189,7 +289,7 @@ export default function HubApp() {
                   )}
                   {g.live && (
                     <p className="text-[11px] font-semibold mt-1.5" style={{ color: "#5f7d95" }}>
-                      Dibuka di sub-folder: <code>{g.href}</code>
+                      Dibuka di: <code>{g.href}</code>
                     </p>
                   )}
                 </div>

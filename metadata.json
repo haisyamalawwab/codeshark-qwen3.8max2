@@ -1,6 +1,6 @@
 {
   "name": "latihan.my.id — Belajar Koding Sambil Main Game",
-  "description": "latihan.my.id — agregat belajar koding berbasis game: CrossPlatform Studio (React Native & Expo), Coding Tower (susun blok), dan CodeShark (ketik kode). Pilih sub-game dan mulai main.",
+  "description": "latihan.my.id — agregat belajar koding berbasis game: Sistem Aplikasi Web Backend Dasar (CodeIgniter 4 & Python Django/Flask), CrossPlatform Studio (React Native & Expo), Coding Tower (susun blok), dan CodeShark (ketik kode).",
   "permissions": [],
   "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
