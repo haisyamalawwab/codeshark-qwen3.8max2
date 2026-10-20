@@ -354,7 +354,8 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               key={`ci-backend-dash-${gameKey}`}
               startMeetingNo={1}
               onDone={() => setGameKey((k) => k + 1)}
-              onExit={() => selectSubGame("crossplatform")}
+              onExit={() => selectSubGame("shark")}
+              onSwitchTrack={() => selectSubGame("py_backend")}
             />
           </Suspense>
         ) : subGame === "py_backend" ? (
@@ -363,7 +364,8 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               key={`py-backend-dash-${gameKey}`}
               startMeetingNo={1}
               onDone={() => setGameKey((k) => k + 1)}
-              onExit={() => selectSubGame("crossplatform")}
+              onExit={() => selectSubGame("shark")}
+              onSwitchTrack={() => selectSubGame("ci_backend")}
             />
           </Suspense>
         ) : subGame === "crossplatform" ? (
@@ -521,6 +523,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               })()}
               onDone={(r) => finishPractice(screen.id, r)}
               onExit={() => setScreen({ s: "dash" })}
+              onSwitchTrack={() => selectSubGame("py_backend")}
             />
           ) : subGame === "py_backend" ? (
             <PyBackendLab
@@ -531,6 +534,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               })()}
               onDone={(r) => finishPractice(screen.id, r)}
               onExit={() => setScreen({ s: "dash" })}
+              onSwitchTrack={() => selectSubGame("ci_backend")}
             />
           ) : subGame === "crossplatform" ? (
             <CrossPlatformLab
