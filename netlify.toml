@@ -16,6 +16,11 @@
   to = "/codingtower/index.html"
   status = 200
 
+[[redirects]]
+  from = "/crossplatform/*"
+  to = "/crossplatform/index.html"
+  status = 200
+
 # SPA Fallback Routing hub (agar refresh halaman tetap mengarah ke index.html)
 [[redirects]]
   from = "/*"

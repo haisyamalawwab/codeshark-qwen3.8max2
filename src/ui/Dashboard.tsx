@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import type { SaveData } from "../lib/storage";
 import { rankOf, RANKS, evaluateStreak } from "../lib/storage";
 import type { AgeCfg, ModuleDef } from "../data/modules";

@@ -112,13 +112,16 @@ export default defineConfig({
           if (id.includes("vite/preload")) return "preload";
           if (!id.includes("node_modules")) return undefined;
 
-          // Recharts & visualizer charting (lazy-loaded di Dashboard)
+          // Recharts & ekosistem charting / redux (lazy-loaded di Dashboard)
           if (
             id.includes("recharts") ||
+            id.includes("react-redux") ||
+            id.includes("react-smooth") ||
+            id.includes("redux") ||
+            id.includes("use-sync-external-store") ||
             id.includes("victory-vendor") ||
             id.includes("d3-") ||
-            id.includes("decimal.js-light") ||
-            id.includes("react-smooth")
+            id.includes("decimal.js-light")
           ) {
             return "charts";
           }
@@ -138,7 +141,19 @@ export default defineConfig({
           if (id.includes("matter-js")) return "game-matter";
           if (id.includes("sql.js")) return "game-sql";
           if (id.includes("@dnd-kit")) return "game-dnd";
-          if (id.includes("react") || id.includes("scheduler")) return "vendor-react";
+
+          // Core React runtime
+          if (
+            id.includes("/node_modules/react/") ||
+            id.includes("/node_modules/react-dom/") ||
+            id.includes("/node_modules/scheduler/") ||
+            id.includes("/node_modules/react-is/") ||
+            id.includes("\\node_modules\\react\\") ||
+            id.includes("\\node_modules\\react-dom\\") ||
+            id.includes("\\node_modules\\scheduler\\") ||
+            id.includes("\\node_modules\\react-is\\")
+          ) return "vendor-react";
+
           return "vendor";
         },
       },
