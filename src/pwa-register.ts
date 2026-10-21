@@ -6,7 +6,7 @@
 (function () {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", () => {
-    const inSub = /\/(codingshark|codingtower)\//.test(location.pathname);
+    const inSub = /\/(codingshark|codingtower|crossplatform)\//.test(location.pathname);
     const sw = inSub ? "../sw.js" : "./sw.js";
     const scope = inSub ? "../" : "./";
     try {

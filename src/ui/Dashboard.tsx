@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import type { SaveData } from "../lib/storage";
 import { rankOf, RANKS, evaluateStreak } from "../lib/storage";
 import type { AgeCfg, ModuleDef } from "../data/modules";
@@ -23,11 +23,12 @@ import RankEmblemArt from "./RankEmblemArt";
 import SubGameArtwork from "./SubGameArtwork";
 import DaftarMisiSection from "./DaftarMisiSection";
 import MissionHistoryModal from "./MissionHistoryModal";
-import StreakTrendsVisualizer from "./StreakTrendsVisualizer";
 import StreakMultiplierModal from "./StreakMultiplierModal";
 import { getPermanentStreakTier } from "../lib/streakMultiplier";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
+
+const StreakTrendsVisualizer = lazy(() => import("./StreakTrendsVisualizer"));
 
 interface Props {
   save: SaveData;
@@ -486,16 +487,24 @@ export default function Dashboard({
 
         {/* ============ TREN KONSISTENSI & STREAK 7 HARI (STREAK TRENDS) ============ */}
         <section className="mt-8 reveal">
-          <StreakTrendsVisualizer
-            save={save}
-            streakStatus={streakStatus}
-            onStartDaily={() => {
-              if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
-              else onPractice(dailyChallenge.id);
-            }}
-            onOpenHistory={() => setShowHistoryModal(true)}
-            onOpenMultiplier={() => setShowMultiplierModal(true)}
-          />
+          <Suspense
+            fallback={
+              <div className="p-6 rounded-2xl bg-[#071d2e]/80 border border-cyan-500/20 text-center text-xs text-cyan-300">
+                Memuat grafik tren aktivitas…
+              </div>
+            }
+          >
+            <StreakTrendsVisualizer
+              save={save}
+              streakStatus={streakStatus}
+              onStartDaily={() => {
+                if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
+                else onPractice(dailyChallenge.id);
+              }}
+              onOpenHistory={() => setShowHistoryModal(true)}
+              onOpenMultiplier={() => setShowMultiplierModal(true)}
+            />
+          </Suspense>
         </section>
 
         {/* ============ PRESTASI & LENCANA (ACHIEVEMENTS) ============ */}

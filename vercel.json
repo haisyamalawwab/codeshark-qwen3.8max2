@@ -13,6 +13,10 @@
       "destination": "/codingtower/index.html"
     },
     {
+      "source": "/crossplatform/(.*)",
+      "destination": "/crossplatform/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
