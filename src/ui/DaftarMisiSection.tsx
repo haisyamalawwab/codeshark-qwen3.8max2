@@ -1,3 +1,4 @@
+import { useSiteSettings } from "../lib/siteSettings";
 import { useMemo, useState } from "react";
 import type { SaveData } from "../lib/storage";
 import { MODULES, type ModuleDef } from "../data/modules";
@@ -48,6 +49,8 @@ export default function DaftarMisiSection({
   onOpenHistory,
   onOpenMultiplier,
 }: Props) {
+  const settings = useSiteSettings();
+  const activeModules = MODULES.filter(m => settings.modules[m.id as keyof typeof settings.modules]);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -72,13 +75,13 @@ export default function DaftarMisiSection({
 
     const pct = Math.round((completedCount / MODULES.length) * 100);
     return { completedCount, totalScore, totalStars, pct };
-  }, [save.modules]);
+  }, [save.modules, settings.modules]);
 
   // Evaluasi status tiap modul
   const moduleStatuses = useMemo(() => {
-    return MODULES.map((m, idx) => {
+    return activeModules.map((m, idx) => {
       const prog = save.modules[m.id] ?? { materiDone: false, quizXp: 0, completions: 0 };
-      const prevDone = idx === 0 || (save.modules[MODULES[idx - 1].id]?.completions ?? 0) > 0;
+      const prevDone = idx === 0 || (save.modules[activeModules[idx - 1].id]?.completions ?? 0) > 0;
       const unlocked = prevDone;
       const done = prog.completions > 0;
       const isCurrentActive = unlocked && !done;
@@ -92,7 +95,7 @@ export default function DaftarMisiSection({
         idx,
       };
     });
-  }, [save.modules]);
+  }, [save.modules, settings.modules]);
 
   // Filter modul berdasarkan tab
   const filteredModules = useMemo(() => {

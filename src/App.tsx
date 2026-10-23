@@ -1,3 +1,4 @@
+import { useSiteSettings, Unavailable } from "./lib/siteSettings";
 import { Suspense, lazy, useEffect, useState } from "react";
 import type { AgeId, SaveData, DailyChallengeAttempt } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
@@ -79,6 +80,7 @@ type Screen =
     };
 
 export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
+  const settings = useSiteSettings();
   const [save, setSave] = useState<SaveData>(() => loadSave());
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
   const [screen, setScreen] = useState<Screen>({ s: "dash" });
@@ -343,6 +345,15 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   /* pertemuan dibuka dari peta / materi HTML → sesi pertemuan itu */
   const playQuest = (no: number, kind: "quest" | "drill" | "juggle") => enterPractice(questId(no, kind));
 
+  /* ===== Runtime gates also protect direct entry URLs and restored screens. ===== */
+  if (!settings.games[subGame]) return <Unavailable message="Sub-game ini dinonaktifkan admin." />;
+  const selectedModule = screen.s === "materi" ? getModule(screen.id).lang
+    : screen.s === "game" ? getSession(screen.id)?.lang
+    : screen.s === "materi-html" ? "html" : null;
+  if ((subGame === "tower" || subGame === "shark") && selectedModule && !settings.modules[selectedModule]) {
+    return <Unavailable message="Modul ini dinonaktifkan admin." retry={() => setScreen({ s: "dash" })} />;
+  }
+
   /* ===== render ===== */
   return (
     <div className={`age-${cfg.id}`} style={{ "--accent": cfg.accent, "--accent-deep": shade(cfg.accent) } as React.CSSProperties}>
@@ -496,7 +507,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               </div>
             ) : (
               <div className="mode-switch" role="tablist" aria-label="Sub-game aktif">
-                {(["ci_backend", "py_backend", "crossplatform", "tower", "shark"] as SubGameId[]).map((id) => (
+                {(["ci_backend", "py_backend", "crossplatform", "tower", "shark"] as SubGameId[]).filter(id => settings.games[id]).map((id) => (
                   <button
                     key={id}
                     role="tab"

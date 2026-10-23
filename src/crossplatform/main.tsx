@@ -1,3 +1,4 @@
+import { SiteSettingsProvider } from "../lib/siteSettings";
 /* Entry mandiri CrossPlatform Studio — React Native & Expo SDK (MK Sistem Aplikasi Lintas Platform).
    Dikunci ke arena crossplatform. */
 import { StrictMode } from "react";
@@ -6,12 +7,12 @@ import "../index.css";
 import App from "../App";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <StrictMode><SiteSettingsProvider>
     <App
       lockedSubGame="crossplatform"
       hubHref="../"
       siblingHref="../codingtower/"
       siblingLabel="🧱 Coba Coding Tower →"
     />
-  </StrictMode>
+  </SiteSettingsProvider></StrictMode>
 );

@@ -36,6 +36,10 @@ npm run db:tidb:check
 npm run dev:api  # terminal terpisah dari npm run dev
 ```
 
+Indikator koneksi dan checklist environment tersedia pada hub/dashboard.
+Panduan: [verifikasi koneksi database](docs/VERIFIKASI-KONEKSI-DATABASE.md).
+Gunakan `npm run db:verify` untuk pemeriksaan read-only dari server.
+
 Cloud produksi memerlukan token identitas terverifikasi. Kredensial database
 **jangan** dimasukkan ke variabel `VITE_*`. Koneksi cluster asli belum diuji
 hanya dengan menjalankan build aplikasi.
@@ -167,3 +171,7 @@ Alternatif statis: jalankan `npm run build` lalu unggah isi `dist/` ke hosting a
 ## 📄 Lisensi & Credit
 
 Proyek privat (`"private": true`). Aset visual tema (maskot hiu, HUD) dibuat khusus untuk CodeShark Academy. Detail desain & analisis mekanik permainan: lihat [`ANALISIS.md`](./ANALISIS.md) dan [`SPESIFIKASI-UIUX-v0.3.md`](./SPESIFIKASI-UIUX-v0.3.md).
+
+### Pengaturan website khusus admin
+
+Panel `/admin/` menyimpan konfigurasi website, maintenance, aktivasi subgame dan modul dasar ke TiDB, dengan verifikasi admin di server dan audit perubahan. Setup environment, migrasi `npm run db:settings:init`, serta batasan live/offline: [Panduan admin](docs/ADMIN-SETTINGS.md).

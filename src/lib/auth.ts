@@ -44,31 +44,36 @@ export async function currentUser(): Promise<AuthUser | null> {
   return { id: u.id, email: u.email, provider: "google" };
 }
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(redirectPath = ""): Promise<void> {
   const sb = await getSupabase();
   if (!sb) throw new Error("Supabase belum dikonfigurasi (.env).");
-  await sb.auth.signInWithOAuth({
+  const { error } = await sb.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: window.location.origin },
+    options: { redirectTo: window.location.origin + redirectPath },
   });
+  if (error) throw new Error(error.message);
 }
 
 export async function signOut(): Promise<void> {
   const sb = await getSupabase();
-  if (sb) await sb.auth.signOut();
+  if (sb) {
+    const { error } = await sb.auth.signOut();
+    if (error) throw new Error(error.message);
+  }
   rememberUserId("guest");
 }
 
 export function onAuthChange(cb: (u: AuthUser | null) => void): () => void {
   let off = () => {};
+  let active = true;
   getSupabase().then((sb) => {
-    if (!sb) return;
+    if (!sb || !active) return;
     const { data } = sb.auth.onAuthStateChange((_ev, session) => {
       cb(session?.user ? { id: session.user.id, email: session.user.email, provider: "google" } : null);
     });
     off = () => data.subscription.unsubscribe();
   });
-  return () => off();
+  return () => { active = false; off(); };
 }
 
 export async function accessToken(): Promise<string | null> {

@@ -1,3 +1,4 @@
+import { useSiteSettings, Unavailable } from "../lib/siteSettings";
 /* Peta Pertemuan 16× — silabus + tiga sesi ketik per pertemuan (Quest · Drill · Juggling).
    Status & gating berasal dari lib/progress.ts (satu sumber aturan). */
 import { useEffect, useState } from "react";
@@ -179,6 +180,7 @@ function SessionCard({
 }
 
 export function Pertemuan({ save, startNo, subGame = "shark", onExit, onMateri, onPlay }: Props) {
+  const settings = useSiteSettings();
   const [no, setNo] = useState(startNo);
   const [openSlide, setOpenSlide] = useState<number | null>(0);
   const l: Lesson = getLesson(no);
@@ -198,6 +200,7 @@ export function Pertemuan({ save, startNo, subGame = "shark", onExit, onMateri, 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  if (!settings.modules[LESSON_LANG[no]]) return <Unavailable message="Modul pertemuan ini dinonaktifkan admin." retry={onExit} />;
   return (
     <div className="relative z-10 min-h-screen flex flex-col">
       {/* topbar halaman khusus — bukan modal */}

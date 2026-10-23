@@ -1,3 +1,4 @@
+import { useSiteSettings, Unavailable } from "../lib/siteSettings";
 /* ============ MATERI HTML — dokumen .md per pertemuan, gaya HUD Selam ============
    Menggabung silabus 16x: tahap HTML memakai enam dokumen markdown di
    /content/html/*.md sebagai materi utama. Penampilannya mengikuti tema
@@ -201,6 +202,7 @@ function PracticeCard({ l, no, save, onPractice }: { l: Lesson; no: number; save
 /* ---------- layar utama ---------- */
 export default function MateriHtml({ startNo, save, onPractice, onExit }: Props) {
   const htmlNos = CURRICULUM.filter((l) => l.phase === "HTML").map((l) => l.no);
+  const settings = useSiteSettings();
   const [no, setNo] = useState(startNo && htmlNos.includes(startNo) ? startNo : htmlNos[0]);
   const doc = getHtmlDoc(no)!;
   const lesson = getLesson(no);
@@ -216,6 +218,7 @@ export default function MateriHtml({ startNo, save, onPractice, onExit }: Props)
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  if (!settings.modules.html) return <Unavailable message="Modul HTML dinonaktifkan admin." retry={onExit} />;
   return (
     <div className="relative z-10 min-h-screen flex flex-col">
       {/* topbar ala Ruang Materi */}

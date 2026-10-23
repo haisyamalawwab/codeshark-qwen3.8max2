@@ -19,6 +19,24 @@
 
 # API must resolve before the SPA catch-all.
 [[redirects]]
+  from = "/api/site-settings"
+  to = "/.netlify/functions/site-settings"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/admin-settings"
+  to = "/.netlify/functions/admin-settings"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/database-status"
+  to = "/.netlify/functions/database-status"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/sync-progress"
   to = "/.netlify/functions/sync-progress"
   status = 200
@@ -38,6 +56,11 @@
 [[redirects]]
   from = "/crossplatform/*"
   to = "/crossplatform/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
   status = 200
 
 # SPA Fallback Routing hub (agar refresh halaman tetap mengarah ke index.html)
