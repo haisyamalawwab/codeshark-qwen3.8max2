@@ -3,12 +3,14 @@ import handler from "../api/sync-progress.mjs";
 import databaseStatus from "../api/database-status.mjs";
 
 import siteSettings from "../api/site-settings.mjs";
+import adminSetup from "../api/admin-setup.mjs";
 import adminSettings from "../api/admin-settings.mjs";
 
 const port = Number(process.env.API_PORT || 3001);
 createServer(async (req, res) => {
   res.status = (code) => { res.statusCode = code; return res; };
   res.json = (value) => { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(value)); return res; };
+  if (req.url?.split("?")[0] === "/api/admin-setup") return adminSetup(req, res);
   if (req.url === "/api/database-status") return databaseStatus(req, res);
   const routes = { "/api/sync-progress": handler, "/api/site-settings": siteSettings, "/api/admin-settings": adminSettings };
   const route = routes[req.url?.split("?")[0]];

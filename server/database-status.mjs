@@ -39,7 +39,7 @@ export function environmentReport(env) {
   return fields;
 }
 
-export function createDatabaseStatusService({ env = process.env, pool = getTidbPool, options = tidbOptions, now = Date.now, ttlMs = 30000, timeoutMs = 8000 } = {}) {
+export function createDatabaseStatusService({ env = process.env, pool = getTidbPool, options = tidbOptions, now = Date.now, ttlMs = 30000, timeoutMs = 8000, queries = QUERIES } = {}) {
   let cached;
   let expiresAt = 0;
   let inFlight;
@@ -73,7 +73,7 @@ export function createDatabaseStatusService({ env = process.env, pool = getTidbP
         report.database = "connected";
         report.tls = "verified"; // The production pool requires verified TLS.
         try {
-          for (const sql of QUERIES) {
+          for (const sql of queries) {
             if (timedOut) return done("timeout");
             const [rows] = await connection.query({ sql, timeout: 3000 });
             if (sql.includes("cs_schema_migrations") && !rows.length) {

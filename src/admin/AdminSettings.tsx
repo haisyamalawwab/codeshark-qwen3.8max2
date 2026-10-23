@@ -1,3 +1,4 @@
+import AdminSetupChecklist from "./AdminSetupChecklist";
 import { useEffect, useState } from 'react';
 import { currentUser, onAuthChange, signInWithGoogle, signOut, type AuthUser } from '../lib/auth';
 import { settingsRequest, type SettingsDocument } from '../lib/siteSettings';
@@ -51,6 +52,8 @@ export default function AdminSettings() {
         <h2 className="text-lg font-bold">Identitas administrator</h2>
         {authLoading ? <p>Memeriksa sesi…</p> : user ? <div className="flex flex-wrap gap-4 items-center"><p>{user.email || user.id}</p><button disabled={busy} onClick={() => void signOut().catch(() => setMessage('Gagal keluar.'))} className="underline">Keluar</button><button disabled={busy} onClick={() => void reload()} className="underline">Muat ulang konfigurasi</button></div> : <button className="btn-primary" onClick={() => void signInWithGoogle("/admin/").catch(error => setMessage(error.message))}>Login Google sebagai admin</button>}
       </section>
+      <AdminSetupChecklist signedIn={!!user} authorized={!!doc && !!user} loadingAccess={busy || authLoading} revision={doc?.revision} />
+      <DatabaseConnectionStatus />
       {message && <p role="status" className="rounded-xl border border-amber-600 bg-amber-950 p-4">{message}</p>}
       {busy && <p role="status">Memproses…</p>}
       {doc && user && <form className="space-y-6" onSubmit={async event => {
@@ -73,7 +76,6 @@ export default function AdminSettings() {
           <div className="flex gap-4 items-center flex-wrap"><button className="btn-primary" type="submit" disabled={!dirty}>Simpan ke database</button><button type="button" className="underline" onClick={() => void reload()}>Muat ulang</button><span className="text-slate-400 text-sm">Revisi {doc.revision} • {dirty ? 'Perubahan belum disimpan' : 'Sesuai database'}</span></div>
           {doc.updatedAt && <p className="text-sm text-slate-400">Terakhir disimpan: {new Date(doc.updatedAt).toLocaleString('id-ID')}</p>}
         </fieldset>
-        <DatabaseConnectionStatus />
       </form>}
       <p className="text-sm text-slate-500">Password database, kunci autentikasi, dan allowlist admin tetap di environment server — tidak disimpan dalam konfigurasi publik.</p>
     </main>

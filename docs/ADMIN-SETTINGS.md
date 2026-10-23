@@ -72,3 +72,18 @@ Pada workspace ini password database, konfigurasi login dan ID admin masih koson
 - Tidak ada migrasi atau write database live yang dijalankan. Password TiDB, konfigurasi layanan identitas dan ID admin harus diisi sebelum uji cloud.
 
 Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).
+
+## Checklist setup yang belum selesai
+
+Halaman `/admin/` kini selalu menampilkan **Setup yang perlu diselesaikan**, terpisah dari form pengaturan yang memerlukan login. Checklist tetap tersedia jika login belum bisa dipakai, allowlist admin belum diisi, atau pembacaan konfigurasi database gagal.
+
+- Konfigurasi Auth browser (`VITE_*`) diperiksa di browser tanpa menampilkan nilainya.
+- `/api/admin-setup` memberikan status redacted untuk environment TiDB/Auth, keberadaan allowlist admin, koneksi database, dan struktur dua tabel settings/audit. Endpoint bootstrap ini tidak memerlukan login supaya kesalahan konfigurasi Auth sendiri bisa terlihat; tidak pernah mengembalikan ID admin, credential, row, atau error SQL.
+- Pemeriksaan skema hanya SELECT/LIMIT 0, menggunakan timeout dan cache/singleflight 30 detik. Tidak melakukan migrasi, menulis database, atau membuktikan izin tulis.
+- Setiap item menampilkan petunjuk perbaikan. Klik **Periksa ulang setup** setelah memperbaiki konfigurasi; restart server atau rebuild bila environment berubah.
+- `Terisi · belum diuji` berbeda dari `Terverifikasi`. Google provider dan daftar redirect dashboard tidak diaudit otomatis: tetap ditandai perlu verifikasi, bukan dianggap selesai karena key terisi atau sesi lokal tersedia.
+- Sesi/akses admin hanya ditandai terverifikasi setelah API pengaturan berhasil dimuat. Konfigurasi revisi 0 menampilkan pengingat penyimpanan pertama.
+- Secret/service-role key tidak dihitung sebagai blocker untuk login pengguna. Nilai credential tidak ditampilkan dan tidak dapat diedit dari checklist ini.
+- Panel status database yang sudah ada juga dipindahkan keluar form login sehingga kegagalan setup tidak menyembunyikan diagnostik.
+
+Endpoint tersedia untuk dev API, Node/Vercel, dan Netlify. Tes: `npm run test:admin-setup` (API/bootstrap/redaksi/read-only/cache, validasi frontend dan rendering admin sebelum login).

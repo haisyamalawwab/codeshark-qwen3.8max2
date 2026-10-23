@@ -21,7 +21,8 @@
     "test:settings": "node --test tests/site-settings.test.mjs",
     "test:settings:browser": "node scripts/test-settings-browser.mjs",
     "auth:verify": "node --env-file-if-exists=.env scripts/verify-auth.mjs",
-    "test:auth": "node --test tests/supabase-auth.test.mjs"
+    "test:auth": "node --test tests/supabase-auth.test.mjs",
+    "test:admin-setup": "node --test tests/admin-setup.test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
