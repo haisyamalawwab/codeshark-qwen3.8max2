@@ -113,6 +113,16 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   };
 
   useEffect(() => persist(save), [save]);
+  // Sync only after React has committed the latest snapshot, not the pre-run save.
+  useEffect(() => {
+    const sync = () => { pushOutbox(save.deviceId, save.profile?.name ?? null, save).catch(() => {}); };
+    const timer = window.setTimeout(sync, 300);
+    window.addEventListener("online", sync);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("online", sync);
+    };
+  }, [save]);
   useEffect(() => {
     sfx.enabled = sound;
   }, [sound]);
@@ -247,7 +257,6 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       xpAward: totalXpAward, coinsAward: totalCoinsAward, passed,
     });
     enqueueAttempt(rec);
-    pushOutbox(save.deviceId, save.profile?.name ?? null, save).catch(() => {});
 
     const linesAwarded = r.linesCompleted ?? (r.won ? Math.max(1, Math.round(r.correct / 20)) : 0);
 

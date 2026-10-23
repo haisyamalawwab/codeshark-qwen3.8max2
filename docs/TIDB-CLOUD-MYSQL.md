@@ -1,0 +1,249 @@
+# Menyiapkan TiDB Cloud MySQL untuk CodeShark
+
+## Status dan lingkup
+
+Codebase kini mempunyai skema dan adapter **TiDB Cloud melalui protokol MySQL**. Ini menyiapkan penyimpanan snapshot progres dan riwayat percobaan; bukan pembuatan cluster cloud secara otomatis.
+
+- Driver: `mysql2/promise`, server-side, pool maksimal tiga koneksi per proses.
+- TLS selalu aktif dengan verifikasi sertifikat; tidak ada opsi `rejectUnauthorized: false`.
+- Penyimpanan: profil, snapshot lengkap, attempt idempoten, dan versi skema.
+- Snapshot lengkap mencakup streak, daily challenge, milestone, dan `claimedAchievements`; bukan hanya XP/koin.
+- Endpoint: `POST /api/sync-progress` pada Vercel, adapter Netlify, atau server pengembangan lokal.
+- Frontend tetap local-first. Gangguan database tidak menghapus progres lokal/outbox.
+- **Belum diuji terhadap cluster TiDB asli.** Tes otomatis menggunakan koneksi tiruan; jalankan langkah verifikasi di bawah pada cluster milik Anda.
+- Tidak ada migrasi otomatis data PostgreSQL/Neon, pemulihan save dari cloud, leaderboard, atau validasi anti-cheat dalam pekerjaan ini.
+
+Panduan deployment khusus Netlify: [NETLIFY-TIDB-CLOUD.md](NETLIFY-TIDB-CLOUD.md).
+
+## 1. Buat cluster dan database
+
+1. Buat/pilih cluster TiDB Cloud dan salin parameter koneksi dari halaman Connect.
+2. Pilih region dekat dengan runtime backend. Pastikan kebijakan jaringan/IP cluster mengizinkan backend tersebut.
+3. Gunakan username lengkap yang diberikan TiDB Cloud; beberapa konfigurasi memakai prefiks tenant.
+4. Gunakan database khusus aplikasi, misalnya `codeshark`, agar tidak bertabrakan dengan aplikasi lain.
+5. Buat database menggunakan SQL Editor/klien MySQL dengan akun administrator:
+
+```sql
+CREATE DATABASE IF NOT EXISTS codeshark
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+USE codeshark;
+```
+
+Jangan jalankan skema PostgreSQL lama `db/schema.sql` atau `db/supabase-schema.sql` pada TiDB. Gunakan **`db/tidb-schema.sql`**.
+
+Port default konfigurasi aplikasi adalah `4000`; gunakan port yang benar dari halaman Connect jika berbeda. Gunakan MySQL client yang mendukung TLS. Bila memakai CLI, minta password secara interaktif, jangan masukkan password dalam argumen command atau commit Git.
+
+```bash
+mysql --host="$TIDB_HOST" --port="${TIDB_PORT:-4000}" \
+  --user="$TIDB_USER" --password --ssl-mode=VERIFY_IDENTITY codeshark
+```
+
+Jika cluster/klien memerlukan CA khusus, tambahkan `--ssl-ca=/path/to/ca.pem`. Jangan menonaktifkan verifikasi sertifikat sebagai solusi error TLS.
+
+## 2. Konfigurasi environment server
+
+Salin `.env.example` ke `.env`, kemudian isi nilainya secara lokal atau melalui dashboard environment deployment. `.env` tidak boleh di-commit. Tidak perlu membagikan password database di percakapan.
+
+```dotenv
+DB_PROVIDER=tidb
+TIDB_HOST=host-dari-halaman-connect
+TIDB_PORT=4000
+TIDB_USER=username-lengkap-dari-tidb
+TIDB_PASSWORD="isi-di-environment-server"
+TIDB_DATABASE=codeshark
+TIDB_CA_CERT=
+TIDB_CA_PATH=
+TIDB_ALLOW_GUEST_SYNC=false
+```
+
+- `TIDB_CA_CERT` opsional: konten PEM CA untuk environment serverless (multiline atau literal `\n`). Pilih salah satu, jangan isi bersama `TIDB_CA_PATH`.
+- `TIDB_CA_PATH` opsional: path PEM CA yang dapat dibaca runtime. Bila kosong, gunakan trust store CA Node.js.
+- Password dengan `#` atau karakter khusus harus diberi tanda kutip dalam `.env`.
+- Jangan memakai prefix `VITE_` untuk host kredensial database, password, database URL, atau service-role key. Variabel `VITE_*` dapat masuk bundle browser.
+- Hanya set `DB_PROVIDER=tidb` pada environment yang memang sudah siap TiDB. Jalur Neon lama masih ada untuk konfigurasi legacy; skema dan identitasnya berbeda.
+
+## 3. Inisialisasi dan cek
+
+Gunakan Node.js 22+ dan install dependency dari lockfile:
+
+```bash
+npm ci
+npm run db:tidb:init
+npm run db:tidb:check
+```
+
+Kedua script membaca `.env` menggunakan `--env-file-if-exists=.env`; environment dari deployment juga dapat dipakai tanpa berkas `.env`.
+
+`init` mengeksekusi skema awal statement per statement. Tidak mengaktifkan `multipleStatements` di koneksi dan tidak mencetak kredensial. DDL MySQL/TiDB tidak dianggap atomic; jika gagal di tengah, perbaiki penyebab lalu jalankan ulang. Seluruh `CREATE TABLE IF NOT EXISTS` dan pencatatan versi bersifat idempoten. Perubahan struktur berikutnya memerlukan migrasi versioned baru, bukan sekadar mengubah skema awal.
+
+### Tabel
+
+| Tabel | Fungsi |
+|---|---|
+| `cs_schema_migrations` | Penanda versi `001_initial_tidb` |
+| `cs_profiles` | Pemilik, metadata perangkat, nama profil, kelompok usia |
+| `cs_saves` | Saldo/kolom ringkasan, modules/stats, snapshot penuh dalam JSON |
+| `cs_attempts` | Riwayat percobaan dan metrik, unik per `(owner_id, id)` |
+
+Nama `cs_` menghindari tabrakan dengan skema lama. Tidak ada ketergantungan pada foreign key TiDB versi tertentu; integritas parent/child pada jalur tulis ditangani transaksi aplikasi. Untuk penghapusan akun, buat prosedur terotorisasi yang menghapus child dan parent dalam transaksi; tidak ada cascade otomatis pada skema ini.
+
+Semua timestamp server/driver menggunakan UTC. Tanggal daily yang disimpan dalam JSON tetap mengikuti semantik aplikasi lokal.
+
+### Akun migrasi dan akun runtime
+
+Gunakan akun terpisah bila kebijakan cluster memungkinkan:
+
+- Migrasi: `CREATE`, `ALTER`, `INDEX`, `SELECT`, `INSERT` sesuai kebutuhan migrasi.
+- Runtime: `SELECT`, `INSERT`, `UPDATE` pada tabel aplikasi saja; tidak perlu `DROP`, `GRANT`, atau akses database aplikasi lain.
+
+Contoh grant oleh administrator, sesuaikan user dan kebijakan TiDB Cloud:
+
+```sql
+GRANT SELECT, INSERT, UPDATE ON codeshark.* TO 'codeshark_app'@'%';
+```
+
+Jangan menjalankan endpoint publik dengan akun administrator. Jangan membuat user/password otomatis di repository.
+
+## 4. Identitas dan keamanan sinkronisasi
+
+TiDB tidak menyediakan RLS PostgreSQL/Supabase pada tabel ini. Karena itu akses dilakukan melalui backend, bukan koneksi SQL langsung dari browser.
+
+Pada jalur TiDB produksi:
+
+1. Browser mengirim bearer token login.
+2. Server memverifikasi token melalui endpoint identitas Supabase Auth (`/auth/v1/user`).
+3. `owner_id` dibentuk dari ID user hasil verifikasi, **bukan** `userId` atau `deviceId` yang diklaim klien.
+4. SQL memakai parameter binding dan seluruh penulisan request dalam satu transaksi.
+5. Daftar `acceptedIds` dikirim hanya setelah commit berhasil.
+
+Set server environment untuk verifier identitas:
+
+```dotenv
+SUPABASE_URL=https://project-anda.supabase.co
+SUPABASE_ANON_KEY=public-anon-key-project
+```
+
+Supabase di sini hanya penyedia identitas, **data permainan disimpan pada TiDB**. `SUPABASE_SERVICE_ROLE_KEY` tidak diperlukan untuk jalur ini. Jangan memakai kredensial TiDB sebagai key autentikasi frontend.
+
+Frontend sudah mempunyai abstraksi login opsional. Namun keberadaan abstraksi tidak berarti OAuth produksi otomatis siap: `@supabase/supabase-js` tidak menjadi dependency default pada baseline dan lazy import browser perlu diverifikasi pada deployment. Bila login belum bekerja, integrasikan/bundel SDK serta redirect OAuth sesuai setup Anda sebagai pekerjaan terpisah. Jalur TiDB sengaja **menolak sinkronisasi produksi tanpa token valid**; local play tetap berjalan.
+
+### Pengujian guest lokal saja
+
+Untuk mencoba database sebelum OAuth siap:
+
+```dotenv
+TIDB_ALLOW_GUEST_SYNC=true
+```
+
+Hanya berlaku jika `NODE_ENV` bukan `production`; pemilik menjadi `guest:<deviceId>`. Ini **bukan isolasi pengguna aman**: siapa pun yang mengetahui device ID dapat menirunya pada mode ini, dan profil guest satu perangkat tidak dipisahkan per nama. Gunakan hanya pada environment developer yang tidak dibuka untuk publik. Produksi tetap menolak guest meski flag bernilai `true`.
+
+Data skor/XP masih berasal dari klien. Verifikasi identitas dan transaksi tidak membuatnya layak untuk leaderboard terverifikasi atau penilaian akademik. Rate limiting, ledger reward server-authoritative, retensi data, dan anti-cheat merupakan pekerjaan lanjutan sebelum kompetisi publik.
+
+## 5. Menjalankan pengembangan
+
+Terminal pertama:
+
+```bash
+npm run dev:api
+```
+
+Terminal kedua:
+
+```bash
+npm run dev
+```
+
+- API Node mendengarkan port 3001 (atau `API_PORT`).
+- Vite port 3000 mem-proxy `/api` ke server tersebut, sehingga browser tetap menggunakan `/api/sync-progress`, bukan localhost backend.
+- Jika mengubah `API_PORT`, sesuaikan target proxy di `vite.config.ts` juga.
+- Mock API Vite lama telah dihapus. Bila backend tidak berjalan, sinkronisasi gagal secara nyata dan outbox dipertahankan.
+- `npm run preview` hanya untuk aset hasil build; bukan server API. Uji API dengan server lokal/platform function yang sesuai.
+
+Contoh payload lokal untuk mode guest developer, bukan data produksi:
+
+```bash
+curl --fail-with-body http://127.0.0.1:3001/api/sync-progress \
+  -H 'Content-Type: application/json' \
+  --data '{"deviceId":"dev-smoke","profileName":"Kadet Uji","sentAt":1800000000000,"save":{"xp":0,"coins":0,"modules":{},"stats":{}},"attempts":[]}'
+```
+
+Respons sukses setelah commit:
+
+```json
+{"ok":true,"synced":0,"acceptedIds":[]}
+```
+
+Periksa record di `cs_profiles` dan `cs_saves` setelah request; respons ini bukan klaim bahwa contoh sudah dijalankan terhadap cluster Anda.
+
+## 6. Deployment
+
+### Vercel
+
+- `api/sync-progress.mjs` adalah Node function.
+- Set `DB_PROVIDER`, `TIDB_*`, serta environment verifier identitas pada server environment Vercel.
+- Pastikan request `/api/sync-progress` mencapai function, bukan SPA HTML; periksa dengan request POST dan respons JSON setelah deploy.
+- Build statis tidak menguji koneksi database.
+
+### Netlify
+
+- Adapter ada di `netlify/functions/sync-progress.mjs`.
+- `netlify.toml` mengatur direktori function, bundler, serta redirect API sebelum catch-all SPA.
+- Function Netlify memakai adapter TiDB langsung dan tidak memuat driver Neon legacy.
+- Set environment pada Netlify functions/runtime, bukan hanya browser build.
+- CA via GitHub: tambahkan `certs/tidb-ca-rozanhaisyam.pem` dan set `TIDB_CA_PATH=certs/tidb-ca-rozanhaisyam.pem`; `netlify.toml` menyertakannya di bundle function. Kosongkan `TIDB_CA_CERT`.
+- Alternatifnya gunakan `TIDB_CA_CERT` untuk konten PEM environment; file laptop tidak otomatis tersedia di function.
+- Adapter Netlify memaksa aturan identitas produksi: guest ditolak pada semua context deploy.
+
+Pool maksimal tiga koneksi adalah batas **per proses/instance**. Jumlah total koneksi dapat meningkat saat autoscaling; sesuaikan concurrency dan batas cluster. CA file khusus harus tersedia pada function jika `TIDB_CA_PATH` dipakai. Hindari menutup pool setiap request; serverless dapat memakai ulang instance.
+
+## 7. Semantik transaksi dan outbox
+
+- Upsert profil mengunci satu baris pemilik untuk menserialkan sinkronisasi pemilik yang sama.
+- Snapshot disimpan sebagai satu objek utuh, bukan menggabungkan saldo menggunakan `GREATEST`; koin dapat turun jika fitur belanja dipakai.
+- Snapshot dengan `sentAt` lebih lama tidak menimpa yang lebih baru; timestamp ini dari klien, **bukan** kontrol konflik multi-perangkat yang kuat. Jam salah/masa depan dapat menahan snapshot selanjutnya; resolusi berbasis revision server adalah pengembangan berikutnya.
+- Nama profil metadata diperbarui pada setiap request; hanya isi snapshot yang memakai guard timestamp.
+- Attempt unik per pemilik dan ID. Retry ID yang sama tidak menambah row atau menimpa payload attempt pertama.
+- Snapshot dan attempts commit bersama; kegagalan salah satu mengakibatkan rollback semua penulisan request.
+- Klien hanya menghapus ID yang sudah diakui server dan termasuk batch terkirim. Attempt baru yang muncul selama request berjalan tetap dipertahankan.
+- Respons mock, warning, non-JSON, atau HTTP gagal tidak mengosongkan outbox.
+- App mengirim setelah perubahan state save committed, bukan snapshot sebelum hasil game diperbarui.
+
+Batasan baseline yang tetap berlaku: history/outbox lokal maksimal 200; storage/outbox belum sepenuhnya di-namespace per akun. Jangan memakai browser/perangkat bersama untuk sinkronisasi banyak akun tanpa migrasi isolasi outbox. Fitur restore/download cloud dan sinkronisasi perubahan tanpa attempt baru belum disediakan; klaim badge/perubahan profil akan ikut snapshot saat batch attempt berikutnya dikirim. Backup JSON lokal tetap berguna.
+
+## 8. Verifikasi
+
+```bash
+npm run test:tidb
+npm run test:badges
+npm run lint
+npm run build
+```
+
+Tes TiDB mencakup konfigurasi TLS, validasi payload, otorisasi, binding SQL, commit/rollback, stale snapshot, idempotent SQL, adapter Netlify, dan outbox acknowledgement. Ini unit test dengan DB tiruan, **bukan** bukti kompatibilitas SQL pada cluster tertentu.
+
+Setelah environment asli terisi:
+
+1. Jalankan `db:tidb:init` dan `db:tidb:check`.
+2. Pastikan versi dan empat tabel `cs_` muncul.
+3. Kirim smoke request terotorisasi atau guest developer lokal.
+4. Kirim ulang attempt ID yang sama; hitung row tetap satu.
+5. Putus akses database; respons harus gagal dan outbox tetap ada.
+6. Uji login dua user: owner diverifikasi dari token, bukan body.
+7. Periksa snapshot `claimedAchievements`, streak, dan daily di JSON, bukan hanya XP.
+8. Pastikan tidak ada password/connection string dalam bundle `dist` atau log publik.
+
+## 9. Troubleshooting
+
+| Gejala | Pemeriksaan |
+|---|---|
+| Missing configuration | Isi server env, jangan hanya `VITE_*` |
+| Access denied | Username lengkap TiDB, password, grant database |
+| Timeout | Host/port, jaringan/IP allowlist, region, firewall |
+| TLS certificate error | CA valid, nama host sesuai sertifikat, trust store Node |
+| 401 | Login/token valid; guest ditolak di produksi sesuai desain |
+| 503 identity verification | Konfigurasi URL/anon key server dan ketersediaan verifier |
+| 503 database sync | Skema telah diinisialisasi, env runtime benar, grants cukup |
+| HTML alih-alih JSON | Routing `/api` tertangkap SPA fallback |
+| Data tidak muncul | Mock tidak lagi dianggap sukses; periksa outbox, log aman, owner dan database aktif |
+
+Jangan memperbaiki error dengan mempublikasikan password, menonaktifkan TLS, membuka semua tabel ke browser, atau mengubah error menjadi respons sukses palsu.

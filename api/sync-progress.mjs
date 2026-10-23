@@ -1,8 +1,11 @@
+import { handleTidbSync } from "../server/tidb-sync.mjs";
+
 // Serverless function: POST /api/sync-progress
-// Kompatibel Vercel Functions & Netlify Functions (node runtime).
-// Env: DATABASE_URL / NETLIFY_DATABASE_URL (Neon connection string).
+// Vercel Node handler; Netlify adapter: netlify/functions/sync-progress.mjs.
+// DB_PROVIDER=tidb uses server/tidb-sync.mjs; otherwise legacy Neon config.
 
 export default async function handler(req, res) {
+  if (process.env.DB_PROVIDER === "tidb") return handleTidbSync(req, res);
   if (req.method !== "POST") return res.status(405).json({ ok: false });
   try {
     const { deviceId, profileName, save, attempts } = req.body || {};
@@ -10,8 +13,8 @@ export default async function handler(req, res) {
 
     const dbUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL;
     if (!dbUrl) {
-      // In-memory mock response when remote database connection is unconfigured
-      return res.status(200).json({ ok: true, synced: (attempts || []).length, mock: true });
+      // Fail closed: do not acknowledge data that has not been persisted.
+      return res.status(503).json({ ok: false, error: "Cloud database is not configured" });
     }
 
     let neon;
@@ -19,8 +22,8 @@ export default async function handler(req, res) {
       const neonMod = await import("@neondatabase/serverless");
       neon = neonMod.neon;
     } catch {
-      // @neondatabase/serverless not installed, gracefully fall back to mock
-      return res.status(200).json({ ok: true, synced: (attempts || []).length, mock: true });
+      // Missing legacy driver must not discard the client outbox.
+      return res.status(503).json({ ok: false, error: "Cloud database is not configured" });
     }
 
     const sql = neon(dbUrl);
@@ -45,8 +48,8 @@ export default async function handler(req, res) {
         values (${a.id}, ${deviceId}, ${a.sessionId}, ${!!a.won}, ${a.stars || 0}, ${a.score || 0}, ${a.accuracy || 0}, ${a.wpm || 0}, ${a.maxCombo || 0}, ${a.xpAward || 0}, ${a.coinsAward || 0}, ${!!a.passed}, to_timestamp(${Math.floor((a.at || Date.now()) / 1000)}))
         on conflict (id) do nothing`;
     }
-    return res.status(200).json({ ok: true, synced: (attempts || []).length });
-  } catch (e) {
-    return res.status(200).json({ ok: true, synced: 0, warning: String(e?.message || e) });
+    return res.status(200).json({ ok: true, synced: (attempts || []).length, acceptedIds: (attempts || []).map((a) => a.id) });
+  } catch {
+    return res.status(503).json({ ok: false, error: "Database sync unavailable; retry later" });
   }
 }
