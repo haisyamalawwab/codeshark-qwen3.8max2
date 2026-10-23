@@ -38,7 +38,8 @@ export function guestUser(name: string): AuthUser {
 export async function currentUser(): Promise<AuthUser | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const { data } = await sb.auth.getSession();
+  const { data, error } = await sb.auth.getSession();
+  if (error) throw new Error("Sesi login tidak dapat dibaca. Silakan login kembali.");
   const u = data.session?.user;
   if (!u) return null;
   return { id: u.id, email: u.email, provider: "google" };
@@ -47,6 +48,8 @@ export async function currentUser(): Promise<AuthUser | null> {
 export async function signInWithGoogle(redirectPath = ""): Promise<void> {
   const sb = await getSupabase();
   if (!sb) throw new Error("Supabase belum dikonfigurasi (.env).");
+  // Redirects are same-origin paths; never accept a caller-supplied external URL.
+  if (redirectPath && (!redirectPath.startsWith("/") || redirectPath.startsWith("//") || redirectPath.includes("\\"))) throw new Error("Tujuan login tidak valid.");
   const { error } = await sb.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: window.location.origin + redirectPath },
@@ -72,13 +75,14 @@ export function onAuthChange(cb: (u: AuthUser | null) => void): () => void {
       cb(session?.user ? { id: session.user.id, email: session.user.email, provider: "google" } : null);
     });
     off = () => data.subscription.unsubscribe();
-  });
+  }).catch(() => { if (active) cb(null); });
   return () => { active = false; off(); };
 }
 
 export async function accessToken(): Promise<string | null> {
   const sb = await getSupabase();
   if (!sb) return null;
-  const { data } = await sb.auth.getSession();
+  const { data, error } = await sb.auth.getSession();
+  if (error) throw new Error("Sesi login tidak dapat dibaca. Silakan login kembali.");
   return data.session?.access_token ?? null;
 }

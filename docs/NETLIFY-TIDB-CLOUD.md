@@ -46,15 +46,15 @@ Buka situs Netlify terkait → **Project/Site configuration → Environment vari
 | Variabel | Nilai/tujuan |
 |---|---|
 | `DB_PROVIDER` | `tidb` untuk konsistensi konfigurasi lokal/Vercel; function Netlify ini selalu memakai TiDB |
-| `TIDB_HOST` | `gateway01.ap-southeast-1.prod.aws.tidbcloud.com` tanpa `http://` |
+| `TIDB_HOST` | `your-tidb-host` tanpa `http://` |
 | `TIDB_PORT` | `4000` |
-| `TIDB_USER` | `4SVd5YwHs8hxfc5.root` saat bootstrap, lalu ganti user runtime berizin minimum |
+| `TIDB_USER` | `your-tidb-user` saat bootstrap, lalu ganti user runtime berizin minimum |
 | `TIDB_PASSWORD` | Password asli, isi langsung di dashboard dan tandai sebagai secret bila tersedia |
 | `TIDB_DATABASE` | `codeshark` setelah database dibuat; **bukan `sys`** |
 | `TIDB_CA_PATH` | `certs/tidb-ca-rozanhaisyam.pem` setelah CA resmi ditambahkan melalui GitHub |
 | `TIDB_CA_CERT` | Kosongkan saat memakai file CA; alternatif berupa konten PEM environment |
 | `SUPABASE_URL` | URL project penyedia identitas yang digunakan aplikasi |
-| `SUPABASE_ANON_KEY` | Anon key project yang sama untuk verifikasi token server |
+| `SUPABASE_PUBLISHABLE_KEY` | Publishable key project yang sama untuk verifikasi token server |
 | `TIDB_ALLOW_GUEST_SYNC` | `false`; function juga memaksa aturan produksi meskipun salah konfigurasi menjadi `true` |
 
 Jangan menyalin placeholder `<PASSWORD>` atau `<CA_PATH>` sebagai nilai nyata. Tidak perlu connection string `mysql://...` karena adapter membaca field `TIDB_*` secara terpisah; password yang mengandung simbol tidak perlu URL-encoding pada field environment ini.
@@ -62,7 +62,7 @@ Jangan menyalin placeholder `<PASSWORD>` atau `<CA_PATH>` sebagai nilai nyata. T
 ### Scope build versus function
 
 - Kredensial `TIDB_*` cukup di Functions scope; tidak perlu tersedia untuk browser build.
-- `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY`, jika fitur login dipakai, adalah konfigurasi publik **Builds** untuk frontend. Nilainya harus cocok dengan verifier server.
+- `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY`, jika fitur login dipakai, adalah konfigurasi publik **Builds** untuk frontend. Nilainya harus cocok dengan verifier server.
 - `SUPABASE_SERVICE_ROLE_KEY` tidak diperlukan untuk jalur sinkronisasi ini.
 - `VITE_SYNC_ENDPOINT` sudah memiliki default publik di `netlify.toml`.
 - Jangan membuat `VITE_TIDB_PASSWORD`, `VITE_DATABASE_URL`, atau variabel secret lain berprefix `VITE_`.
@@ -172,3 +172,5 @@ Hub/dashboard kini menyediakan status koneksi dan checklist environment yang ber
 - `.env` lokal tetap lokal dan diabaikan Git. Perubahan dokumen/config tidak otomatis memperbarui dashboard Netlify.
 
 Lihat [panduan TiDB lengkap](TIDB-CLOUD-MYSQL.md) untuk skema, izin database, snapshot timestamp, migrasi dan troubleshooting tambahan.
+
+Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).

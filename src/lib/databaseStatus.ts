@@ -1,6 +1,6 @@
 export const DATABASE_STATES = ["disabled", "env_incomplete", "config_invalid", "connection_failed", "schema_missing", "connected", "timeout"] as const;
 export type DatabaseState = typeof DATABASE_STATES[number];
-export const ENV_NAMES = ["DB_PROVIDER", "TIDB_HOST", "TIDB_USER", "TIDB_PASSWORD", "TIDB_DATABASE", "TIDB_PORT", "TIDB_CA_PATH", "TIDB_CA_CERT", "SUPABASE_URL", "SUPABASE_ANON_KEY"] as const;
+export const ENV_NAMES = ["DB_PROVIDER", "TIDB_HOST", "TIDB_USER", "TIDB_PASSWORD", "TIDB_DATABASE", "TIDB_PORT", "TIDB_CA_PATH", "TIDB_CA_CERT", "SUPABASE_URL", "SUPABASE_JWKS_URL", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_ANON_KEY"] as const;
 export interface DatabaseStatus {
   state: DatabaseState;
   checkedAt: string;

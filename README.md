@@ -175,3 +175,7 @@ Proyek privat (`"private": true`). Aset visual tema (maskot hiu, HUD) dibuat khu
 ### Pengaturan website khusus admin
 
 Panel `/admin/` menyimpan konfigurasi website, maintenance, aktivasi subgame dan modul dasar ke TiDB, dengan verifikasi admin di server dan audit perubahan. Setup environment, migrasi `npm run db:settings:init`, serta batasan live/offline: [Panduan admin](docs/ADMIN-SETTINGS.md).
+
+### Supabase Authentication
+
+Browser mendukung `VITE_SUPABASE_PUBLISHABLE_KEY`; backend mendukung `SUPABASE_PUBLISHABLE_KEY` dan verifikasi user JWT melalui `@supabase/server` + `SUPABASE_JWKS_URL`. Jalankan `npm run auth:verify` untuk pemeriksaan read-only. Setup OAuth, secret-key handling, fallback legacy, dan batasan pengujian: [Supabase Auth](docs/SUPABASE-AUTH.md).
