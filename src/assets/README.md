@@ -10,6 +10,8 @@ src/assets/
                hud-sprite-isolated.* (KANONIK 4×3)  hud-sprite-wide.*  hud-atlas-cs.*
   stations/    dome-gold.*  dome-crystal.*  coral-cluster.*  lab-station.*  shark-side.*
   sea/         sea-far.svg  sea-mid.svg  sea-near.svg
+  badges/      badges-enabled.{webp,png}  badges-disabled.{webp,png}
+               manifest.json (17 badge × 2 status; sel 256px)
 ```
 
 Aturan:
