@@ -1,3 +1,5 @@
+import { useSiteSettings } from "../lib/siteSettings";
+import DatabaseConnectionStatus from "./DatabaseConnectionStatus";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import type { SaveData } from "../lib/storage";
 import { rankOf, RANKS, evaluateStreak } from "../lib/storage";
@@ -74,6 +76,7 @@ export default function Dashboard({
   save, cfg, onMateri, onPractice, onDailyChallenge, onClaimAchievement, onMateriHtml, onPeta,
   subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile,
 }: Props) {
+  const settings = useSiteSettings();
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -210,6 +213,7 @@ export default function Dashboard({
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pb-24">
+        <DatabaseConnectionStatus />
         {/* ============ HERO KARTU PROFIL KAPTEN (HUD STYLE) ============ */}
         <section className="hud-hero-card mt-7 p-6 md:p-8 relative overflow-hidden screen-in">
           {/* Ambient Glow di belakang kartu */}
@@ -544,7 +548,7 @@ export default function Dashboard({
             </span>
           </div>
           <div className="grid md:grid-cols-2 gap-3">
-            {SUBGAME_ORDER.map((id) => {
+            {SUBGAME_ORDER.filter(id => settings.games[id]).map((id) => {
               const g = SUBGAMES[id];
               const active = subGame === id;
               const recommended = isTouch && id === "tower";
@@ -713,7 +717,8 @@ export default function Dashboard({
               if (onDailyChallenge) onDailyChallenge(dailyChallenge.id);
               else onPractice(dailyChallenge.id);
             } else {
-              onPractice(MODULES[0]?.id || "html");
+              const first = MODULES.find(m => settings.modules[m.id as keyof typeof settings.modules]);
+              if (first) onPractice(first.id);
             }
           }}
         />

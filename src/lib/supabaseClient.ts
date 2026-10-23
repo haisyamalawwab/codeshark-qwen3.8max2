@@ -1,13 +1,9 @@
-/* Supabase client — lazy & opsional.
-   Tanpa VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY → getSupabase() = null,
-   game jalan 100% lokal (guest). Setelah `npm i @supabase/supabase-js`
-   + isi .env, login Google otomatis aktif tanpa ubah caller. */
-
+/* Supabase SDK is bundled lazily; browser configuration contains public keys only. */
 type SupabaseClient = {
   auth: {
     getSession: () => Promise<{ data: { session: { user: { id: string; email?: string }; access_token: string } | null } }>;
-    signInWithOAuth: (o: { provider: "google"; options?: { redirectTo?: string } }) => Promise<unknown>;
-    signOut: () => Promise<unknown>;
+    signInWithOAuth: (o: { provider: "google"; options?: { redirectTo?: string } }) => Promise<{ error: { message: string } | null }>;
+    signOut: () => Promise<{ error: { message: string } | null }>;
     onAuthStateChange: (cb: (ev: string, session: { user: { id: string; email?: string } } | null) => void) => { data: { subscription: { unsubscribe: () => void } } };
   };
   from: (table: string) => {
@@ -34,18 +30,12 @@ export async function getSupabase(): Promise<SupabaseClient | null> {
     return cached;
   }
   try {
-    // specifier dipecah + @vite-ignore agar Rollup tidak me-resolve saat build;
-    // paket hanya diunduh bila user memasangnya (`npm i @supabase/supabase-js`).
-    const spec = "@supabase/" + "supabase-js";
-    const mod = await import(/* @vite-ignore */ spec).catch(() => null);
-    if (!mod) {
-      cached = null;
-      return cached;
-    }
+    // Static dynamic import lets Vite bundle the SDK for browser OAuth.
+    const mod = await import("@supabase/supabase-js");
     cached = mod.createClient(
       import.meta.env.VITE_SUPABASE_URL,
       import.meta.env.VITE_SUPABASE_ANON_KEY,
-    ) as SupabaseClient;
+    ) as unknown as SupabaseClient;
     return cached;
   } catch {
     cached = null;

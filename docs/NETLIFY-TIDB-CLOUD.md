@@ -159,6 +159,10 @@ npm run build
 
 `test:netlify` memakai dependency tiruan untuk menguji parsing event Netlify, header bearer, base64, batas ukuran, aturan produksi, commit acknowledgement, dan kegagalan koneksi. Unit test serta build sukses tidak menggantikan tes koneksi cloud aktual.
 
+## Indikator dan pemeriksaan koneksi
+
+Hub/dashboard kini menyediakan status koneksi dan checklist environment yang bersumber dari `GET /api/database-status`. Endpoint memakai probe read-only dengan cache internal 30 detik, tanpa nilai secret atau data peserta. Status database terhubung tidak membuktikan login/penulisan sukses. Lihat [panduan verifikasi](VERIFIKASI-KONEKSI-DATABASE.md) untuk arti status, CLI, environment, dan batas keamanan.
+
 ## 8. Batasan yang tetap berlaku
 
 - Ini backup/sinkronisasi **tulis**, belum alur restore save saat login atau sinkronisasi multi-perangkat lengkap.

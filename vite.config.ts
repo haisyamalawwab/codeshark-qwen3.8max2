@@ -74,6 +74,7 @@ export default defineConfig({
       // EMPAT ENTRY: hub agregat + 3 sub-game mandiri (output dist sub-folder)
       input: {
         hub: path.resolve(__dirname, "index.html"),
+        admin: path.resolve(__dirname, "admin/index.html"),
         codingshark: path.resolve(__dirname, "codingshark/index.html"),
         codingtower: path.resolve(__dirname, "codingtower/index.html"),
         crossplatform: path.resolve(__dirname, "crossplatform/index.html"),
@@ -129,6 +130,8 @@ export default defineConfig({
           if (id.includes("matter-js")) return "game-matter";
           if (id.includes("sql.js")) return "game-sql";
           if (id.includes("@dnd-kit")) return "game-dnd";
+
+          if (id.includes("/@supabase/")) return "auth";
 
           // Core React runtime
           if (

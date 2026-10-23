@@ -1,3 +1,5 @@
+import { useSiteSettings, Unavailable } from "../lib/siteSettings";
+import DatabaseConnectionStatus from "../ui/DatabaseConnectionStatus";
 /* HUB AGREGAT latihan.my.id — template belajar koding berbasis game.
    Bukan game itu sendiri: direktori sub-game + media belajar.
    - Kartu CodeShark → ./codingshark/  (Shark Typer, ketik kode, butuh keyboard)
@@ -89,6 +91,7 @@ const GAMES: HubGame[] = [
 ];
 
 export default function HubApp() {
+  const settings = useSiteSettings();
   const [activeLab, setActiveLab] = useState<"ci_backend" | "py_backend" | null>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -128,6 +131,8 @@ export default function HubApp() {
     setActiveLab(id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (activeLab && !settings.games[activeLab]) return <Unavailable message="Sub-game ini dinonaktifkan admin." />;
 
   if (activeLab === "ci_backend") {
     return (
@@ -174,13 +179,15 @@ export default function HubApp() {
           </span>
           <div className="mr-auto leading-tight">
             <p className="font-extrabold tracking-wide text-sm md:text-base">
-              LATIHAN<span style={{ color: "#2ee6c8" }}>.MY.ID</span>
+              {settings.siteName}
             </p>
             <p className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#7ea4bd" }}>
-              Template belajar koding berbasis game
+              {settings.description}
             </p>
           </div>
+          <a href="/admin/" className="text-xs underline">Admin settings</a>
           <button
+            disabled={!settings.games.ci_backend}
             type="button"
             onClick={() => openBackendLab("ci_backend")}
             className="text-xs font-bold px-3 py-1.5 rounded-xl border border-rose-500/40 inline-flex items-center gap-1.5 cursor-pointer hover:brightness-110 transition-all"
@@ -190,28 +197,30 @@ export default function HubApp() {
           </button>
           <button
             type="button"
+            disabled={!settings.games.py_backend}
             onClick={() => openBackendLab("py_backend")}
             className="text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 inline-flex items-center gap-1.5 cursor-pointer hover:brightness-110 transition-all"
             style={{ background: "rgba(16,185,129,0.15)", color: "#34d399" }}
           >
             <IconDatabase size={14} /> Backend Python
           </button>
-          <a href="./crossplatform/" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
+          <a href={settings.games.crossplatform ? "./crossplatform/" : undefined} aria-disabled={!settings.games.crossplatform} className="text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
             <IconMobile size={14} /> React Native
           </a>
-          <a href="./codingtower/" className="text-xs font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
+          <a href={settings.games.tower ? "./codingtower/" : undefined} aria-disabled={!settings.games.tower} className="text-xs font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
             <IconTower size={14} /> Tower
           </a>
-          <a href="./codingshark/" className="text-xs font-bold px-3 py-1.5 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
+          <a href={settings.games.shark ? "./codingshark/" : undefined} aria-disabled={!settings.games.shark} className="text-xs font-bold px-3 py-1.5 rounded-xl border border-cyan-300/40 inline-flex items-center gap-1.5" style={{ color: "#7ee4ff" }}>
             <IconFin size={14} /> Shark
           </a>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pb-24">
+        <DatabaseConnectionStatus />
         <section className="mt-8 md:mt-12 text-center max-w-3xl mx-auto">
           <p className="text-[11px] font-extrabold tracking-[0.28em] uppercase" style={{ color: "#45c6ff" }}>
-            Agregat • 5 sub-game live (Backend PHP, Backend Python, CrossPlatform, Tower, Shark)
+            Agregat • {Object.values(settings.games).filter(Boolean).length} sub-game aktif
           </p>
           <h1 className="font-extrabold text-3xl md:text-5xl tracking-tight mt-2">
             Belajar koding sambil <span style={{ color: "#2ee6c8" }}>main game</span>.
@@ -226,7 +235,7 @@ export default function HubApp() {
         </section>
 
         <div className="grid md:grid-cols-2 gap-4 mt-8">
-          {GAMES.map((g, i) => (
+          {GAMES.map(game => ({ ...game, live: game.live && settings.games[game.id as keyof typeof settings.games] })).map((g, i) => (
             <article
               key={g.id}
               className="rounded-2xl p-5 md:p-6 text-left anim-pop"
@@ -250,7 +259,7 @@ export default function HubApp() {
                       </span>
                     ) : (
                       <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border border-slate-500/40 text-slate-300">
-                        Segera
+                        Dinonaktifkan admin
                       </span>
                     )}
                   </div>
@@ -284,7 +293,7 @@ export default function HubApp() {
                     )
                   ) : (
                     <button disabled className="mt-3.5 px-6 py-2.5 text-sm font-bold rounded-xl border border-slate-500/30 text-slate-400 cursor-not-allowed">
-                      {g.cta}
+                      Dinonaktifkan admin
                     </button>
                   )}
                   {g.live && (
