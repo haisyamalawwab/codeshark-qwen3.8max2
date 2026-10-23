@@ -44,25 +44,13 @@ export default defineConfig({
       },
       devOptions: { enabled: false },
     }),
-    {
-      name: "mock-api-sync",
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url === "/api/sync-progress" && req.method === "POST") {
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ ok: true, synced: 0, mock: true }));
-            return;
-          }
-          next();
-        });
-      },
-    },
   ],
   // dev server di belakang preview proxy harus diizinkan dan berjalan di port 3000
   server: {
     host: "0.0.0.0",
     port: 3000,
     allowedHosts: true,
+    proxy: { "/api": { target: "http://127.0.0.1:3001", changeOrigin: true } },
   },
   resolve: {
     alias: {

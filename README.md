@@ -21,6 +21,25 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 | 🔊 **SFX tanpa aset** | Semua efek suara disintesis langsung via WebAudio API — nol berkas audio. |
 | 🎨 **Tema HUD Selam** | Design system token CSS (`src/styles/theme.css`): palet deep-navy/teal/cyan/amber/koral, font Baloo 2 + Nunito + JetBrains Mono, latar parallax laut berlapis. |
 
+## ☁️ Database TiDB Cloud MySQL
+
+Dukungan TiDB bersifat opsional; permainan tetap local-first. Gunakan
+[`docs/TIDB-CLOUD-MYSQL.md`](docs/TIDB-CLOUD-MYSQL.md) untuk setup cluster,
+TLS, environment server, autentikasi, dan deployment. Untuk Netlify, ikuti
+[panduan Netlify + TiDB Cloud](docs/NETLIFY-TIDB-CLOUD.md). Skema khusus MySQL:
+[`db/tidb-schema.sql`](db/tidb-schema.sql), bukan skema PostgreSQL lama.
+
+```bash
+# Setelah konfigurasi TIDB_* di .env server:
+npm run db:tidb:init
+npm run db:tidb:check
+npm run dev:api  # terminal terpisah dari npm run dev
+```
+
+Cloud produksi memerlukan token identitas terverifikasi. Kredensial database
+**jangan** dimasukkan ke variabel `VITE_*`. Koneksi cluster asli belum diuji
+hanya dengan menjalankan build aplikasi.
+
 ## 🛠️ Teknologi
 
 - **React 19** + **TypeScript 5.9**

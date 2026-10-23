@@ -79,7 +79,16 @@ export async function pushOutbox(deviceId: string, profileName: string | null, s
     body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error(`sync ${res.status}`);
-  replaceOutbox([]);
-  markSynced();
-  return { sent: pending.length, ok: true };
+  const result = await res.json();
+  if (result.ok !== true || result.mock || result.warning || !Array.isArray(result.acceptedIds)) {
+    throw new Error("sync was not durably acknowledged");
+  }
+  const pendingIds = new Set(pending.map((item) => item.id));
+  const accepted = new Set<string>(result.acceptedIds.filter(
+    (id: unknown): id is string => typeof id === "string" && pendingIds.has(id),
+  ));
+  // Preserve items queued while the request was in flight and partial failures.
+  replaceOutbox(loadOutbox().filter((item) => !accepted.has(item.id)));
+  if (accepted.size) markSynced();
+  return { sent: accepted.size, ok: accepted.size === pending.length };
 }

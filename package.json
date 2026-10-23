@@ -9,7 +9,12 @@
     "preview": "vite preview",
     "lint": "tsc --noEmit",
     "assets:badges": "node scripts/generate-badge-sprites.mjs",
-    "test:badges": "node scripts/test-badge-sprites.mjs"
+    "test:badges": "node scripts/test-badge-sprites.mjs",
+    "db:tidb:init": "node --env-file-if-exists=.env scripts/tidb-db.mjs init",
+    "db:tidb:check": "node --env-file-if-exists=.env scripts/tidb-db.mjs check",
+    "dev:api": "node --env-file-if-exists=.env server/dev-api.mjs",
+    "test:tidb": "node --test tests/tidb.test.mjs tests/sync.test.mjs",
+    "test:netlify": "node --test tests/netlify.test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -17,6 +22,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "clsx": "2.1.1",
     "matter-js": "^0.20.0",
+    "mysql2": "^3.24.6",
     "p5": "^2.3.4",
     "pixi.js": "^8.22.0",
     "react": "19.2.6",
