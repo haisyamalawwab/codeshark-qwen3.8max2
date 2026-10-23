@@ -14,7 +14,7 @@ Buka `/admin/` (entry build tersendiri). Panel admin tetap dapat dibuka ketika w
 ## Setup operator (wajib sebelum penggunaan live)
 
 1. Isi konfigurasi TiDB server dalam `.env` atau dashboard environment deployment. Gunakan database aplikasi `codeshark`, bukan `sys`. Pastikan password asli terisi, TLS tetap diverifikasi dan CA yang benar tersedia.
-2. Isi `SUPABASE_URL` dan `SUPABASE_ANON_KEY` untuk verifikasi token server. Isi `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY` untuk login browser; variabel `VITE_` harus tersedia saat build. SDK autentikasi sekarang merupakan dependensi dan dibundel secara lazy.
+2. Isi `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` untuk verifikasi token server. Isi `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` untuk login browser; variabel `VITE_` harus tersedia saat build. SDK autentikasi sekarang merupakan dependensi dan dibundel secara lazy.
 3. Aktifkan Google OAuth pada penyedia autentikasi. Izinkan redirect ke origin website + `/admin/`; untuk login pemain, izinkan juga origin root. Gunakan URL deployment/preview sebenarnya, bukan localhost di browser pengguna.
 4. Masukkan ID user autentikasi yang sudah diverifikasi (bukan email atau nama) ke environment **server-only** `ADMIN_USER_IDS`. Beberapa ID dipisahkan koma. Tidak ada default admin dan tidak ada pendaftaran admin dari browser. Restart runtime setelah mengubah environment; rebuild jika variabel `VITE_` berubah.
 5. Jalankan migrasi secara eksplisit setelah kredensial dan izin database tersedia:
@@ -31,7 +31,7 @@ Jangan menaruh password database, service role key atau allowlist admin di varia
 ## Penyimpanan dan keamanan
 
 - `GET /api/site-settings`: proyeksi publik whitelist, tanpa identitas admin atau audit. Tidak pernah menulis database. Jika tabel tersedia tetapi belum ada baris, mengembalikan konfigurasi bawaan revisi 0.
-- `GET /api/admin-settings` dan `PUT /api/admin-settings`: wajib Bearer token yang diverifikasi secara online terhadap layanan identitas; ID hasil verifikasi harus masuk `ADMIN_USER_IDS`.
+- `GET /api/admin-settings` dan `PUT /api/admin-settings`: wajib Bearer token yang diverifikasi terhadap JWKS project (atau endpoint identitas online untuk konfigurasi legacy); ID hasil verifikasi harus masuk `ADMIN_USER_IDS`.
 - Klaim role dari request, `user_metadata`, guest lokal, maupun `TIDB_ALLOW_GUEST_SYNC=true` tidak memberi hak admin.
 - PUT hanya menerima `{ settings, revision }`, dengan daftar key, boolean, batas panjang dan ID game/modul yang tervalidasi ketat. Credential tidak menjadi bagian schema pengaturan.
 - Update dan snapshot audit disimpan dalam satu transaksi; kunci baris dan pemeriksaan revisi mencegah lost update. Konflik menghasilkan HTTP 409; admin harus memuat ulang dan menerapkan kembali perubahan. Error tidak ditampilkan sebagai berhasil tersimpan.
@@ -70,3 +70,5 @@ Pada workspace ini password database, konfigurasi login dan ID admin masih koson
 - **12 browser checks** Chromium/Playwright lulus dengan **fixture API/auth**, bukan cloud: penolakan panel tanpa login, error login tanpa environment, identitas/pengumuman dari konfigurasi, kartu nonaktif, URL langsung nonaktif, maintenance + akses admin, penyaringan modul, kegagalan API, edit/simpan/reload admin, dan konflik revisi.
 - Tes browser opsional: jalankan Vite + dev API, lalu `CHROMIUM_PATH=/path/to/chromium npm run test:settings:browser`. Browser tidak menjadi dependensi produksi. Tes menggunakan import modul Vite sehingga ditujukan ke dev server.
 - Tidak ada migrasi atau write database live yang dijalankan. Password TiDB, konfigurasi layanan identitas dan ID admin harus diisi sebelum uji cloud.
+
+Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).

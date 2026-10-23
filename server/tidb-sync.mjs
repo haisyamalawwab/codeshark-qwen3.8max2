@@ -1,3 +1,4 @@
+import { verifySupabaseUser, AuthVerificationError } from "./supabase-auth.mjs";
 import { getTidbPool } from "./tidb.mjs";
 
 export class SyncError extends Error {
@@ -52,19 +53,11 @@ export async function resolveOwner(req, body, env = process.env, request = fetch
   if (env.TIDB_ALLOW_GUEST_SYNC === "true" && env.NODE_ENV !== "production" && !req.headers?.authorization) {
     return `guest:${text(body.deviceId, 180, "guest deviceId")}`;
   }
-  const authorization = req.headers?.authorization;
-  if (typeof authorization !== "string" || !/^Bearer \S+$/.test(authorization)) throw new SyncError(401, "Sign in required for cloud sync");
-  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) throw new SyncError(503, "Server identity verification is not configured");
-  const url = new URL(env.SUPABASE_URL);
-  if (url.protocol !== "https:") throw new SyncError(503, "Identity service requires HTTPS");
-  const response = await request(new URL("/auth/v1/user", url), {
-    headers: { authorization, apikey: env.SUPABASE_ANON_KEY },
-    signal: AbortSignal.timeout(10000),
-  });
-  if (response.status === 401 || response.status === 403) throw new SyncError(401, "Invalid session");
-  if (!response.ok) throw new SyncError(503, "Identity verification unavailable");
-  const user = await response.json();
-  return `user:${text(user.id, 180, "verified user id")}`;
+  try { return `user:${await verifySupabaseUser(req, env, request)}`; }
+  catch (error) {
+    if (error instanceof AuthVerificationError) throw new SyncError(error.status, error.message);
+    throw error;
+  }
 }
 
 export async function persistTidbSync(pool, owner, payload) {

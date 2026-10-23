@@ -120,7 +120,7 @@ Set server environment untuk verifier identitas:
 
 ```dotenv
 SUPABASE_URL=https://project-anda.supabase.co
-SUPABASE_ANON_KEY=public-anon-key-project
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_project_key
 ```
 
 Supabase di sini hanya penyedia identitas, **data permainan disimpan pada TiDB**. `SUPABASE_SERVICE_ROLE_KEY` tidak diperlukan untuk jalur ini. Jangan memakai kredensial TiDB sebagai key autentikasi frontend.
@@ -247,3 +247,5 @@ Setelah environment asli terisi:
 | Data tidak muncul | Mock tidak lagi dianggap sukses; periksa outbox, log aman, owner dan database aktif |
 
 Jangan memperbaiki error dengan mempublikasikan password, menonaktifkan TLS, membuka semua tabel ke browser, atau mengubah error menjadi respons sukses palsu.
+
+Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).

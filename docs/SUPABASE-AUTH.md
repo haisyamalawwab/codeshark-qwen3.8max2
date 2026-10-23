@@ -1,0 +1,70 @@
+# Supabase Authentication — browser dan backend
+
+## Implementasi
+
+- `@supabase/supabase-js` dipasang untuk SDK browser (lazy bundle, satu instance), session persistence, auto-refresh dan OAuth PKCE.
+- `@supabase/server` dipasang di backend. Saat `SUPABASE_JWKS_URL` terisi, verifikasi `auth: 'user'` dari `@supabase/server/core` diterapkan pada sinkronisasi TiDB dan akses pengaturan admin.
+- Issuer dipatok ke `${SUPABASE_URL}/auth/v1`, audience ke `authenticated`, role harus `authenticated`, subject dan expiry wajib valid. API key bukan identitas pengguna.
+- JWKS URL wajib HTTPS, satu project, dan path `/auth/v1/.well-known/jwks.json`. Header JWT tidak dapat menentukan URL kunci. Library mengelola cache/rotasi JWKS remote.
+- Jika JWKS URL kosong, kompatibilitas project legacy tetap memakai verifikasi online `/auth/v1/user` dengan timeout. Mode JWKS tidak downgrade ke verifier lain jika JWT ditolak atau JWKS gagal diakses.
+- Tidak ada penggunaan secret key / service-role untuk verifikasi pengguna. Hak admin tetap ditentukan oleh allowlist server `ADMIN_USER_IDS`, bukan metadata pengguna atau nama/email yang dikirim browser.
+- Database progres dan konfigurasi website tetap TiDB; fitur ini tidak memigrasikannya ke Supabase Postgres.
+
+## Environment
+
+`.env` lokal telah diisi memakai URL dan **publishable key** yang diberikan pengguna. URL disimpan sebagai URL biasa, tanpa format link Markdown. Jangan commit `.env`.
+
+```dotenv
+# Public build-time browser values
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-key-project>
+
+# Server runtime values
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_PUBLISHABLE_KEY=<publishable-key-project>
+SUPABASE_JWKS_URL=https://your-project.supabase.co/auth/v1/.well-known/jwks.json
+
+# Optional, privileged server operations only. Not needed for the implemented flow.
+SUPABASE_SECRET_KEY=
+ADMIN_USER_IDS=
+```
+
+`SUPABASE_SECRET_KEY` sengaja kosong karena nilai yang diberikan masih tersamarkan. Jangan mengisi dengan teks `••••` atau placeholder. Jangan menaruh secret/service-role di `VITE_`. Parser menolak key privileged sebagai konfigurasi public. Nama `SUPABASE_ANON_KEY` dan `VITE_SUPABASE_ANON_KEY` tetap didukung sebagai fallback; publishable key diprioritaskan bila keduanya diisi.
+
+Pada Netlify, variabel `VITE_*` harus tersedia untuk **Builds**, sedangkan variabel server untuk **Functions**. Perubahan variabel build memerlukan build/deploy ulang; restart dev server dan API lokal setelah mengubah `.env`.
+
+## Setup dashboard / login
+
+1. Pastikan project aktif dan memakai JWT signing keys yang diterbitkan melalui JWKS (ES256/RS256). Project legacy tanpa kunci publik dapat menggunakan mode online dengan mengosongkan `SUPABASE_JWKS_URL`; jangan menonaktifkan verifikasi JWT.
+2. Aktifkan Google OAuth dan konfigurasi provider di dashboard autentikasi project yang benar.
+3. Atur Site URL ke website sebenarnya. Tambahkan origin root dan origin + `/admin/` ke daftar redirect OAuth yang diizinkan. Gunakan origin preview sebenarnya jika menguji preview; bukan `localhost` pada browser pengguna.
+4. Login melalui `/admin/` menggunakan Google. Tambahkan **ID user hasil login** yang tepat ke `ADMIN_USER_IDS` pada server untuk memberi hak admin. Tidak ada ID admin yang dibuat otomatis.
+5. Database TiDB/password dan migrasi settings tetap harus siap agar konfigurasi admin dapat dimuat/disimpan.
+
+PKCE membutuhkan storage browser asal yang sama dengan awal login; mulai dan selesaikan OAuth di browser/origin yang sama. Redirect login aplikasi dibatasi ke path same-origin. Panel admin terpisah dari gate konfigurasi publik sehingga tetap bisa dibuka saat website maintenance.
+
+Verifikasi JWKS memeriksa signature/claims/expiry, bukan status revokasi online setiap request. Token yang sudah ditandatangani dapat tetap valid sampai expiry; gunakan token lifetime yang sesuai, refresh/signout, dan hapus allowlist admin jika akses harus dicabut.
+
+## Pemeriksaan
+
+```sh
+npm run auth:verify
+npm run test:auth
+npm run test:tidb
+npm run test:netlify
+npm run test:settings
+npm run test:database-status
+npm run lint
+npm run build
+```
+
+`auth:verify` hanya mengakses endpoint publik JWKS dan Auth settings dengan GET, memeriksa ketersediaan signing keys dan flag Google, serta mengeluarkan laporan tanpa nilai key/token. Exit 0 berarti layanan dapat dijangkau, **bukan bukti OAuth atau otorisasi admin sukses**. `loginVerified` tetap false. Tidak membuat user atau menulis database.
+
+## Hasil workspace dan batasan
+
+- Konfigurasi browser/server di `.env` terisi, kecuali secret key tersamarkan, ID admin, dan password TiDB yang belum tersedia.
+- Pemeriksaan nyata `auth:verify` menghasilkan `configuration: true`, tetapi `jwks: unavailable`, `authService: unavailable`, `googleEnabled: null`, `loginVerified: false`. Runtime workspace membatasi outbound host sehingga endpoint domain project tidak dapat diuji live di sini.
+- Daftar project yang dapat diakses melalui konektor pada pemeriksaan sesi ini tidak mencakup project yang diminta; tidak ada konfigurasi dashboard/cloud yang diubah.
+- Sepuluh tes auth lulus, termasuk **verifikasi kriptografi ES256 nyata dengan kunci lokal fixture**, penolakan signature palsu, issuer/audience salah, token expired, role privileged, API key sebagai bearer, dan kegagalan JWKS. Ini bukan JWT atau login dari project cloud.
+- Perintah `npx shadcn@latest add @supabase/supabase-client-react-router --yes` sudah dicoba, tetapi registry `ui.shadcn.com` tidak dapat diakses dari workspace. Blok registry **belum terpasang**. Aplikasi memakai Vite multi-entry, bukan React Router; client SDK yang ada telah diintegrasikan langsung tanpa mengubah routing. Jangan mengklaim blok registry sudah terpasang.
+- Skill `supabase/agent-skills` dan `supabase/server` bersifat opsional dan tidak dipasang. Tidak diperlukan untuk menjalankan aplikasi.

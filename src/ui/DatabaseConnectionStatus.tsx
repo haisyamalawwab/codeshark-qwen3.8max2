@@ -1,3 +1,4 @@
+import { isCloudReady } from "../lib/supabaseClient";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchDatabaseStatus } from "../lib/databaseStatus";
 import type { DatabaseState, DatabaseStatus } from "../lib/databaseStatus";
@@ -47,7 +48,7 @@ export default function DatabaseConnectionStatus() {
 
   const ready = report?.state === "connected";
   const title = loading ? "Memeriksa database…" : report ? LABELS[report.state][0] : "Status database belum tersedia";
-  const publicLogin = Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  const publicLogin = isCloudReady();
   return (
     <section className="my-4 rounded-2xl border border-sky-400/20 bg-slate-900/70 p-4 text-slate-100" aria-label="Koneksi database dan environment">
       <div className="flex flex-wrap items-center gap-3">
@@ -72,7 +73,7 @@ export default function DatabaseConnectionStatus() {
             <div><dt className="text-slate-400">TLS</dt><dd>{report.tls === "verified" ? "Terverifikasi pada koneksi baca" : "Belum diverifikasi"}</dd></div>
             <div><dt className="text-slate-400">Skema dan izin baca</dt><dd>{report.schema === "ready" ? "Siap" : report.schema === "missing" ? "Belum siap" : "Belum diperiksa"}</dd></div>
             <div><dt className="text-slate-400">Konfigurasi verifier login server</dt><dd>{report.identityConfigured ? "Terisi; token login belum diuji" : "Belum lengkap/tidak valid"}</dd></div>
-            <div><dt className="text-slate-400">Konfigurasi login frontend</dt><dd>{publicLogin ? "Terisi; SDK/OAuth belum diuji" : "VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY belum lengkap"}</dd></div>
+            <div><dt className="text-slate-400">Konfigurasi login frontend</dt><dd>{publicLogin ? "Terisi; SDK/OAuth belum diuji" : "VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY belum lengkap atau tidak valid"}</dd></div>
           </dl>
           <p className="my-3 text-xs text-slate-400">Variabel di bawah diperiksa pada runtime server, bukan .env browser. Nilai secret tidak ditampilkan. CA opsional: pilih file path ATAU PEM environment; kosongkan keduanya untuk trusted CA store Node.</p>
           <ul className="grid gap-2 sm:grid-cols-2">

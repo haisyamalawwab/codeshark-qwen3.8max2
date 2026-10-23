@@ -47,7 +47,7 @@ Pilih **salah satu** sumber CA. Kosongkan keduanya untuk menggunakan trusted CA 
 | Variabel | Scope | Keterangan |
 |---|---|---|
 | `SUPABASE_URL` | Functions | URL HTTPS project verifier identitas |
-| `SUPABASE_ANON_KEY` | Functions | Key project yang sama |
+| `SUPABASE_PUBLISHABLE_KEY` | Functions | Key project yang sama |
 
 Panel hanya memeriksa keterisian dan format URL HTTPS, **bukan** memverifikasi bahwa key/endpoint identitas benar-benar berfungsi. `syncPrerequisitesReady=true` berarti prasyarat konfigurasi tersedia dan probe database berhasil, bukan jaminan login atau penulisan berhasil.
 
@@ -57,7 +57,7 @@ Panel hanya memeriksa keterisian dan format URL HTTPS, **bukan** memverifikasi b
 |---|---|
 | `VITE_SYNC_ENDPOINT` | `/api/sync-progress`, default dari konfigurasi aplikasi/Netlify |
 | `VITE_SUPABASE_URL` | Untuk fitur login frontend |
-| `VITE_SUPABASE_ANON_KEY` | Public anon key, bukan service-role key |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public publishable key, bukan secret/service-role key |
 
 Panel menampilkan kelengkapan dua variabel login frontend secara lokal tanpa mengirim nilainya ke endpoint. Perubahan environment `VITE_*` memerlukan rebuild. `.env.example` adalah template, bukan sumber otomatis environment Netlify.
 
@@ -138,3 +138,5 @@ Tes menggunakan driver/pool tiruan untuk status sukses/gagal, skema/izin, timeou
 Setelah deploy, verifikasi terpisah dengan akun uji: lakukan login, selesaikan sesi, periksa acknowledgement dan baris tersimpan. Langkah ini menguji jalur **tulis** yang sengaja tidak diuji endpoint status.
 
 Panduan terkait: [Netlify + TiDB](NETLIFY-TIDB-CLOUD.md) dan [setup database](TIDB-CLOUD-MYSQL.md).
+
+Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).

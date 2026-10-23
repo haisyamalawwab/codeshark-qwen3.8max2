@@ -1,3 +1,4 @@
+import { authKeyName, authUrl, publicAuthKey } from "../shared/supabase-config.mjs";
 // Public readiness endpoint: fixed env names/statuses only, never values or rows.
 import { tidbOptions, getTidbPool } from "./tidb.mjs";
 
@@ -19,12 +20,21 @@ export function environmentReport(env) {
     { name: "TIDB_PORT", required: false, status: configured(env.TIDB_PORT) ? "set" : "default" },
     { name: "TIDB_CA_PATH", required: false, status: configured(env.TIDB_CA_PATH) ? "set" : "optional" },
     { name: "TIDB_CA_CERT", required: false, status: configured(env.TIDB_CA_CERT) ? "set" : "optional" },
-    ...["SUPABASE_URL", "SUPABASE_ANON_KEY"].map((name) => ({ name, required: true, status: configured(env[name]) ? "set" : "missing" })),
+    { name: "SUPABASE_JWKS_URL", required: false, status: configured(env.SUPABASE_JWKS_URL) ? "set" : "default" },
+    ...["SUPABASE_URL", authKeyName(env)].map((name) => ({ name, required: true, status: configured(env[name]) ? "set" : "missing" })),
   ];
   if (configured(env.SUPABASE_URL)) {
     try {
-      if (new URL(env.SUPABASE_URL).protocol !== "https:") throw new Error();
+      authUrl(env.SUPABASE_URL);
     } catch { fields.find((f) => f.name === "SUPABASE_URL").status = "invalid"; }
+  }
+  const keyField = fields.find(f => f.name === authKeyName(env));
+  try { publicAuthKey(env[keyField.name]); }
+  catch { keyField.status = "invalid"; }
+  if (configured(env.SUPABASE_JWKS_URL)) {
+    try {
+      if (env.SUPABASE_JWKS_URL.trim() !== `${authUrl(env.SUPABASE_URL)}/auth/v1/.well-known/jwks.json`) throw new Error();
+    } catch { fields.find(f => f.name === "SUPABASE_JWKS_URL").status = "invalid"; }
   }
   return fields;
 }
@@ -37,7 +47,7 @@ export function createDatabaseStatusService({ env = process.env, pool = getTidbP
   async function inspect() {
     const started = now();
     const environment = environmentReport(env);
-    const identityConfigured = environment.filter((f) => f.name.startsWith("SUPABASE_")).every((f) => f.status === "set");
+    const identityConfigured = environment.filter((f) => f.name.startsWith("SUPABASE_")).every((f) => f.status === "set" || (!f.required && f.status === "default"));
     const report = {
       state: "env_incomplete", checkedAt: new Date(started).toISOString(), durationMs: 0,
       database: "not_checked", schema: "not_checked", tls: "not_checked",
