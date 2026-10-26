@@ -2,7 +2,7 @@
 # Struktur dist/: index.html (hub) + codingshark/index.html + codingtower/index.html
 #
 # ============================================================
-# MODE DATA OTOMATIS — docs/MODE-LOKAL.md
+# MODE DATA OTOMATIS — docs/036_mode-lokal_26102026_0819.md
 # - Frontend VITE_DATA_MODE=auto: tes koneksi awal ke
 #   /api/database-status (server mengetes TiDB Cloud + Aiven).
 #   Terhubung -> cloud; gagal/belum dikonfigurasi -> lokal

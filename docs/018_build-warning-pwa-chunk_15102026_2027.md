@@ -1,8 +1,8 @@
-# 005 — Perbaikan Build Warning (PWA Register, Chunk Auth, Anotasi Zod)
+# 018 — Perbaikan Build Warning (PWA Register, Chunk Auth, Anotasi Zod)
 
 > **Tanggal:** 15-10-2026 · **Repo:** latihan.my.id (`qwen3.8max2`, Vite 7 + React 19 + TS)
 > **Tujuan file:** memori konteks untuk agentic-AI lain / proses selanjutnya. Mencatat tiga warning
-> build, akar masalah, perbaikan, dan hasil verifikasi. Baca bersama `003_*`, `004_*`.
+> build, akar masalah, perbaikan, dan hasil verifikasi. Baca bersama `008_*`, `009_*`, `010_*`.
 
 ---
 

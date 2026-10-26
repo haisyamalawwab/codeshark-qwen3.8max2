@@ -128,4 +128,4 @@ Bundling lokal tidak membuktikan packaging/deployment akun Netlify, environment 
 
 Hanya setelah bukti tersebut diperoleh, laporkan jalur cloud tertentu sebagai lulus. Tidak ada rangkaian tes terbatas yang dapat menjamin semua koneksi akan selalu bekerja sempurna pada setiap keadaan.
 
-Panduan detail: [Verifikasi koneksi database](VERIFIKASI-KONEKSI-DATABASE.md), [Netlify + TiDB](NETLIFY-TIDB-CLOUD.md).
+Panduan detail: [Verifikasi koneksi database](032_verifikasi-koneksi-database_23102026_2016.md), [Netlify + TiDB](028_netlify-tidb-cloud_23102026_1913.md).

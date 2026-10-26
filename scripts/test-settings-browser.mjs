@@ -1,7 +1,7 @@
 // Optional browser smoke test. Use CHROMIUM_PATH=/path/to/chromium npm run test:settings:browser.
 // Public API responses are intercepted fixtures; this is not a live database/OAuth test.
 // MODE DATA: smoke test admin/cloud ini dilewati HANYA bila DATA_MODE=local
-// (dan aplikasi di-build dengan VITE_DATA_MODE=cloud). Lihat docs/MODE-LOKAL.md.
+// (dan aplikasi di-build dengan VITE_DATA_MODE=cloud). Lihat docs/036_mode-lokal_26102026_0819.md.
 import { exitIfLocalMode } from '../server/local-mode.mjs';
 exitIfLocalMode('scripts/test-settings-browser.mjs (test:settings:browser)');
 import { chromium } from 'playwright-core';

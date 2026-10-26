@@ -1,4 +1,4 @@
-# 003 — Konteks Sesi: Tower Puzzle Mobile, Hub Sub-Game & Light Theme
+# 009 — Konteks Sesi: Tower Puzzle Mobile, Hub Sub-Game & Light Theme
 
 > **Tanggal:** 13-10-2026 17:14 (UTC) · **Repo:** CodeShark Academy (`qwen3.8max2`, Vite + React 19 + TS + Tailwind 4)
 > **Tujuan file:** memori konteks untuk agentic-AI lain / proses selanjutnya. Berisi arsitektur,

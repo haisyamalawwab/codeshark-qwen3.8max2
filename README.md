@@ -26,13 +26,13 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 > 🔀 **Mode data otomatis:** saat dibuka, aplikasi **mengetes koneksi ke TiDB Cloud/Aiven**
 > (`/api/database-status`). Terhubung → mode **cloud**; gagal/belum dikonfigurasi → mode
 > **lokal** (**localStorage + backup SQLite**) dan tes diulang berkala. Panel `/admin/`
-> tetap nonaktif pada mode ini. Detail: [`docs/MODE-LOKAL.md`](docs/MODE-LOKAL.md).
+> tetap nonaktif pada mode ini. Detail: [`docs/036_mode-lokal_26102026_0819.md`](docs/036_mode-lokal_26102026_0819.md).
 > Verifikasi: `npm run test:data-mode`. Paksa lokal penuh dengan `DATA_MODE=local`.
 
 Dukungan TiDB bersifat opsional; permainan tetap local-first. Gunakan
-[`docs/TIDB-CLOUD-MYSQL.md`](docs/TIDB-CLOUD-MYSQL.md) untuk setup cluster,
+[`docs/029_tidb-cloud-mysql_23102026_1913.md`](docs/029_tidb-cloud-mysql_23102026_1913.md) untuk setup cluster,
 TLS, environment server, autentikasi, dan deployment. Untuk Netlify, ikuti
-[panduan Netlify + TiDB Cloud](docs/NETLIFY-TIDB-CLOUD.md). Skema khusus MySQL:
+[panduan Netlify + TiDB Cloud](docs/028_netlify-tidb-cloud_23102026_1913.md). Skema khusus MySQL:
 [`db/tidb-schema.sql`](db/tidb-schema.sql), bukan skema PostgreSQL lama.
 
 ```bash
@@ -43,7 +43,7 @@ npm run dev:api  # terminal terpisah dari npm run dev
 ```
 
 Indikator koneksi dan checklist environment tersedia pada hub/dashboard.
-Panduan: [verifikasi koneksi database](docs/VERIFIKASI-KONEKSI-DATABASE.md).
+Panduan: [verifikasi koneksi database](docs/032_verifikasi-koneksi-database_23102026_2016.md).
 Gunakan `npm run db:verify` untuk pemeriksaan read-only dari server.
 
 Cloud produksi memerlukan identitas terverifikasi (sesi Better Auth atau
@@ -164,7 +164,7 @@ Setiap pertemuan = baca materi konsep → kerjakan kuis → **gladi ketik kode**
 
 - Pertemuan *n+1* terbuka setelah pertemuan *n* mencapai **Perak**.
 - Lulus = menyelesaikan kode **dan** akurasi memenuhi target sesi.
-- Daftar drill dan tugas tiap pertemuan: [`KURIKULUM-QUEST-16-PERTEMUAN.md`](./KURIKULUM-QUEST-16-PERTEMUAN.md). Analisis dan perubahan v0.4: [`ANALISIS-v0.4.md`](./ANALISIS-v0.4.md).
+- Daftar drill dan tugas tiap pertemuan: [`docs/007_kurikulum-quest-16-pertemuan_13102026_1343.md`](./docs/007_kurikulum-quest-16-pertemuan_13102026_1343.md). Analisis dan perubahan v0.4: [`docs/006_analisis-v0-4_13102026_1343.md`](./docs/006_analisis-v0-4_13102026_1343.md).
 
 ## ☁️ Deploy
 
@@ -177,11 +177,11 @@ Alternatif statis: jalankan `npm run build` lalu unggah isi `dist/` ke hosting a
 
 ## 📄 Lisensi & Credit
 
-Proyek privat (`"private": true`). Aset visual tema (maskot hiu, HUD) dibuat khusus untuk CodeShark Academy. Detail desain & analisis mekanik permainan: lihat [`ANALISIS.md`](./ANALISIS.md) dan [`SPESIFIKASI-UIUX-v0.3.md`](./SPESIFIKASI-UIUX-v0.3.md).
+Proyek privat (`"private": true`). Aset visual tema (maskot hiu, HUD) dibuat khusus untuk CodeShark Academy. Detail desain & analisis mekanik permainan: lihat [`docs/001_analisis_05102026_0000.md`](./docs/001_analisis_05102026_0000.md) dan [`docs/002_spesifikasi-uiux-v0-3_05102026_0000.md`](./docs/002_spesifikasi-uiux-v0-3_05102026_0000.md).
 
 ### Halaman admin: diagnostik & tes koneksi
 
-Halaman `/admin/` bersifat **khusus admin** dan **tidak memengaruhi jalannya aplikasi**: fungsinya hanya melihat status dan mengetes koneksi **TiDB Cloud MySQL, Aiven (MySQL/PostgreSQL), Better Auth MariaDB, dan Redis cache** — termasuk latensi dan checklist environment. Antarmukanya berada di repo ini (entry terpisah `dist/admin/`), sedangkan pengujian dijalankan **backend serverless** (`/api/database-status` publik untuk tes awal, `/api/admin-diagnostics` terotorisasi admin/token untuk tes mendalam) — tidak perlu server backend terpisah. Editor pengaturan website lama tidak lagi ditautkan dari halaman ini. Panduan deploy Netlify/Vercel + Redis: [`docs/DEPLOY-NETLIFY-VERCEL.md`](docs/DEPLOY-NETLIFY-VERCEL.md); mode data: [`docs/MODE-LOKAL.md`](docs/MODE-LOKAL.md).
+Halaman `/admin/` bersifat **khusus admin** dan **tidak memengaruhi jalannya aplikasi**: fungsinya hanya melihat status dan mengetes koneksi **TiDB Cloud MySQL, Aiven (MySQL/PostgreSQL), Better Auth MariaDB, dan Redis cache** — termasuk latensi dan checklist environment. Antarmukanya berada di repo ini (entry terpisah `dist/admin/`), sedangkan pengujian dijalankan **backend serverless** (`/api/database-status` publik untuk tes awal, `/api/admin-diagnostics` terotorisasi admin/token untuk tes mendalam) — tidak perlu server backend terpisah. Editor pengaturan website lama tidak lagi ditautkan dari halaman ini. Panduan deploy Netlify/Vercel + Redis: [`docs/035_deploy-netlify-vercel_26102026_0819.md`](docs/035_deploy-netlify-vercel_26102026_0819.md); mode data: [`docs/036_mode-lokal_26102026_0819.md`](docs/036_mode-lokal_26102026_0819.md).
 
 ### Better Auth (utama) + Supabase Authentication (legacy)
 
@@ -189,9 +189,9 @@ Halaman `/admin/` bersifat **khusus admin** dan **tidak memengaruhi jalannya apl
 > MariaDB Layerbase yang terpisah dari TiDB/Aiven. Akun bersifat opsional:
 > tamu lokal tetap didukung, sedangkan progres cloud tetap mengikuti tes
 > awal database game. Panduan lengkap env, skema `user/session/account/
-> verification`, plugin admin, migrasi, dan deploy: [`docs/BETTER-AUTH-LAYERBASE.md`](docs/BETTER-AUTH-LAYERBASE.md).
+> verification`, plugin admin, migrasi, dan deploy: [`docs/034_better-auth-layerbase_26102026_0819.md`](docs/034_better-auth-layerbase_26102026_0819.md).
 
 Supabase Google OAuth dipertahankan sebagai jalur legacy bila mode efektif
 cloud dan `VITE_SUPABASE_*` terkonfigurasi. Backend masih menerima JWT
 Supabase lama di samping cookie sesi Better Auth. Detail jalur lama:
-[Supabase Auth](docs/SUPABASE-AUTH.md).
+[Supabase Auth](docs/033_supabase-auth_23102026_2042.md).

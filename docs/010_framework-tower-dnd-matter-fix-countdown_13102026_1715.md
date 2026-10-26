@@ -1,8 +1,8 @@
-# 004 — Keputusan Framework, Dnd-kit + Matter.js, & Fix Countdown Nyangkut
+# 010 — Keputusan Framework, Dnd-kit + Matter.js, & Fix Countdown Nyangkut
 
 > **Tanggal:** 13-10-2026 17:15 +0700 · **Repo:** CodeShark Academy (`qwen3.8max2`, Vite 7 + React 19 + TS 5.9 + Tailwind 4)
 > **Tujuan file:** memori konteks untuk agentic-AI lain / proses selanjutnya. Melanjutkan
-> `003_konteks-tower-subgame_13102026_1714.md` (WS-1–WS-4) — file ini mencatat diskusi framework,
+> `009_konteks-tower-subgame_13102026_1714.md` (WS-1–WS-4) — file ini mencatat diskusi framework,
 > keputusan final user, eksekusi instalasi, scaffold yang sudah dibuat, dan bugfix countdown.
 > Baca kedua file (003 + 004) untuk konteks penuh.
 

@@ -19,6 +19,7 @@
     "test:database-status": "node --test tests/database-status.test.mjs",
     "db:settings:init": "node --env-file-if-exists=.env scripts/init-site-settings.mjs",
     "test:settings": "node --test tests/site-settings.test.mjs",
+    "test:boot-loading": "node --test tests/boot-loading.test.mjs",
     "test:settings:browser": "node scripts/test-settings-browser.mjs",
     "auth:verify": "node --env-file-if-exists=.env scripts/verify-auth.mjs",
     "auth:generate": "node --env-file-if-exists=.env scripts/better-auth-cli.mjs generate",
