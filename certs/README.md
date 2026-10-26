@@ -28,4 +28,4 @@ Path relatif dibaca dari working directory runtime Node. Bila memakai file mount
 - Jika CA belum ada, jangan set path file yang tidak tersedia. Kosongkan kedua opsi CA untuk memakai trust store Node dengan verifikasi TLS tetap aktif.
 - CA yang hilang/tidak valid menyebabkan koneksi gagal; tidak ada fallback ke koneksi TLS tidak terverifikasi.
 
-Panduan lengkap: [Netlify + TiDB Cloud](../docs/NETLIFY-TIDB-CLOUD.md).
+Panduan lengkap: [Netlify + TiDB Cloud](../docs/028_netlify-tidb-cloud_23102026_1913.md).

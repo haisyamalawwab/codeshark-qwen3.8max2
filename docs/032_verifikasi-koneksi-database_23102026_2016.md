@@ -1,6 +1,6 @@
 # Verifikasi dan indikator koneksi database
 
-> 🔀 **Mode data otomatis aktif:** koneksi TiDB Cloud/Aiven dites di awal — terhubung berarti mode cloud (isi dokumen ini berlaku), gagal berarti mode lokal SQLite/localStorage. Panel admin tetap nonaktif pada mode otomatis. Lihat [MODE-LOKAL.md](MODE-LOKAL.md).
+> 🔀 **Mode data otomatis aktif:** koneksi TiDB Cloud/Aiven dites di awal — terhubung berarti mode cloud (isi dokumen ini berlaku), gagal berarti mode lokal SQLite/localStorage. Panel admin tetap nonaktif pada mode otomatis. Lihat [036_mode-lokal_26102026_0819.md](036_mode-lokal_26102026_0819.md).
 
 ## Fitur yang disiapkan
 
@@ -139,6 +139,6 @@ Tes menggunakan driver/pool tiruan untuk status sukses/gagal, skema/izin, timeou
 
 Setelah deploy, verifikasi terpisah dengan akun uji: lakukan login, selesaikan sesi, periksa acknowledgement dan baris tersimpan. Langkah ini menguji jalur **tulis** yang sengaja tidak diuji endpoint status.
 
-Panduan terkait: [Netlify + TiDB](NETLIFY-TIDB-CLOUD.md) dan [setup database](TIDB-CLOUD-MYSQL.md).
+Panduan terkait: [Netlify + TiDB](028_netlify-tidb-cloud_23102026_1913.md) dan [setup database](029_tidb-cloud-mysql_23102026_1913.md).
 
-Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).
+Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](033_supabase-auth_23102026_2042.md).

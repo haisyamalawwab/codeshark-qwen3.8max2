@@ -1,4 +1,4 @@
-# 001 — Analisis Relevansi ANALISIS.md & SPESIFIKASI-UIUX-v0.3.md terhadap `qwen3.8max2`
+# 003 — Analisis Relevansi 001_analisis_05102026_0000.md & 002_spesifikasi-uiux-v0-3_05102026_0000.md terhadap `qwen3.8max2`
 
 > Disimpan: 06-10-2026 06:27. Mencakup seluruh diskusi dari awal sampai respons terakhir.
 
@@ -8,12 +8,12 @@
 
 Pengguna menjalankan `npm install` (sukses, 93 paket, 5 vulnerability), `npm build start` (gagal — perintah salah, seharusnya `npm run build`), dan `npm run build` (sukses, `dist/index.html` ±310 kB single-file). `npm run dev` sedang berjalan.
 
-## 2. Permintaan #1 — Periksa apakah `ANALISIS.md` dan `spek*.md` relevan untuk folder ini
+## 2. Permintaan #1 — Periksa apakah `001_analisis_05102026_0000.md` dan `spek*.md` relevan untuk folder ini
 
 ### Temuan
-Isi folder: `ANALISIS.md`, `SPESIFIKASI-UIUX-v0.3.md`, `src/` (App, Ambient, Dashboard, Materi, Onboarding, Results, TypingGame, icons; data/modules.ts; lib/audio, highlight, storage; utils/cn), `vite.config.ts`, `package.json` (nama masih `react-vite-tailwind`).
+Isi folder: `001_analisis_05102026_0000.md`, `002_spesifikasi-uiux-v0-3_05102026_0000.md`, `src/` (App, Ambient, Dashboard, Materi, Onboarding, Results, TypingGame, icons; data/modules.ts; lib/audio, highlight, storage; utils/cn), `vite.config.ts`, `package.json` (nama masih `react-vite-tailwind`).
 
-**`ANALISIS.md` (v0.2) — kurang relevan.** Dokumen mendeskripsikan versi lain (`qwen3.8max`):
+**`001_analisis_05102026_0000.md` (v0.2) — kurang relevan.** Dokumen mendeskripsikan versi lain (`qwen3.8max`):
 - Tidak ada `api/index.php`, `database/codeshark.sql`, `src/lib/api`; progres hanya di localStorage (`lib/storage.ts`).
 - `vite.config.ts` tidak punya proxy `/api`.
 - Lampiran masih menunjuk `qwen3.8max`.
@@ -21,8 +21,8 @@ Isi folder: `ANALISIS.md`, `SPESIFIKASI-UIUX-v0.3.md`, `src/` (App, Ambient, Das
 - `Dashboard.tsx` menyebut "v0.1 (MVP) … localStorage".
 - Sistem yang dianalisis (HP, Overdrive, rank S/A/B/C, mode Santai/Standar/Hiu Galak, level 7 tingkat) tidak ada di kode ini.
 
-**`SPESIFIKASI-UIUX-v0.3.md` — relevan dengan catatan.**
-- Mengaku sebagai pendamping `ANALISIS.md` dan belum membaca kode (nama file di §1 adalah asumsi).
+**`002_spesifikasi-uiux-v0-3_05102026_0000.md` — relevan dengan catatan.**
+- Mengaku sebagai pendamping `001_analisis_05102026_0000.md` dan belum membaca kode (nama file di §1 adalah asumsi).
 - Struktur folder cukup dekat (Onboarding, Results, Dashboard, TypingGame).
 - Bagian bergantung MySQL (§10 statistik DB, §14 instrumentasi) tidak berlaku.
 
@@ -61,7 +61,7 @@ Isi folder: `ANALISIS.md`, `SPESIFIKASI-UIUX-v0.3.md`, `src/` (App, Ambient, Das
 - Rank S/A/B, Overdrive, mode HP, perfect-line — tidak ada padanan di mekanik ini.
 
 ## 4. Tindak lanjut yang disarankan
-1. Sesuaikan `ANALISIS.md` agar menggambarkan versi `qwen3.8max2` (mekanik ancaman + nyawa).
+1. Sesuaikan `001_analisis_05102026_0000.md` agar menggambarkan versi `qwen3.8max2` (mekanik ancaman + nyawa).
 2. Audit sisa spesifikasi (baris 121–1001) per bagian terhadap kode.
 3. Kerjakan item mobile (hidden input / badge keyboard) dan statistik dashboard.
 4. Ubah nama package dari `react-vite-tailwind` dan teks versi di `Dashboard.tsx`.

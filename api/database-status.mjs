@@ -1,5 +1,5 @@
 // TES KONEKSI AWAL TiDB Cloud + Aiven. DATA_MODE=local memaksa
-// 503 mode-lokal; auto/cloud menjalankan probe (docs/MODE-LOKAL.md).
+// 503 mode-lokal; auto/cloud menjalankan probe (docs/036_mode-lokal_26102026_0819.md).
 import { isLocalMode, sendCloudDisabled } from "../server/local-mode.mjs";
 
 let cloudHandler;

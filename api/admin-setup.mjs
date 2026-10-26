@@ -1,5 +1,5 @@
 // DATA_MODE=local memaksa 503 mode-lokal;
-// auto/cloud menjalankan diagnostik setup (docs/MODE-LOKAL.md).
+// auto/cloud menjalankan diagnostik setup (docs/036_mode-lokal_26102026_0819.md).
 import { isLocalMode, sendCloudDisabled } from "../server/local-mode.mjs";
 
 let cloudHandler;

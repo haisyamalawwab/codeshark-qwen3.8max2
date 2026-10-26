@@ -95,7 +95,7 @@ test('admin renders setup guidance before login or settings access, outside rest
   const folder = await mkdtemp('.cache/admin-setup-render-');
   try {
     const outfile = `${folder}/admin.mjs`;
-    await build({ entryPoints: ['src/admin/AdminSettings.tsx'], outfile, bundle: true, packages: 'external', platform: 'node', format: 'esm', jsx: 'automatic', define: { 'import.meta.env': '{}' }, logLevel: 'silent' });
+    await build({ entryPoints: ['src/admin/AdminSettings.tsx'], outfile, bundle: true, packages: 'external', platform: 'node', format: 'esm', jsx: 'automatic', loader: { '.webp': 'file', '.png': 'file' }, define: { 'import.meta.env': '{}' }, logLevel: 'silent' });
     const { default: AdminSettings } = await import(pathToFileURL(`${process.cwd()}/${outfile}`).href);
     const html = renderToStaticMarkup(createElement(AdminSettings));
     assert(html.includes('Setup yang perlu diselesaikan'));

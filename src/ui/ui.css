@@ -709,6 +709,139 @@
 }
 .glow-pulse { animation: glowPulse 1.6s ease-out infinite; }
 
+/* ============ SPLASH LOADING AWAL APLIKASI ============ */
+.boot-loading {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 2rem 1.25rem;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(46, 230, 200, 0.16), transparent 19rem),
+    radial-gradient(circle at 18% 12%, rgba(69, 198, 255, 0.12), transparent 18rem),
+    radial-gradient(circle at 84% 86%, rgba(255, 194, 71, 0.08), transparent 16rem),
+    linear-gradient(180deg, var(--deep2), var(--deep));
+}
+
+.boot-loading__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.boot-loading__badge {
+  position: relative;
+  width: 10.25rem;
+  height: 10.25rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1.6rem;
+}
+
+.boot-loading__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2px solid rgba(126, 196, 236, 0.18);
+  border-top-color: var(--teal);
+  border-right-color: rgba(69, 198, 255, 0.72);
+  box-shadow: 0 0 34px rgba(46, 230, 200, 0.12);
+  animation: bootSpin 5.5s linear infinite;
+}
+
+.boot-loading__captain {
+  width: 9rem;
+  height: 9rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(126, 196, 236, 0.28);
+  border-radius: 999px;
+  background: #02070d;
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.38),
+    0 0 0 8px rgba(7, 32, 54, 0.58),
+    0 0 38px rgba(46, 230, 200, 0.18);
+  transform-origin: center;
+  animation: bootSpin 8s linear infinite;
+}
+
+.boot-loading__captain picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.boot-loading__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.boot-loading__eyebrow {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-m);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  color: var(--teal);
+}
+
+.boot-loading__title {
+  margin: 0;
+  font-family: var(--font-d);
+  font-size: clamp(1.85rem, 6vw, 2.6rem);
+  line-height: 1.12;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.boot-loading__dots {
+  display: inline-block;
+  animation: bootDots 1.5s ease-in-out infinite;
+}
+
+.boot-loading__subtitle {
+  margin: 0.65rem 0 1.4rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--dim);
+}
+
+.boot-loading__progress {
+  width: min(13rem, 62vw);
+  height: 0.36rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(126, 196, 236, 0.16);
+}
+
+.boot-loading__progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--cyan));
+  animation: bootProgress 1.55s ease-in-out infinite;
+}
+
+@keyframes bootSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bootDots {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes bootProgress {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(260%); }
+}
+
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.3, 1); }
 .reveal.revealed { opacity: 1; transform: translateY(0); }
 
@@ -1182,7 +1315,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .shimmer::after, .ping-dot::after, .glow-pulse,
-  .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char { animation: none !important; }
+  .shake, .flash-red, .float-p, .count-pop, .star-pop, .danger-vignette, .caret-char,
+  .boot-loading__ring, .boot-loading__captain, .boot-loading__dots,
+  .boot-loading__progress span { animation: none !important; }
+  .boot-loading__progress span { transform: translateX(70%); }
 }
 
 /* Lewati render kartu di luar viewport (Pertemuan, timeline misi) —

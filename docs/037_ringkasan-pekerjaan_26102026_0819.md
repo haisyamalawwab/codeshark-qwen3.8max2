@@ -44,7 +44,7 @@ File penting:
 - `src/lib/siteSettings.tsx`
 - `src/lib/databaseStatus.ts`
 - `src/lib/gameDb.ts`
-- `docs/MODE-LOKAL.md`
+- `docs/036_mode-lokal_26102026_0819.md`
 
 ## 2. Provider database game
 
@@ -161,8 +161,8 @@ Yang sudah diimplementasikan:
 
 Dokumen terkait:
 
-- `docs/DEPLOY-NETLIFY-VERCEL.md`
-- `docs/MODE-LOKAL.md`
+- `docs/035_deploy-netlify-vercel_26102026_0819.md`
+- `docs/036_mode-lokal_26102026_0819.md`
 
 ## 6. Better Auth + Layerbase MariaDB
 
@@ -306,7 +306,7 @@ Keputusan yang diterapkan untuk menghindari tabrakan:
   nama itu dicadangkan untuk Auth Server pada integrasi ini.
 
 Template dan penjelasan tersedia di `.env.example` dan
-`docs/BETTER-AUTH-LAYERBASE.md`.
+`docs/034_better-auth-layerbase_26102026_0819.md`.
 
 ## 8. Kompatibilitas yang didukung dan tidak didukung
 

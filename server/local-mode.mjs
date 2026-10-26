@@ -70,7 +70,7 @@ export function exitIfLocalMode(scriptName, env = process.env) {
   if (!isLocalMode(env)) return;
   console.log(
     `[mode lokal] ${scriptName} dilewati — DATA_MODE=local memaksa mode lokal. ` +
-      "Set DATA_MODE=auto/cloud (dan lengkapi env cloud) untuk menjalankannya. Lihat docs/MODE-LOKAL.md.",
+      "Set DATA_MODE=auto/cloud (dan lengkapi env cloud) untuk menjalankannya. Lihat docs/036_mode-lokal_26102026_0819.md.",
   );
   process.exit(0);
 }
