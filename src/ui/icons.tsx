@@ -264,17 +264,6 @@ export const IconMobile = make(
   </>
 );
 
-export const IconServer = make(
-  <>
-    <rect x="2" y="2" width="20" height="8" rx="2" />
-    <rect x="2" y="14" width="20" height="8" rx="2" />
-    <line x1="6" y1="6" x2="6.01" y2="6" strokeWidth={3} />
-    <line x1="6" y1="18" x2="6.01" y2="18" strokeWidth={3} />
-    <line x1="10" y1="6" x2="14" y2="6" />
-    <line x1="10" y1="18" x2="14" y2="18" />
-  </>
-);
-
 export const IconDatabase = make(
   <>
     <ellipse cx="12" cy="5" rx="9" ry="3" />
@@ -282,20 +271,3 @@ export const IconDatabase = make(
     <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
   </>
 );
-
-export const IconPhp = make(
-  <>
-    <rect x="2" y="5" width="20" height="14" rx="3" />
-    <path d="M6 15V9h2.5a1.5 1.5 0 0 1 0 3H6" />
-    <path d="M11 15V9h2.5a1.5 1.5 0 0 1 0 3H11" />
-    <path d="M16 15V9h2.5a1.5 1.5 0 0 1 0 3H16" />
-  </>
-);
-
-export const IconPython = make(
-  <>
-    <path d="M12 2c-3 0-5 1.5-5 4v2h5v1H6c-2.5 0-4 1.5-4 4.5s1.5 4.5 4 4.5h2v-2c0-1.8 1.5-3 3.5-3h4.5c1.8 0 3-1.2 3-3V6c0-2.5-2-4-5-4h-2zm-1.5 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="currentColor" stroke="none" />
-    <path d="M12 22c3 0 5-1.5 5-4v-2h-5v-1h6c2.5 0 4-1.5 4-4.5s-1.5-4.5-4-4.5h-2v2c0 1.8-1.5 3-3.5 3H8c-1.8 0-3 1.2-3 3v4c0 2.5 2 4 5 4h2zm1.5-2a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" fill="currentColor" stroke="none" />
-  </>
-);
-

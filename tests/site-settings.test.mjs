@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { defaultSettings, validateSettings } from '../shared/site-settings.mjs';
+import { defaultSettings, GAME_IDS, RETIRED_GAME_IDS, migrateSettings, validateSettings } from '../shared/site-settings.mjs';
 import { createSettingsHandler } from '../server/site-settings.mjs';
 import { createNetlifySettingsHandler } from '../server/netlify-settings.mjs';
 
@@ -39,6 +39,23 @@ test('strict schema rejects unknown keys, injected roles, string booleans, overs
   for (const patch of [{ admin: true }, { siteName: '' }, { maintenance: 'false' }, { announcement: 'a'.repeat(1001) }, { games: { shark: true } }, { modules: { ...defaultSettings().modules, secret: true } }]) {
     assert.throws(() => validateSettings({ ...defaultSettings(), ...patch }));
   }
+});
+
+test('legacy settings with retired backend games migrate on read; schema stays strict', () => {
+  // MK Sistem Aplikasi Web (ci_backend/py_backend) pensiun 26-10-2026:
+  // tidak lagi sub-game aktif, tetapi dokumen lama tidak boleh menggagalkan boot.
+  assert.deepEqual(GAME_IDS, ['crossplatform', 'tower', 'shark']);
+  assert.deepEqual(RETIRED_GAME_IDS, ['ci_backend', 'py_backend']);
+  const legacy = defaultSettings();
+  legacy.games = { ...legacy.games, ci_backend: false, py_backend: true };
+  assert.throws(() => validateSettings(legacy));
+  assert.deepEqual(validateSettings(migrateSettings(legacy)), defaultSettings());
+  // Migrasi tidak memutasi dokumen asal dan passthrough untuk nilai non-dokumen.
+  assert.equal(Object.hasOwn(legacy.games, 'ci_backend'), true);
+  assert.equal(migrateSettings(null), null);
+  assert.equal(migrateSettings('bukan dokumen'), 'bukan dokumen');
+  const clean = defaultSettings();
+  assert.equal(migrateSettings(clean), clean);
 });
 
 test('public GET returns defaults without writing, never reveals admin identity', async () => {

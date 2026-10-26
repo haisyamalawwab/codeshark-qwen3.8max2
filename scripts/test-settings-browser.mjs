@@ -34,8 +34,8 @@ try {
   assert.equal(await tower.getByRole('button', { name: 'Dinonaktifkan sementara' }).isDisabled(), true); checks++;
   await page.goto(`${base}/codingtower/`);
   await page.getByText('Sub-game ini dinonaktifkan sementara.', { exact: true }).waitFor(); checks++;
-  settings.games.ci_backend = false;
-  await page.goto(`${base}/?subgame=ci_backend`);
+  settings.games.crossplatform = false;
+  await page.goto(`${base}/crossplatform/`);
   await page.getByText('Sub-game ini dinonaktifkan sementara.', { exact: true }).waitFor(); checks++;
   settings.maintenance = true;
   await page.goto(`${base}/codingshark/`);
