@@ -5,7 +5,7 @@ import { settingsRequest, type SettingsDocument } from '../lib/siteSettings';
 import { GAME_IDS, MODULE_IDS, validateSettings, type SiteSettings } from '../../shared/site-settings.mjs';
 import DatabaseConnectionStatus from '../ui/DatabaseConnectionStatus';
 
-const names = { crossplatform: 'CrossPlatform Studio', tower: 'Coding Tower', shark: 'CodeShark', html: 'HTML', css: 'CSS', js: 'JavaScript' };
+const names = { tower: 'Coding Tower', shark: 'CodeShark', html: 'HTML', css: 'CSS', js: 'JavaScript' };
 const input = 'w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-white';
 export default function AdminSettings() {
   const [user, setUser] = useState<AuthUser | null>(null);
