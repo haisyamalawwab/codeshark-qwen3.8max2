@@ -1,5 +1,7 @@
 # Menyiapkan TiDB Cloud MySQL untuk CodeShark
 
+> 🔀 **Mode data otomatis aktif:** koneksi TiDB Cloud/Aiven dites di awal — terhubung berarti mode cloud (isi dokumen ini berlaku), gagal berarti mode lokal SQLite/localStorage. Panel admin tetap nonaktif pada mode otomatis. Lihat [MODE-LOKAL.md](MODE-LOKAL.md).
+
 ## Status dan lingkup
 
 Codebase kini mempunyai skema dan adapter **TiDB Cloud melalui protokol MySQL**. Ini menyiapkan penyimpanan snapshot progres dan riwayat percobaan; bukan pembuatan cluster cloud secara otomatis.

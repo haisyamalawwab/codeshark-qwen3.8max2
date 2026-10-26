@@ -1,5 +1,7 @@
 # Supabase Authentication — browser dan backend
 
+> 🔀 **Mode data otomatis aktif:** koneksi TiDB Cloud/Aiven dites di awal — terhubung berarti mode cloud (isi dokumen ini berlaku), gagal berarti mode lokal SQLite/localStorage. Panel admin tetap nonaktif pada mode otomatis. Lihat [MODE-LOKAL.md](MODE-LOKAL.md).
+
 ## Implementasi
 
 - `@supabase/supabase-js` dipasang untuk SDK browser (lazy bundle, satu instance), session persistence, auto-refresh dan OAuth PKCE.

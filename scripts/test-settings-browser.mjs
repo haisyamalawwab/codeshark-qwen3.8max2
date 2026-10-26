@@ -1,5 +1,9 @@
 // Optional browser smoke test. Use CHROMIUM_PATH=/path/to/chromium npm run test:settings:browser.
 // Public API responses are intercepted fixtures; this is not a live database/OAuth test.
+// MODE DATA: smoke test admin/cloud ini dilewati HANYA bila DATA_MODE=local
+// (dan aplikasi di-build dengan VITE_DATA_MODE=cloud). Lihat docs/MODE-LOKAL.md.
+import { exitIfLocalMode } from '../server/local-mode.mjs';
+exitIfLocalMode('scripts/test-settings-browser.mjs (test:settings:browser)');
 import { chromium } from 'playwright-core';
 import assert from 'node:assert/strict';
 import { defaultSettings } from '../shared/site-settings.mjs';
@@ -26,13 +30,13 @@ try {
   settings.games.tower = false;
   await page.reload();
   const tower = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Coding Tower', exact: true }) });
-  await tower.getByRole('button', { name: 'Dinonaktifkan admin' }).waitFor();
-  assert.equal(await tower.getByRole('button', { name: 'Dinonaktifkan admin' }).isDisabled(), true); checks++;
+  await tower.getByRole('button', { name: 'Dinonaktifkan sementara' }).waitFor();
+  assert.equal(await tower.getByRole('button', { name: 'Dinonaktifkan sementara' }).isDisabled(), true); checks++;
   await page.goto(`${base}/codingtower/`);
-  await page.getByText('Sub-game ini dinonaktifkan admin.', { exact: true }).waitFor(); checks++;
+  await page.getByText('Sub-game ini dinonaktifkan sementara.', { exact: true }).waitFor(); checks++;
   settings.games.ci_backend = false;
   await page.goto(`${base}/?subgame=ci_backend`);
-  await page.getByText('Sub-game ini dinonaktifkan admin.', { exact: true }).waitFor(); checks++;
+  await page.getByText('Sub-game ini dinonaktifkan sementara.', { exact: true }).waitFor(); checks++;
   settings.maintenance = true;
   await page.goto(`${base}/codingshark/`);
   await page.getByText('Website / konten belum tersedia', { exact: true }).waitFor();

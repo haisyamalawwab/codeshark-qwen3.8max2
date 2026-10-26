@@ -1,6 +1,10 @@
 import { getTidbPool } from './tidb.mjs';
-import { resolveOwner } from './tidb-sync.mjs';
+import { resolveAuthenticatedUser } from './tidb-sync.mjs';
 import { defaultSettings, validateSettings } from '../shared/site-settings.mjs';
+import { getSharedCache } from './redis.mjs';
+
+const SETTINGS_CACHE_KEY = 'codeshark:site-settings:v1';
+const SETTINGS_CACHE_TTL_SECONDS = 30;
 
 class SettingsError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -12,13 +16,37 @@ function decode(row) {
     revision: Number(row.revision), updatedAt: row.updated_at, updatedBy: row.updated_by,
   };
 }
-export async function requireAdmin(req, env, request) {
-  // Never accept guest identities, request roles, or user-editable user_metadata.
-  const owner = await resolveOwner(req, {}, { ...env, NODE_ENV: 'production', TIDB_ALLOW_GUEST_SYNC: 'false' }, request);
+function hasAdminRole(role) {
+  return String(role || '')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .includes('admin');
+}
+
+export async function requireAdmin(req, env, request, authDeps = {}) {
+  // Never accept guest identities, client-supplied roles, or user-editable
+  // metadata. Better Auth admin berasal dari kolom role/banned yang dibaca
+  // server dari sesi MariaDB; Supabase lama tetap memakai ADMIN_USER_IDS.
+  let user;
+  try {
+    user = await resolveAuthenticatedUser(
+      req,
+      { ...env, NODE_ENV: 'production', TIDB_ALLOW_GUEST_SYNC: 'false' },
+      request,
+      authDeps,
+    );
+  } catch (error) {
+    const status = Number.isInteger(error?.status) ? error.status : 503;
+    throw new SettingsError(status, status === 503 ? 'Layanan autentikasi admin belum tersedia.' : error.message || 'Login admin diperlukan.');
+  }
   const ids = (env.ADMIN_USER_IDS || '').split(',').map(id => id.trim()).filter(Boolean);
-  if (!ids.length) throw new SettingsError(503, 'Daftar admin server belum dikonfigurasi.');
-  if (!ids.includes(owner.slice(5))) throw new SettingsError(403, 'Akses khusus admin.');
-  return owner;
+  const allowlisted = ids.includes(user.id);
+  const roleAdmin = user.provider === 'better-auth' && hasAdminRole(user.role);
+  if (allowlisted || roleAdmin) return user.owner;
+  if (!ids.length && user.provider !== 'better-auth') {
+    throw new SettingsError(503, 'Daftar admin server belum dikonfigurasi.');
+  }
+  throw new SettingsError(403, 'Akses khusus admin.');
 }
 export async function readSettings(db) {
   const [rows] = await query(db, 'SELECT settings_json, revision, updated_at, updated_by FROM cs_site_settings WHERE id=1');
@@ -41,7 +69,10 @@ export async function saveSettings(db, settings, revision, actor) {
     throw error;
   } finally { conn.release(); }
 }
-export function createSettingsHandler({ admin = false, env = process.env, pool = getTidbPool, request = fetch } = {}) {
+export function createSettingsHandler(dependencies = {}) {
+  const { admin = false, env = process.env, pool = getTidbPool, request = fetch, authDeps = {} } = dependencies;
+  // Cache Redis hanya untuk GET publik; admin selalu membaca DB langsung.
+  const sharedCache = Object.hasOwn(dependencies, 'cache') ? dependencies.cache : getSharedCache(env);
   return async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -51,7 +82,7 @@ export function createSettingsHandler({ admin = false, env = process.env, pool =
       return res.status(405).json({ ok: false, error: 'Method not allowed' });
     }
     try {
-      const actor = admin ? await requireAdmin(req, env, request) : null;
+      const actor = admin ? await requireAdmin(req, env, request, authDeps) : null;
       let settings;
       if (req.method === 'PUT') {
         const body = req.body;
@@ -59,8 +90,20 @@ export function createSettingsHandler({ admin = false, env = process.env, pool =
         if (Buffer.byteLength(JSON.stringify(body)) > 16384) throw new SettingsError(413, 'Konfigurasi terlalu besar.');
         try { settings = validateSettings(body.settings); } catch (error) { throw new SettingsError(400, error.message); }
       }
+      if (req.method === 'GET' && !admin && sharedCache) {
+        try {
+          const raw = await sharedCache.get(SETTINGS_CACHE_KEY);
+          if (raw) return res.status(200).json({ ok: true, ...JSON.parse(raw) });
+        } catch { /* Redis gagal → baca DB seperti biasa */ }
+      }
       const db = typeof pool === 'function' ? pool() : pool;
       const result = req.method === 'PUT' ? await saveSettings(db, settings, req.body.revision, actor) : await readSettings(db);
+      if (sharedCache) {
+        try {
+          if (req.method === 'PUT') await sharedCache.del(SETTINGS_CACHE_KEY);
+          else if (!admin) await sharedCache.set(SETTINGS_CACHE_KEY, JSON.stringify({ settings: result.settings, revision: result.revision, updatedAt: result.updatedAt }), SETTINGS_CACHE_TTL_SECONDS);
+        } catch { /* abaikan */ }
+      }
       // Public projection explicitly excludes administrator identities and audit history.
       return res.status(200).json({ ok: true, settings: result.settings, revision: result.revision, updatedAt: result.updatedAt, ...(admin ? { updatedBy: result.updatedBy } : {}) });
     } catch (error) {

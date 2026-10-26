@@ -1,5 +1,9 @@
 import { createDatabaseStatusService } from "../server/database-status.mjs";
 import { closeTidbPool } from "../server/tidb.mjs";
+import { exitIfLocalMode } from "../server/local-mode.mjs";
+
+// MODE DATA: verifikasi cloud dilewati HANYA bila DATA_MODE=local.
+exitIfLocalMode("scripts/verify-database.mjs (db:verify)");
 
 try {
   const report = await createDatabaseStatusService()();

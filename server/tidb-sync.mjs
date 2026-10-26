@@ -1,4 +1,9 @@
 import { verifySupabaseUser, AuthVerificationError } from "./supabase-auth.mjs";
+import {
+  getBetterAuthUser,
+  hasBetterAuthSessionCookie,
+  isBetterAuthUserBanned,
+} from "./better-auth.mjs";
 import { getTidbPool } from "./tidb.mjs";
 
 export class SyncError extends Error {
@@ -49,15 +54,53 @@ export function validatePayload(body) {
 
 // Authentication is enforced independently of client-supplied userId/deviceId.
 // Guest development sync is explicitly opt-in and NEVER permitted in production.
-export async function resolveOwner(req, body, env = process.env, request = fetch) {
-  if (env.TIDB_ALLOW_GUEST_SYNC === "true" && env.NODE_ENV !== "production" && !req.headers?.authorization) {
-    return `guest:${text(body.deviceId, 180, "guest deviceId")}`;
+// Jalur utama sekarang sesi cookie Better Auth; JWT Supabase dipertahankan
+// untuk sesi Google lama. Bila cookie Better Auth ada tetapi tidak valid,
+// request TIDAK boleh jatuh ke guest/Supabase secara diam-diam.
+export async function resolveAuthenticatedUser(req, env = process.env, request = fetch, deps = {}) {
+  const hasCookie = (deps.hasBetterAuthSessionCookie ?? hasBetterAuthSessionCookie)(req);
+  if (hasCookie) {
+    let user;
+    try {
+      user = await (deps.getBetterAuthUser ?? getBetterAuthUser)(req, env, deps.betterAuthDeps ?? deps);
+    } catch (error) {
+      const status = Number.isInteger(error?.status) ? error.status : 503;
+      throw new SyncError(status, status === 503 ? "Layanan autentikasi belum tersedia." : "Sesi login tidak valid.");
+    }
+    if (!user?.id) throw new SyncError(401, "Sesi Better Auth tidak valid. Silakan login kembali.");
+    if ((deps.isBetterAuthUserBanned ?? isBetterAuthUserBanned)(user)) {
+      throw new SyncError(403, "Akun ini dinonaktifkan oleh admin.");
+    }
+    return {
+      id: String(user.id),
+      owner: `user:${String(user.id)}`,
+      provider: "better-auth",
+      email: typeof user.email === "string" ? user.email : "",
+      role: typeof user.role === "string" ? user.role : "user",
+      banned: false,
+    };
   }
-  try { return `user:${await verifySupabaseUser(req, env, request)}`; }
-  catch (error) {
+
+  try {
+    const id = await verifySupabaseUser(req, env, request);
+    return { id: String(id), owner: `user:${String(id)}`, provider: "supabase", role: "", banned: false };
+  } catch (error) {
     if (error instanceof AuthVerificationError) throw new SyncError(error.status, error.message);
     throw error;
   }
+}
+
+export async function resolveOwner(req, body, env = process.env, request = fetch, deps = {}) {
+  const hasCookie = (deps.hasBetterAuthSessionCookie ?? hasBetterAuthSessionCookie)(req);
+  if (
+    env.TIDB_ALLOW_GUEST_SYNC === "true" &&
+    env.NODE_ENV !== "production" &&
+    !req.headers?.authorization &&
+    !hasCookie
+  ) {
+    return `guest:${text(body.deviceId, 180, "guest deviceId")}`;
+  }
+  return (await resolveAuthenticatedUser(req, env, request, deps)).owner;
 }
 
 export async function persistTidbSync(pool, owner, payload) {
@@ -97,7 +140,7 @@ export async function persistTidbSync(pool, owner, payload) {
   }
 }
 
-export function createTidbSyncHandler({ pool = getTidbPool, env = process.env, request = fetch } = {}) {
+export function createTidbSyncHandler({ pool = getTidbPool, env = process.env, request = fetch, authDeps = {} } = {}) {
   return async (req, res) => {
     res.setHeader?.("Cache-Control", "no-store");
     if (req.method !== "POST") {
@@ -106,7 +149,7 @@ export function createTidbSyncHandler({ pool = getTidbPool, env = process.env, r
     }
     try {
       const body = validatePayload(req.body);
-      const owner = await resolveOwner(req, body, env, request);
+      const owner = await resolveOwner(req, body, env, request, authDeps);
       const acceptedIds = await persistTidbSync(pool(), owner, body);
       return res.status(200).json({ ok: true, synced: acceptedIds.length, acceptedIds });
     } catch (error) {

@@ -50,6 +50,9 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 3000,
     allowedHosts: true,
+    // TES KONEKSI AWAL mode otomatis memanggil /api/database-status —
+    // proxy ke dev-api (npm run dev:api, port 3001). Bila dev-api tidak
+    // berjalan, tes gagal dan aplikasi otomatis memakai mode lokal.
     proxy: { "/api": { target: "http://127.0.0.1:3001", changeOrigin: true } },
   },
   resolve: {
@@ -74,6 +77,9 @@ export default defineConfig({
       // EMPAT ENTRY: hub agregat + 3 sub-game mandiri (output dist sub-folder)
       input: {
         hub: path.resolve(__dirname, "index.html"),
+        // Halaman admin = diagnostik & tes koneksi (khusus admin, tidak
+        // memengaruhi jalannya aplikasi pemain). Dibangun sebagai entry
+        // terpisah dist/admin/ — tesnya berjalan di backend serverless.
         admin: path.resolve(__dirname, "admin/index.html"),
         codingshark: path.resolve(__dirname, "codingshark/index.html"),
         codingtower: path.resolve(__dirname, "codingtower/index.html"),

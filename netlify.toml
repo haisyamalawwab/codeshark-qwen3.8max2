@@ -1,5 +1,18 @@
 # Konfigurasi Deployment Netlify untuk latihan.my.id (hub agregat + 2 sub-game)
 # Struktur dist/: index.html (hub) + codingshark/index.html + codingtower/index.html
+#
+# ============================================================
+# MODE DATA OTOMATIS — docs/MODE-LOKAL.md
+# - Frontend VITE_DATA_MODE=auto: tes koneksi awal ke
+#   /api/database-status (server mengetes TiDB Cloud + Aiven).
+#   Terhubung -> cloud; gagal/belum dikonfigurasi -> lokal
+#   (SQLite/localStorage). Redirect /api/* ke Functions AKTIF
+#   agar tes itu bisa berjalan.
+# - DATA_MODE=local di environment fungsi memaksa 503 mode-lokal.
+# - Halaman /admin/ = diagnostik & tes koneksi khusus admin
+#   (entry terpisah; pengujian berjalan di Functions).
+# - /api/auth/* = Better Auth (MariaDB Layerbase, terpisah dari DB game).
+# ============================================================
 
 [build]
   command = "npm run build"
@@ -8,16 +21,35 @@
 # Public build settings only. Database secrets belong in the Netlify dashboard.
 [build.environment]
   NODE_VERSION = "22"
+  # Mode otomatis: browser mengetes koneksi cloud di awal.
+  VITE_DATA_MODE = "auto"
+  VITE_ADMIN_ENABLED = "false"
   VITE_SYNC_ENDPOINT = "/api/sync-progress"
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["mysql2"]
+  external_node_modules = ["mysql2", "pg", "ioredis", "better-auth"]
   # Public CA added via GitHub; never place it in public/ or dist/.
   included_files = ["certs/tidb-ca-rozanhaisyam.pem"]
 
-# API must resolve before the SPA catch-all.
+# (Blok /admin sengaja TANPA redirect di sini: file statis dist/admin/
+# dilayani langsung, fallback SPA admin ada di bawah sebelum catch-all.)
+
+# API (termasuk tes koneksi awal /api/database-status) must resolve
+# before the SPA catch-all.
+[[redirects]]
+  from = "/api/admin-diagnostics"
+  to = "/.netlify/functions/admin-diagnostics"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/auth/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/api/admin-setup"
   to = "/.netlify/functions/admin-setup"

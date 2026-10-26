@@ -1,5 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { getTidbPool, closeTidbPool } from "../server/tidb.mjs";
+import { exitIfLocalMode } from "../server/local-mode.mjs";
+
+// MODE DATA: skrip cloud dilewati HANYA bila DATA_MODE=local.
+exitIfLocalMode("scripts/tidb-db.mjs (db:tidb:init/check)");
 
 const command = process.argv[2];
 if (!["init", "check"].includes(command)) {
