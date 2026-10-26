@@ -1,7 +1,7 @@
-import { useSiteSettings, Unavailable } from "./lib/siteSettings";
+import { useSiteSettings, useEffectiveDataMode, Unavailable } from "./lib/siteSettings";
 import { Suspense, lazy, useEffect, useState } from "react";
 import type { AgeId, SaveData, DailyChallengeAttempt } from "./lib/storage";
-import { clearSave, defaultSave, loadSave, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
+import { clearSave, defaultSave, loadSave, loadSaveFor, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
 import type { Session } from "./data/quests";
@@ -9,7 +9,7 @@ import { getDailyChallenge } from "./data/dailyChallenges";
 import { applyAttempt, meetingLevel, meetingUnlocked } from "./lib/progress";
 import { logAttempt } from "./lib/history";
 import { enqueueAttempt, pushOutbox } from "./lib/sync";
-import { guestUser, signInWithGoogle } from "./lib/auth";
+import { guestUser, rememberUserId, signInWithGoogle, type AuthUser } from "./lib/auth";
 import { isCloudReady } from "./lib/supabaseClient";
 import Pertemuan from "./ui/Pertemuan";
 import { sfx } from "./lib/audio";
@@ -81,6 +81,7 @@ type Screen =
 
 export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
   const settings = useSiteSettings();
+  const dataMode = useEffectiveDataMode();
   const [save, setSave] = useState<SaveData>(() => loadSave());
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
   const [screen, setScreen] = useState<Screen>({ s: "dash" });
@@ -115,8 +116,13 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   };
 
   useEffect(() => persist(save), [save]);
+  // Sinkron cloud hanya bila mode EFEKTIF cloud (tes koneksi awal ke
+  // TiDB Cloud/Aiven berhasil). persist() ke localStorage di atas selalu
+  // jalan (local-first). Mode dibaca via hook agar re-tes berkala yang
+  // menaikkan mode ke cloud langsung mengaktifkan effect ini.
   // Sync only after React has committed the latest snapshot, not the pre-run save.
   useEffect(() => {
+    if (dataMode.mode !== "cloud") return;
     const sync = () => { pushOutbox(save.deviceId, save.profile?.name ?? null, save).catch(() => {}); };
     const timer = window.setTimeout(sync, 300);
     window.addEventListener("online", sync);
@@ -124,7 +130,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       window.clearTimeout(timer);
       window.removeEventListener("online", sync);
     };
-  }, [save]);
+  }, [save, dataMode.mode]);
   useEffect(() => {
     sfx.enabled = sound;
   }, [sound]);
@@ -146,9 +152,18 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   const cfg = AGE_GROUPS[profile?.age ?? "teen"];
 
   /* ===== aksi profil ===== */
-  const createProfile = (name: string, age: AgeId) => {
+  const adoptAccountSave = (account: AuthUser) => {
+    if (account.provider !== "email" || account.banned) return;
+    rememberUserId(account.id);
+    // Bila akun ini sudah punya save lokal di perangkat yang sama, pakai
+    // namespace akunnya (jangan timpa dengan save tamu kosong).
+    setSave((current) => (current.profile ? current : loadSaveFor(account.id)));
+  };
+
+  const createProfile = (name: string, age: AgeId, account?: AuthUser | null) => {
     sfx.click();
-    guestUser(name);
+    if (account?.provider === "email" && !account.banned) rememberUserId(account.id);
+    else guestUser(name);
     setSave((s) => ({
       ...s,
       profile: { name, age, sound, createdAt: Date.now() },
@@ -346,12 +361,12 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   const playQuest = (no: number, kind: "quest" | "drill" | "juggle") => enterPractice(questId(no, kind));
 
   /* ===== Runtime gates also protect direct entry URLs and restored screens. ===== */
-  if (!settings.games[subGame]) return <Unavailable message="Sub-game ini dinonaktifkan admin." />;
+  if (!settings.games[subGame]) return <Unavailable message="Sub-game ini dinonaktifkan sementara." />;
   const selectedModule = screen.s === "materi" ? getModule(screen.id).lang
     : screen.s === "game" ? getSession(screen.id)?.lang
     : screen.s === "materi-html" ? "html" : null;
   if ((subGame === "tower" || subGame === "shark") && selectedModule && !settings.modules[selectedModule]) {
-    return <Unavailable message="Modul ini dinonaktifkan admin." retry={() => setScreen({ s: "dash" })} />;
+    return <Unavailable message="Modul ini dinonaktifkan sementara." retry={() => setScreen({ s: "dash" })} />;
   }
 
   /* ===== render ===== */
@@ -366,6 +381,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
           onCreate={createProfile}
           cloudReady={isCloudReady()}
           onGoogleLogin={() => signInWithGoogle().catch(() => {})}
+          onAccountLogin={adoptAccountSave}
         />
       ) : screen.s === "dash" ? (
         subGame === "ci_backend" ? (

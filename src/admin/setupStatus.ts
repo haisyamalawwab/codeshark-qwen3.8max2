@@ -11,6 +11,10 @@ export const SETUP_FIELDS = {
   SUPABASE_PUBLISHABLE_KEY: ['Publishable key server', 'Isi SUPABASE_PUBLISHABLE_KEY, bukan secret/service-role key.'],
   SUPABASE_ANON_KEY: ['Key Auth server (legacy)', 'Isi SUPABASE_PUBLISHABLE_KEY atau fallback SUPABASE_ANON_KEY.'],
   SUPABASE_JWKS_URL: ['JWKS Auth', 'Opsional: isi endpoint JWKS project yang sama. Kosong memakai verifier online legacy.'],
+  AUTH_DATABASE_URL: ['Database Better Auth', 'Isi AUTH_DATABASE_URL dari Layerbase Connect (atau gunakan DATABASE_URL); server saja, bukan variable browser.'],
+  DATABASE_URL: ['Database Better Auth (Layerbase)', 'Alternatif AUTH_DATABASE_URL: connection string MariaDB dari Layerbase Connect. Jangan gunakan untuk Aiven MySQL.'],
+  BETTER_AUTH_SECRET: ['Secret Better Auth', 'Generate dengan openssl rand -base64 32 dan isi hanya di environment server.'],
+  BETTER_AUTH_URL: ['URL Better Auth', 'Isi origin aplikasi tanpa /api/auth; kosong memakai origin deployment yang terdeteksi.'],
   ADMIN_USER_IDS: ['Allowlist admin', 'Isi ADMIN_USER_IDS dengan ID user Auth yang diizinkan, lalu restart/deploy server.'],
   tidb_connection: ['Koneksi database', 'Lengkapi environment TiDB, periksa jaringan/TLS dan izin koneksi.'],
   settings_schema: ['Tabel konfigurasi & audit', 'Jika koneksi siap tetapi tabel belum siap, jalankan npm run db:settings:init secara terpisah.'],
@@ -29,7 +33,8 @@ export async function fetchSetupStatus(signal: AbortSignal): Promise<SetupReport
     !value.items.every((item: { id?: unknown; status?: unknown } | null) => {
       if (!item || typeof item.id !== 'string' || !Object.hasOwn(SETUP_FIELDS, item.id) || ids.has(item.id) || !SETUP_STATES.includes(item.status as SetupState)) return false;
       ids.add(item.id); return true;
-    }) || !['DB_PROVIDER', 'TIDB_PASSWORD', 'SUPABASE_URL', 'ADMIN_USER_IDS', 'tidb_connection', 'settings_schema'].every(id => ids.has(id)) ||
-    (!ids.has('SUPABASE_PUBLISHABLE_KEY') && !ids.has('SUPABASE_ANON_KEY'))) throw new Error('Invalid setup report');
+    }) || !['DB_PROVIDER', 'TIDB_PASSWORD', 'ADMIN_USER_IDS', 'tidb_connection', 'settings_schema'].every(id => ids.has(id)) ||
+    (!ids.has('SUPABASE_URL') && !ids.has('BETTER_AUTH_SECRET')) ||
+    ((!ids.has('SUPABASE_PUBLISHABLE_KEY') && !ids.has('SUPABASE_ANON_KEY')) && !ids.has('BETTER_AUTH_SECRET'))) throw new Error('Invalid setup report');
   return value as SetupReport;
 }

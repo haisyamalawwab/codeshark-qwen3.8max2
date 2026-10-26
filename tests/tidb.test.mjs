@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { tidbOptions } from "../server/tidb.mjs";
 import { validatePayload, resolveOwner, persistTidbSync, createTidbSyncHandler } from "../server/tidb-sync.mjs";
-import { handler as netlify } from "../netlify/functions/sync-progress.mjs";
+import { handler as netlify, createNetlifyHandler } from "../netlify/functions/sync-progress.mjs";
 
 const payload = () => ({
   deviceId: "device-test", profileName: "Kadet 🦈", sentAt: 1800000000000,
@@ -118,6 +118,33 @@ test("API enforces method/auth, hides DB errors, returns durable IDs", async () 
 });
 
 test("Netlify adapter rejects malformed JSON and handles method response", async () => {
-  assert.equal((await netlify({ httpMethod: "POST", body: "{" })).statusCode, 400);
-  assert.equal((await netlify({ httpMethod: "GET", body: "{}" })).statusCode, 405);
+  // Factory = jalur cloud murni (diuji terpisah dari gerbang mode lokal).
+  const cloud = createNetlifyHandler({ env: {}, pool: () => fakePool() });
+  assert.equal((await cloud({ httpMethod: "POST", body: "{" })).statusCode, 400);
+  assert.equal((await cloud({ httpMethod: "GET", body: "{}" })).statusCode, 405);
+});
+
+test("DATA_MODE=local: handler Netlify ter-deploy menjawab 503 mode-lokal", async () => {
+  const previous = process.env.DATA_MODE;
+  process.env.DATA_MODE = "local";
+  try {
+    const result = await netlify({ httpMethod: "POST", body: "{}" });
+    assert.equal(result.statusCode, 503);
+    assert.equal(JSON.parse(result.body).mode, "local");
+  } finally {
+    if (previous === undefined) delete process.env.DATA_MODE; else process.env.DATA_MODE = previous;
+  }
+});
+
+test("DATA_MODE=auto (default): handler Netlify BUKAN 503 mode-lokal (tes awal yang memutuskan)", async () => {
+  const previous = process.env.DATA_MODE;
+  delete process.env.DATA_MODE;
+  try {
+    // Tanpa kredensial cloud, adapter tetap melayani jalur cloud dan
+    // menolak JSON rusak seperti biasa — keputusan lokal diambil klien
+    // dari /api/database-status, bukan dari gerbang paksa di sini.
+    assert.equal((await netlify({ httpMethod: "POST", body: "{" })).statusCode, 400);
+  } finally {
+    if (previous === undefined) delete process.env.DATA_MODE; else process.env.DATA_MODE = previous;
+  }
 });

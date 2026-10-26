@@ -200,7 +200,7 @@ export function Pertemuan({ save, startNo, subGame = "shark", onExit, onMateri, 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (!settings.modules[LESSON_LANG[no]]) return <Unavailable message="Modul pertemuan ini dinonaktifkan admin." retry={onExit} />;
+  if (!settings.modules[LESSON_LANG[no]]) return <Unavailable message="Modul pertemuan ini dinonaktifkan sementara." retry={onExit} />;
   return (
     <div className="relative z-10 min-h-screen flex flex-col">
       {/* topbar halaman khusus — bukan modal */}
