@@ -6,6 +6,7 @@ import {
   type CloudProvider, type DataModeInfo,
 } from './featureFlags';
 import { fetchDatabaseStatus, probeDecision } from './databaseStatus';
+import BootLoading from '../ui/BootLoading';
 
 /* ============================================================
    TES KONEKSI AWAL (mode otomatis) — alur provider:
@@ -23,13 +24,16 @@ import { fetchDatabaseStatus, probeDecision } from './databaseStatus';
       naik/turun mengikuti ketersediaan database cloud.
    Anak-anak provider BARU dirender setelah keputusan diambil,
    jadi getter isCloud*() & hook useEffectiveDataMode() selalu
-   konsisten. Detail: docs/MODE-LOKAL.md.
+   konsisten. Selama keputusan belum siap, pengguna melihat splash
+   loading aplikasi generik — bukan status teknis pengecekan database
+   atau layar “konten belum tersedia”. Detail: docs/036_mode-lokal_26102026_0819.md.
    ============================================================ */
 
 export interface SettingsDocument { settings: SiteSettings; revision: number; updatedAt: string | null; updatedBy?: string | null }
 
 const LOCAL_SETTINGS_KEY = 'codeshark:siteSettings:v1';
 const PROBE_TIMEOUT_MS = 7000;
+const BOOT_MIN_DISPLAY_MS = 650;
 
 /** Konfigurasi efektif mode lokal: override perangkat bila valid, selain itu default. */
 export function loadLocalSettings(): SettingsDocument {
@@ -161,6 +165,13 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const [modeInfo, setModeInfo] = useState<DataModeInfo | null>(() =>
     CONFIGURED_MODE === 'local' ? FORCED_LOCAL_INFO : null);
   const [error, setError] = useState('');
+  const [bootReady, setBootReady] = useState(CONFIGURED_MODE === 'local');
+
+  useEffect(() => {
+    if (CONFIGURED_MODE === 'local') return;
+    const timer = window.setTimeout(() => setBootReady(true), BOOT_MIN_DISPLAY_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const resolve = useCallback(async () => {
     try {
@@ -173,6 +184,13 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
       setError('Konfigurasi database tidak dapat dimuat. Periksa koneksi dan migrasi settings.');
     }
   }, []);
+
+  const retryInitialLoad = useCallback(() => {
+    setError('');
+    setSettings(null);
+    setModeInfo(null);
+    void resolve();
+  }, [resolve]);
 
   useEffect(() => {
     if (CONFIGURED_MODE === 'local') return; // sudah final sejak render pertama
@@ -198,15 +216,9 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
     document.querySelector('meta[name="description"]')?.setAttribute('content', settings.description);
   }, [settings]);
 
-  if (error) return <Unavailable message={error} retry={() => void resolve()} />;
-  if (!settings || !modeInfo) {
-    return <Unavailable message={
-      CONFIGURED_MODE === 'auto'
-        ? 'Memeriksa koneksi database cloud (TiDB Cloud/Aiven)…'
-        : 'Memuat konfigurasi website…'
-    } />;
-  }
-  if (settings.maintenance) return <Unavailable message={settings.announcement || 'Website sedang dalam pemeliharaan.'} retry={() => void resolve()} />;
+  if (error) return <Unavailable message={error} retry={retryInitialLoad} />;
+  if (!settings || !modeInfo || !bootReady) return <BootLoading />;
+  if (settings.maintenance) return <Unavailable message={settings.announcement || 'Website sedang dalam pemeliharaan.'} retry={retryInitialLoad} />;
   return (
     <DataModeContext.Provider value={modeInfo}>
       <SettingsContext.Provider value={settings}>

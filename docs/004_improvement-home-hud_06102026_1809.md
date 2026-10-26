@@ -1,4 +1,4 @@
-# 002 — Improvement Home HUD UI/UX sesuai referensi `home_hud.jfif`
+# 004 — Improvement Home HUD UI/UX sesuai referensi `home_hud.jfif`
 
 > Disimpan: 06-10-2026 18:09. Mencakup seluruh pekerjaan sesi redesign layar home (onboarding).
 

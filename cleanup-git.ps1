@@ -46,7 +46,7 @@ try {
 
 Write-Host "`n📝 Staging .gitignore changes..." -ForegroundColor Green
 git add .gitignore
-git add .gitignore-README.md
+git add docs/024_gitignore-readme_16102026_1039.md
 
 Write-Host "`n📊 New status:" -ForegroundColor Green
 git status --short

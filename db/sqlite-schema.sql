@@ -1,4 +1,4 @@
--- CodeShark / SQLite lokal (mode lokal sementara — docs/MODE-LOKAL.md).
+-- CodeShark / SQLite lokal (mode lokal sementara — docs/036_mode-lokal_26102026_0819.md).
 -- Dipakai browser via sql.js (src/lib/gameDb.ts) untuk backup .sqlite.
 -- Cermin longgar tabel cloud cs_* (db/tidb-schema.sql) agar kelak mudah
 -- diimpor kembali ke TiDB Cloud/Aiven. TIDAK ada kredensial di file ini.

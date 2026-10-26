@@ -18,7 +18,7 @@
    sebelum anak-anaknya dirender; modul non-React membacanya lewat
    getter isCloud*() di file ini. Halaman admin tetap nonaktif
    kecuali mode terkonfigurasi "cloud" (entry admin tidak dibangun
-   pada mode auto/local). Detail: docs/MODE-LOKAL.md.
+   pada mode auto/local). Detail: docs/036_mode-lokal_26102026_0819.md.
    ============================================================ */
 
 export type ConfiguredMode = "auto" | "local" | "cloud";

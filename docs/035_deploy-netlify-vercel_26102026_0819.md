@@ -19,7 +19,7 @@ Browser pemain ──► Static site (dist/: hub + sub-game + /admin/)
   khusus admin untuk **melihat & mengetes koneksi**. Ia tidak memengaruhi
   jalannya aplikasi pemain. Pengujian koneksi **selalu dijalankan backend
   serverless** — browser tidak pernah memegang kredensial database.
-- Detail mode data otomatis: [`MODE-LOKAL.md`](MODE-LOKAL.md).
+- Detail mode data otomatis: [`036_mode-lokal_26102026_0819.md`](036_mode-lokal_26102026_0819.md).
 
 ## 1. Siapkan database
 
@@ -28,7 +28,7 @@ Browser pemain ──► Static site (dist/: hub + sub-game + /admin/)
 | **TiDB Cloud MySQL** | Buat cluster & database `codeshark` → jalankan `db/tidb-schema.sql` (atau lokal: isi `TIDB_*` lalu `npm run db:tidb:init`) |
 | **Aiven for MySQL** | Buat service MySQL → jalankan `db/tidb-schema.sql` yang sama (dialek MySQL, tabel `cs_*`) |
 | Aiven for PostgreSQL (alternatif) | Jalankan `db/schema.sql` (tabel `profiles/saves/attempts`) |
-| **Layerbase MariaDB (Auth Server)** | Klik “Set up the Better Auth schema”, atau isi `.env` lalu `npm run auth:migrate`; fallback `db/better-auth-mariadb.sql`. Detail: [`BETTER-AUTH-LAYERBASE.md`](BETTER-AUTH-LAYERBASE.md) |
+| **Layerbase MariaDB (Auth Server)** | Klik “Set up the Better Auth schema”, atau isi `.env` lalu `npm run auth:migrate`; fallback `db/better-auth-mariadb.sql`. Detail: [`034_better-auth-layerbase_26102026_0819.md`](034_better-auth-layerbase_26102026_0819.md) |
 | Redis (opsional) | Upstash Redis (REST) **atau** Aiven for Valkey/Redis (TCP `rediss://`) |
 
 ## 2. Environment variables

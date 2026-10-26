@@ -1,6 +1,6 @@
 # Koneksi TiDB Cloud melalui Netlify Functions
 
-> 🔀 **Mode data otomatis aktif:** koneksi TiDB Cloud/Aiven dites di awal — terhubung berarti mode cloud (isi dokumen ini berlaku), gagal berarti mode lokal SQLite/localStorage. Panel admin tetap nonaktif pada mode otomatis. Lihat [MODE-LOKAL.md](MODE-LOKAL.md).
+> 🔀 **Mode data otomatis aktif:** koneksi TiDB Cloud/Aiven dites di awal — terhubung berarti mode cloud (isi dokumen ini berlaku), gagal berarti mode lokal SQLite/localStorage. Panel admin tetap nonaktif pada mode otomatis. Lihat [036_mode-lokal_26102026_0819.md](036_mode-lokal_26102026_0819.md).
 
 ## Arsitektur
 
@@ -163,7 +163,7 @@ npm run build
 
 ## Indikator dan pemeriksaan koneksi
 
-Hub/dashboard kini menyediakan status koneksi dan checklist environment yang bersumber dari `GET /api/database-status`. Endpoint memakai probe read-only dengan cache internal 30 detik, tanpa nilai secret atau data peserta. Status database terhubung tidak membuktikan login/penulisan sukses. Lihat [panduan verifikasi](VERIFIKASI-KONEKSI-DATABASE.md) untuk arti status, CLI, environment, dan batas keamanan.
+Hub/dashboard kini menyediakan status koneksi dan checklist environment yang bersumber dari `GET /api/database-status`. Endpoint memakai probe read-only dengan cache internal 30 detik, tanpa nilai secret atau data peserta. Status database terhubung tidak membuktikan login/penulisan sukses. Lihat [panduan verifikasi](032_verifikasi-koneksi-database_23102026_2016.md) untuk arti status, CLI, environment, dan batas keamanan.
 
 ## 8. Batasan yang tetap berlaku
 
@@ -173,6 +173,6 @@ Hub/dashboard kini menyediakan status koneksi dan checklist environment yang ber
 - TLS, verifikasi identitas, dan SQL parameterized tidak menggantikan rate limiting serta pengelolaan retensi.
 - `.env` lokal tetap lokal dan diabaikan Git. Perubahan dokumen/config tidak otomatis memperbarui dashboard Netlify.
 
-Lihat [panduan TiDB lengkap](TIDB-CLOUD-MYSQL.md) untuk skema, izin database, snapshot timestamp, migrasi dan troubleshooting tambahan.
+Lihat [panduan TiDB lengkap](029_tidb-cloud-mysql_23102026_1913.md) untuk skema, izin database, snapshot timestamp, migrasi dan troubleshooting tambahan.
 
-Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](SUPABASE-AUTH.md).
+Autentikasi terbaru memakai publishable key; nama `SUPABASE_ANON_KEY` / `VITE_SUPABASE_ANON_KEY` masih didukung sebagai fallback legacy. Backend JWKS dan panduan lengkap: [Supabase Auth](033_supabase-auth_23102026_2042.md).

@@ -3,7 +3,7 @@ import { authKeyName, authUrl, publicAuthKey } from "../shared/supabase-config.m
 // TES KONEKSI AWAL mode otomatis: mengetes TiDB Cloud DAN Aiven, lalu
 // memberi keputusan — cloudReady + effectiveProvider + decision
 // ("cloud" bila salah satu terhubung & skemanya siap, selain itu
-// "local" → klien memakai SQLite/localStorage). Lihat docs/MODE-LOKAL.md.
+// "local" → klien memakai SQLite/localStorage). Lihat docs/036_mode-lokal_26102026_0819.md.
 import { tidbOptions, getTidbPool } from "./tidb.mjs";
 import { probeAiven } from "./aiven.mjs";
 import { serverMode } from "./local-mode.mjs";

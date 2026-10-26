@@ -257,7 +257,7 @@ export default function AdminDiagnostics() {
           Arsitektur: UI admin ini satu repo dengan aplikasi (entry terpisah <code>/admin/</code>), sedangkan
           pengujian koneksi adalah <strong>backend khusus serverless</strong> — fungsi Netlify
           (<code>netlify/functions/</code>) / Vercel (<code>api/</code>) berbagi logika <code>server/</code>.
-          Tidak perlu server backend terpisah. Panduan deploy: <code>docs/DEPLOY-NETLIFY-VERCEL.md</code>.
+          Tidak perlu server backend terpisah. Panduan deploy: <code>docs/035_deploy-netlify-vercel_26102026_0819.md</code>.
         </p>
       </main>
     </div>

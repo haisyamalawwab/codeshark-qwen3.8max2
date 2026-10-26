@@ -17,7 +17,7 @@
 
 > Gunakan master prompt ini dalam mode IMPLEMENTASI_BERTAHAP. Kerjakan fase A: stabilisasi materi dan progres saja. Jangan membuat leaderboard atau mengganti backend dahulu. Laporkan berkas yang berubah, pengujian yang dijalankan, dan batasan yang belum selesai.
 
-**Dokumen pendamping:** [Analisis dan Survei Materi HTML/CSS/JS](ANALISIS-SURVEI-MATERI-HTML-CSS-JS.md).
+**Dokumen pendamping:** [Analisis dan Survei Materi HTML/CSS/JS](026_analisis-survei-materi-html-css-js_22102026_0656.md).
 
 ---
 

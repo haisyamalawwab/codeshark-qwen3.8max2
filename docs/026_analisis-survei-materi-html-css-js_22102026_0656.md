@@ -85,8 +85,8 @@ Namun, **kelengkapan silabus belum sama dengan kelengkapan bahan ajar Markdown m
 | [`src/ui/MateriHtml.tsx`](../src/ui/MateriHtml.tsx) | Pembaca dokumen dan kartu praktik | Spesifik HTML |
 | [`src/ui/Pertemuan.tsx`](../src/ui/Pertemuan.tsx) | Pembaca slide pertemuan dan navigasi sesi | Memiliki tombol dokumen untuk fase HTML |
 | [`src/lib/markdown.ts`](../src/lib/markdown.ts) | Parser Markdown subset buatan sendiri | Bukan parser CommonMark lengkap |
-| [`PETA-PERTEMUAN-16.md`](../PETA-PERTEMUAN-16.md) | Ringkasan peta belajar | Mengacu pada kurikulum TypeScript |
-| [`KURIKULUM-QUEST-16-PERTEMUAN.md`](../KURIKULUM-QUEST-16-PERTEMUAN.md) | Dokumentasi sesi dan tugas | Harus mengikuti perubahan data sumber |
+| [`017_peta-pertemuan-16_14102026_1917.md`](017_peta-pertemuan-16_14102026_1917.md) | Ringkasan peta belajar | Mengacu pada kurikulum TypeScript |
+| [`007_kurikulum-quest-16-pertemuan_13102026_1343.md`](007_kurikulum-quest-16-pertemuan_13102026_1343.md) | Dokumentasi sesi dan tugas | Harus mengikuti perubahan data sumber |
 
 Dokumen backend dan cross-platform memang ada, tetapi tidak dihitung sebagai dokumen khusus jalur web HTML/CSS/JS. Keberadaan materi ES6 pada jalur cross-platform tidak otomatis menutup kebutuhan JS pemula di jalur ini.
 
@@ -686,7 +686,7 @@ Salinan sementara diperlukan untuk memisahkan evaluasi data murni dari pemuatan 
 - [Renderer materi HTML](../src/ui/MateriHtml.tsx) — `MdView`, navigasi dokumen, dan akses `doc.source`.
 - [Layar pertemuan](../src/ui/Pertemuan.tsx) — tombol dokumen berdasarkan fase HTML.
 - [Routing aplikasi](../src/App.tsx) — alur `materi-html` dan modul ringkas.
-- [Peta 16 pertemuan](../PETA-PERTEMUAN-16.md) dan [panduan quest](../KURIKULUM-QUEST-16-PERTEMUAN.md).
+- [Peta 16 pertemuan](017_peta-pertemuan-16_14102026_1917.md) dan [panduan quest](007_kurikulum-quest-16-pertemuan_13102026_1343.md).
 
 ### 15.2 Referensi eksternal untuk pendalaman
 
