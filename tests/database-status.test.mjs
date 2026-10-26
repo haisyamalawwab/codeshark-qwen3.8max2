@@ -104,6 +104,49 @@ test("timeout returns a bounded report and closes a connection acquired after de
   assert.equal(destroyed, 1);
 });
 
+test("tes awal mode otomatis: TiDB terhubung → decision cloud, provider tidb", async () => {
+  const report = await inspect({ pool: () => database() })();
+  assert.equal(report.cloudReady, true);
+  assert.equal(report.effectiveProvider, "tidb");
+  assert.equal(report.decision, "cloud");
+  assert.equal(report.providers.tidb.state, "connected");
+  assert.equal(report.providers.aiven.state, "not_configured");
+});
+
+test("tes awal mode otomatis: TiDB gagal tetapi Aiven terhubung → decision cloud, provider aiven", async () => {
+  const aivenProbe = async () => ({ configured: true, kind: "postgres", state: "connected", schema: "ready" });
+  const report = await inspect({ pool: () => database({ failConnection: true }), aivenProbe })();
+  assert.equal(report.state, "connection_failed"); // bidang utama tetap TiDB (kompatibilitas)
+  assert.equal(report.cloudReady, true);
+  assert.equal(report.effectiveProvider, "aiven");
+  assert.equal(report.decision, "cloud");
+  assert.equal(report.providers.aiven.state, "connected");
+  // Handler membalas 200 karena ADA provider cloud yang siap.
+  const handler = createDatabaseStatusHandler({ env, options: () => {}, pool: () => database({ failConnection: true }), aivenProbe });
+  const res = response(); await handler({ method: "GET" }, res);
+  assert.equal(res.code, 200);
+});
+
+test("tes awal mode otomatis: kedua provider gagal → decision local (fallback SQLite/localStorage)", async () => {
+  const aivenProbe = async () => ({ configured: true, kind: "mysql", state: "timeout", schema: "not_checked" });
+  const report = await inspect({ pool: () => database({ failConnection: true }), aivenProbe })();
+  assert.equal(report.cloudReady, false);
+  assert.equal(report.effectiveProvider, null);
+  assert.equal(report.decision, "local");
+  assert.equal(report.syncPrerequisitesReady, false);
+});
+
+test("DB_PROVIDER=aiven memprioritaskan Aiven dan melewati probe TiDB", async () => {
+  let accessed = false;
+  const pool = () => { accessed = true; throw new Error("TiDB tidak boleh disentuh"); };
+  const aivenProbe = async () => ({ configured: true, kind: "postgres", state: "connected", schema: "ready" });
+  const report = await inspect({ env: { ...env, DB_PROVIDER: "aiven" }, pool, aivenProbe })();
+  assert.equal(accessed, false);
+  assert.equal(report.providers.tidb.state, "disabled");
+  assert.equal(report.effectiveProvider, "aiven");
+  assert.equal(report.decision, "cloud");
+});
+
 test("HTTP and Netlify adapters return JSON states with no-store and correct routing methods", async () => {
   const handler = createDatabaseStatusHandler({ env, options: () => {}, pool: () => database() });
   const res = response(); await handler({ method: "GET" }, res);
@@ -141,11 +184,39 @@ test("client accepts 503 readiness JSON but never treats HTML, malformed JSON, o
 test("CLI fails safely for missing env without loading workspace secrets or connecting", () => {
   const result = spawnSync(process.execPath, ["scripts/verify-database.mjs"], {
     cwd: new URL("../", import.meta.url),
-    env: { DB_PROVIDER: "tidb" }, encoding: "utf8", timeout: 10000,
+    // DATA_MODE=cloud: opt-in eksplisit agar gerbang mode lokal tidak melewati skrip.
+    env: { DATA_MODE: "cloud", DB_PROVIDER: "tidb" }, encoding: "utf8", timeout: 10000,
   });
   assert.equal(result.status, 1);
   const report = JSON.parse(result.stdout);
   assert.equal(report.state, "env_incomplete");
   assert.equal(report.database, "not_checked");
   assert.equal(report.syncPrerequisitesReady, false);
+});
+
+test("Better Auth MariaDB counts as configured identity without leaking its URL or secret", async () => {
+  const betterAuthEnv = {
+    ...env,
+    SUPABASE_URL: "",
+    SUPABASE_ANON_KEY: "",
+    SUPABASE_PUBLISHABLE_KEY: "",
+    DATABASE_URL: "mysql://auth-user:layerbase-secret@db.layerbase.example:3306/codeshark_auth",
+    BETTER_AUTH_SECRET: "better-auth-secret-private",
+    BETTER_AUTH_URL: "https://latihan.my.id",
+  };
+  const report = await inspect({ env: betterAuthEnv, pool: () => database() })();
+  assert.equal(report.identityConfigured, true);
+  assert.deepEqual(report.auth, {
+    provider: "better-auth",
+    configured: true,
+    betterAuthConfigured: true,
+    supabaseConfigured: false,
+  });
+  assert.equal(report.syncPrerequisitesReady, true);
+  assert.equal(report.environment.find((field) => field.name === "DATABASE_URL").status, "set");
+  assert.equal(report.environment.find((field) => field.name === "BETTER_AUTH_SECRET").status, "set");
+  const raw = JSON.stringify(report);
+  assert(!raw.includes("layerbase-secret"));
+  assert(!raw.includes("better-auth-secret-private"));
+  assert(!raw.includes("auth-user"));
 });

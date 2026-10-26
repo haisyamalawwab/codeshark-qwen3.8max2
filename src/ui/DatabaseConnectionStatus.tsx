@@ -46,15 +46,22 @@ export default function DatabaseConnectionStatus() {
     return () => { active.current?.abort(); active.current = null; };
   }, [refresh]);
 
-  const ready = report?.state === "connected";
-  const title = loading ? "Memeriksa database…" : report ? LABELS[report.state][0] : "Status database belum tersedia";
+  const ready = report?.cloudReady ?? report?.state === "connected";
+  const aivenActive = report?.effectiveProvider === "aiven";
+  const title = loading
+    ? "Memeriksa database…"
+    : report
+      ? aivenActive && report.state !== "connected"
+        ? "Database terhubung (Aiven)"
+        : LABELS[report.state][0]
+      : "Status database belum tersedia";
   const publicLogin = isCloudReady();
   return (
     <section className="my-4 rounded-2xl border border-sky-400/20 bg-slate-900/70 p-4 text-slate-100" aria-label="Koneksi database dan environment">
       <div className="flex flex-wrap items-center gap-3">
         <IconDatabase size={21} />
         <div className="flex-1 min-w-48">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">TiDB Cloud · status server</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{aivenActive ? "Aiven" : "TiDB Cloud"} · status server{report?.providers ? ` · TiDB: ${report.providers.tidb.state} · Aiven: ${report.providers.aiven.state}` : ""}</p>
           <p className="font-bold flex items-center gap-2" role="status" aria-live="polite">
             <span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full ${loading ? "bg-sky-300" : ready ? "bg-emerald-400" : "bg-amber-400"}`} />
             {title}
@@ -64,7 +71,7 @@ export default function DatabaseConnectionStatus() {
           {loading ? "Memeriksa…" : "Periksa ulang"}
         </button>
       </div>
-      <p className="mt-2 text-sm text-slate-300">{error || (report ? LABELS[report.state][1] : "Memeriksa konfigurasi dan koneksi secara read-only.")}</p>
+      <p className="mt-2 text-sm text-slate-300">{error || (report ? (aivenActive && report.state !== "connected" ? "Tes koneksi awal memilih Aiven sebagai database cloud aktif (TiDB tidak terpilih/tidak terjangkau). Sinkronisasi berjalan ke Aiven; konfigurasi website memakai bawaan lokal." : LABELS[report.state][1]) : "Memeriksa konfigurasi dan koneksi secara read-only.")}</p>
       <p className="mt-1 text-xs text-slate-400">Progres tetap tersimpan lokal. Status hijau tidak berarti data sudah tersinkron atau login berhasil.</p>
       {report && (
         <details className="mt-3 border-t border-slate-700 pt-3">

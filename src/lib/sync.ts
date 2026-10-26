@@ -1,5 +1,11 @@
 import type { AttemptRecord } from "./history";
 import { accessToken } from "./auth";
+import { isCloudSyncEnabled } from "./featureFlags";
+
+/* pushOutbox() hanya menyentuh jaringan bila mode EFEKTIF cloud
+   (hasil tes koneksi awal menyatakan TiDB Cloud/Aiven terhubung).
+   Pada mode lokal attempt tetap tercatat via history.ts dan outbox
+   dipertahankan agar tersinkron begitu mode naik ke cloud. */
 
 export interface SyncPayload {
   deviceId: string;
@@ -64,6 +70,9 @@ export function syncEndpoint(): string {
 }
 
 export async function pushOutbox(deviceId: string, profileName: string | null, save: unknown, userId?: string | null): Promise<{ sent: number; ok: boolean }> {
+  /* Mode lokal: sukses tanpa jaringan; outbox TIDAK dibuang (siap sinkron
+     nanti) dan riwayat lokal (history.ts) sudah menjadi catatan utama. */
+  if (!isCloudSyncEnabled()) return { sent: 0, ok: true };
   const pending = loadOutbox();
   if (!pending.length) return { sent: 0, ok: true };
   /* import statis: ./auth sudah ada di chunk utama via App.tsx, dynamic import

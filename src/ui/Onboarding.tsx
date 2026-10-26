@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { AgeId } from "../lib/storage";
 import { AGE_GROUPS } from "../data/modules";
 import { SharkMascot } from "../characters";
 import { sfx } from "../lib/audio";
+import {
+  currentBetterAuthUser,
+  signInWithEmail,
+  signOut as signOutAccount,
+  signUpWithEmail,
+  type AuthUser,
+} from "../lib/auth";
+import { isBetterAuthEnabled } from "../lib/featureFlags";
 import {
   IconFin,
   IconArrowR,
@@ -17,18 +25,87 @@ import {
 interface Props {
   soundOn: boolean;
   onToggleSound: () => void;
-  onCreate: (name: string, age: AgeId) => void;
+  onCreate: (name: string, age: AgeId, account?: AuthUser | null) => void;
   cloudReady?: boolean;
   onGoogleLogin?: () => void;
+  onAccountLogin?: (account: AuthUser) => void;
 }
 
-export default function Onboarding({ soundOn, onToggleSound, onCreate, cloudReady, onGoogleLogin }: Props) {
+export default function Onboarding({ soundOn, onToggleSound, onCreate, cloudReady, onGoogleLogin, onAccountLogin }: Props) {
   const [name, setName] = useState("");
   const [age, setAge] = useState<AgeId | null>(null);
   const valid = name.trim().length >= 2 && age !== null;
+  const [account, setAccount] = useState<AuthUser | null>(null);
+  const [accountMode, setAccountMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [accountBusy, setAccountBusy] = useState(false);
+  const [accountError, setAccountError] = useState("");
+  const [accountMessage, setAccountMessage] = useState("");
+  const betterAuthEnabled = isBetterAuthEnabled();
+
+  useEffect(() => {
+    let alive = true;
+    if (!betterAuthEnabled) return;
+    void currentBetterAuthUser().then((user) => {
+      if (!alive || !user) return;
+      setAccount(user);
+      if (user.name) setName((current) => current || user.name!.slice(0, 16));
+      if (user.banned) setAccountError("Akun email ini dinonaktifkan oleh admin.");
+      else onAccountLogin?.(user);
+    });
+    return () => { alive = false; };
+    // Cek sesi sekali saat onboarding pertama tampil.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const tryCreate = () => {
-    if (valid && age) onCreate(name.trim(), age);
+    if (valid && age) onCreate(name.trim(), age, account && !account.banned ? account : null);
+  };
+
+  const submitAccount = async (event: FormEvent) => {
+    event.preventDefault();
+    setAccountError("");
+    setAccountMessage("");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setAccountError("Masukkan alamat email yang valid.");
+      return;
+    }
+    if (password.length < 8) {
+      setAccountError("Kata sandi minimal 8 karakter.");
+      return;
+    }
+    setAccountBusy(true);
+    try {
+      const fallbackName = name.trim().length >= 2 ? name.trim() : email.trim().split("@")[0].slice(0, 16) || "Penyelam";
+      const user = accountMode === "sign-up"
+        ? await signUpWithEmail({ name: fallbackName, email, password })
+        : await signInWithEmail({ email, password });
+      setAccount(user);
+      setPassword("");
+      if (user.name) setName((current) => current || user.name!.slice(0, 16));
+      setAccountMessage(accountMode === "sign-up" ? "Akun berhasil dibuat dan sesi aktif." : "Berhasil masuk. Sesi akun aktif.");
+      onAccountLogin?.(user);
+      sfx.click();
+    } catch (error) {
+      setAccountError(error instanceof Error ? error.message : "Login email gagal.");
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
+  const logoutAccount = async () => {
+    setAccountBusy(true);
+    setAccountError("");
+    try {
+      await signOutAccount();
+      setAccount(null);
+      setAccountMessage("Kamu sudah keluar dari akun email.");
+    } catch {
+      setAccountError("Gagal keluar dari akun. Coba lagi.");
+    } finally {
+      setAccountBusy(false);
+    }
   };
 
   return (
@@ -219,8 +296,72 @@ export default function Onboarding({ soundOn, onToggleSound, onCreate, cloudRead
               Login dengan Google (sinkron multi-device)
             </button>
           )}
+
+          {betterAuthEnabled && (
+            <section className="mt-4 rounded-2xl border border-[var(--line)] bg-[rgba(4,17,31,0.55)] p-4" aria-label="Akun email">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <h3 className="font-display font-bold">Akun email <span className="text-xs text-[var(--faint)] font-sans">(opsional)</span></h3>
+                <span className="text-[11px] font-bold text-[var(--cyan)]">Better Auth · MariaDB</span>
+              </div>
+              {account ? (
+                <div className="mt-3 space-y-3">
+                  <p className="text-sm text-[var(--dim)]" role="status">
+                    Masuk sebagai <strong className="text-[var(--ink)] break-all">{account.email || account.name || account.id}</strong>
+                    {account.role === "admin" ? " · admin" : ""}. Pilih level lalu tekan
+                    “Mulai Petualangan” untuk memakai profil ini.
+                  </p>
+                  <button type="button" disabled={accountBusy} onClick={() => void logoutAccount()} className="underline text-sm font-bold disabled:opacity-50">
+                    Keluar dari akun
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={(event) => void submitAccount(event)} className="mt-3 space-y-3">
+                  <div className="grid grid-cols-2 rounded-xl border border-[var(--line)] overflow-hidden" role="group" aria-label="Pilih masuk atau daftar">
+                    <button
+                      type="button"
+                      onClick={() => { setAccountMode("sign-in"); setAccountError(""); }}
+                      className={`py-2 text-sm font-bold ${accountMode === "sign-in" ? "bg-[rgba(69,198,255,0.18)] text-[var(--cyan)]" : "text-[var(--dim)]"}`}
+                    >Masuk</button>
+                    <button
+                      type="button"
+                      onClick={() => { setAccountMode("sign-up"); setAccountError(""); }}
+                      className={`py-2 text-sm font-bold ${accountMode === "sign-up" ? "bg-[rgba(69,198,255,0.18)] text-[var(--cyan)]" : "text-[var(--dim)]"}`}
+                    >Daftar</button>
+                  </div>
+                  <label className="block text-xs font-bold text-[var(--dim)] space-y-1.5">
+                    Email
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      autoComplete="email"
+                      placeholder="nama@email.com"
+                      className="hud-input w-full rounded-xl px-3.5 py-2.5 text-base outline-none"
+                    />
+                  </label>
+                  <label className="block text-xs font-bold text-[var(--dim)] space-y-1.5">
+                    Kata sandi
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      autoComplete={accountMode === "sign-up" ? "new-password" : "current-password"}
+                      placeholder="minimal 8 karakter"
+                      className="hud-input w-full rounded-xl px-3.5 py-2.5 text-base outline-none"
+                    />
+                  </label>
+                  <button type="submit" disabled={accountBusy} className="btn w-full py-2.5 border border-[rgba(69,198,255,0.45)] text-[var(--cyan)] font-bold disabled:opacity-50">
+                    {accountBusy ? "Memproses…" : accountMode === "sign-up" ? "Daftar dengan Email" : "Masuk dengan Email"}
+                  </button>
+                </form>
+              )}
+              {accountMessage && <p className="text-xs text-emerald-300 mt-2" role="status">{accountMessage}</p>}
+              {accountError && <p className="text-xs text-rose-300 mt-2" role="alert">{accountError}</p>}
+              <p className="text-[11px] text-[var(--faint)] mt-2">Tanpa akun pun kamu tetap bisa bermain sebagai tamu; progres lokal tersimpan di perangkat ini.</p>
+            </section>
+          )}
           <p className="text-center text-xs text-[var(--faint)] mt-2">
-            Butuh keyboard fisik untuk misi ketik • {cloudReady ? "Tamu tersimpan di perangkat, login untuk sinkron" : "Data disimpan via localStorage"}
+            Butuh keyboard fisik untuk misi ketik • {cloudReady ? "Tamu tersimpan di perangkat, login untuk sinkron" : "Mode lokal: data tersimpan di perangkat ini (localStorage/SQLite)"}
           </p>
         </div>
       </div>

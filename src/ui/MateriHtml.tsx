@@ -218,7 +218,7 @@ export default function MateriHtml({ startNo, save, onPractice, onExit }: Props)
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (!settings.modules.html) return <Unavailable message="Modul HTML dinonaktifkan admin." retry={onExit} />;
+  if (!settings.modules.html) return <Unavailable message="Modul HTML dinonaktifkan sementara." retry={onExit} />;
   return (
     <div className="relative z-10 min-h-screen flex flex-col">
       {/* topbar ala Ruang Materi */}

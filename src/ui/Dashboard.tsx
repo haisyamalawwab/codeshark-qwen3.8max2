@@ -1,5 +1,6 @@
-import { useSiteSettings } from "../lib/siteSettings";
+import { useSiteSettings, useEffectiveDataMode } from "../lib/siteSettings";
 import DatabaseConnectionStatus from "./DatabaseConnectionStatus";
+import LocalStorageStatus from "./LocalStorageStatus";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import type { SaveData } from "../lib/storage";
 import { rankOf, RANKS, evaluateStreak } from "../lib/storage";
@@ -77,6 +78,7 @@ export default function Dashboard({
   subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile,
 }: Props) {
   const settings = useSiteSettings();
+  const dataMode = useEffectiveDataMode();
   const revealRef = useReveal();
   const [preview, setPreview] = useState<ModuleDef | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -213,7 +215,7 @@ export default function Dashboard({
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pb-24">
-        <DatabaseConnectionStatus />
+        {dataMode.mode === "cloud" ? <DatabaseConnectionStatus /> : <LocalStorageStatus />}
         {/* ============ HERO KARTU PROFIL KAPTEN (HUD STYLE) ============ */}
         <section className="hud-hero-card mt-7 p-6 md:p-8 relative overflow-hidden screen-in">
           {/* Ambient Glow di belakang kartu */}

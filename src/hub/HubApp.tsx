@@ -1,5 +1,6 @@
-import { useSiteSettings, Unavailable } from "../lib/siteSettings";
+import { useSiteSettings, useEffectiveDataMode, Unavailable } from "../lib/siteSettings";
 import DatabaseConnectionStatus from "../ui/DatabaseConnectionStatus";
+import LocalStorageStatus from "../ui/LocalStorageStatus";
 /* HUB AGREGAT latihan.my.id — template belajar koding berbasis game.
    Bukan game itu sendiri: direktori sub-game + media belajar.
    - Kartu CodeShark → ./codingshark/  (Shark Typer, ketik kode, butuh keyboard)
@@ -92,6 +93,7 @@ const GAMES: HubGame[] = [
 
 export default function HubApp() {
   const settings = useSiteSettings();
+  const dataMode = useEffectiveDataMode();
   const [activeLab, setActiveLab] = useState<"ci_backend" | "py_backend" | null>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -132,7 +134,7 @@ export default function HubApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (activeLab && !settings.games[activeLab]) return <Unavailable message="Sub-game ini dinonaktifkan admin." />;
+  if (activeLab && !settings.games[activeLab]) return <Unavailable message="Sub-game ini dinonaktifkan sementara." />;
 
   if (activeLab === "ci_backend") {
     return (
@@ -185,7 +187,7 @@ export default function HubApp() {
               {settings.description}
             </p>
           </div>
-          <a href="/admin/" className="text-xs underline">Admin settings</a>
+          <a href="./admin/" className="text-xs underline" title="Khusus admin: diagnostik & tes koneksi database">Admin · Tes Koneksi</a>
           <button
             disabled={!settings.games.ci_backend}
             type="button"
@@ -217,7 +219,7 @@ export default function HubApp() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 pb-24">
-        <DatabaseConnectionStatus />
+        {dataMode.mode === "cloud" ? <DatabaseConnectionStatus /> : <LocalStorageStatus />}
         <section className="mt-8 md:mt-12 text-center max-w-3xl mx-auto">
           <p className="text-[11px] font-extrabold tracking-[0.28em] uppercase" style={{ color: "#45c6ff" }}>
             Agregat • {Object.values(settings.games).filter(Boolean).length} sub-game aktif
@@ -259,7 +261,7 @@ export default function HubApp() {
                       </span>
                     ) : (
                       <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border border-slate-500/40 text-slate-300">
-                        Dinonaktifkan admin
+                        Dinonaktifkan sementara
                       </span>
                     )}
                   </div>
@@ -293,7 +295,7 @@ export default function HubApp() {
                     )
                   ) : (
                     <button disabled className="mt-3.5 px-6 py-2.5 text-sm font-bold rounded-xl border border-slate-500/30 text-slate-400 cursor-not-allowed">
-                      Dinonaktifkan admin
+                      Dinonaktifkan sementara
                     </button>
                   )}
                   {g.live && (

@@ -1,6 +1,10 @@
 import { createAdminSetupHandler } from '../../server/admin-setup.mjs';
+import { aivenUrl } from '../../server/aiven.mjs';
+import { isLocalMode, cloudDisabledResponse } from '../../server/local-mode.mjs';
 export function createNetlifyAdminSetupHandler(dependencies = {}) {
-  const env = { ...(dependencies.env || process.env), DB_PROVIDER: 'tidb', NODE_ENV: 'production' };
+  const baseEnv = dependencies.env || process.env;
+  const forced = !baseEnv.DB_PROVIDER && !aivenUrl(baseEnv) ? { DB_PROVIDER: 'tidb' } : {};
+  const env = { ...baseEnv, ...forced, NODE_ENV: 'production' };
   const handle = createAdminSetupHandler({ ...dependencies, env });
   return async event => {
     const response = { statusCode: 200, headers: {}, body: '' };
@@ -13,4 +17,6 @@ export function createNetlifyAdminSetupHandler(dependencies = {}) {
     return response;
   };
 }
-export const handler = createNetlifyAdminSetupHandler();
+// DATA_MODE=local memaksa 503; auto/cloud menjalankan diagnostik setup.
+const cloudHandler = createNetlifyAdminSetupHandler();
+export const handler = async (event) => (isLocalMode() ? cloudDisabledResponse() : cloudHandler(event));
