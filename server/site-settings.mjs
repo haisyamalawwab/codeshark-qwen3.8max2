@@ -1,6 +1,6 @@
 import { getTidbPool } from './tidb.mjs';
 import { resolveAuthenticatedUser } from './tidb-sync.mjs';
-import { defaultSettings, validateSettings } from '../shared/site-settings.mjs';
+import { defaultSettings, migrateSettings, validateSettings } from '../shared/site-settings.mjs';
 import { getSharedCache } from './redis.mjs';
 
 const SETTINGS_CACHE_KEY = 'codeshark:site-settings:v1';
@@ -12,7 +12,7 @@ class SettingsError extends Error {
 const query = (db, sql, values = []) => db.execute({ sql, timeout: 5000 }, values);
 function decode(row) {
   return {
-    settings: validateSettings(typeof row.settings_json === 'string' ? JSON.parse(row.settings_json) : row.settings_json),
+    settings: validateSettings(migrateSettings(typeof row.settings_json === 'string' ? JSON.parse(row.settings_json) : row.settings_json)),
     revision: Number(row.revision), updatedAt: row.updated_at, updatedBy: row.updated_by,
   };
 }

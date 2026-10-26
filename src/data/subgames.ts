@@ -1,9 +1,13 @@
 /* Katalog sub-game CodeShark Academy.
    Halaman utama (Dashboard) adalah HUB: pemain memilih arena dulu,
    baru masuk ke Peta Pertemuan / Misi dengan arena tersebut.
-   Pilihan terakhir disimpan di localStorage agar konsisten antar sesi. */
+   Pilihan terakhir disimpan di localStorage agar konsisten antar sesi.
+   Catatan: MK Sistem Aplikasi Web — Backend Dasar (ci_backend/py_backend)
+   diarsipkan & dilepas dari aplikasi pada 26-10-2026 — lihat
+   arsip/sistem-aplikasi-web-backend-dasar_26102026_1915.zip dan
+   docs/040_pengarsipan-dan-pelepasan-mk-sistem-aplikasi-web_26102026_1915.md. */
 
-export type SubGameId = "tower" | "shark" | "crossplatform" | "ci_backend" | "py_backend";
+export type SubGameId = "tower" | "shark" | "crossplatform";
 
 export interface SubGame {
   id: SubGameId;
@@ -15,31 +19,11 @@ export interface SubGame {
   desc: string;
   points: string[];
   cta: string;
-  /** "ketik" = TypingGame, "susun" = TowerPuzzle, "simulator" = CrossPlatformLab, "backend_ci" = CiBackendLab, "backend_py" = PyBackendLab */
-  mode: "ketik" | "susun" | "simulator" | "backend_ci" | "backend_py";
+  /** "ketik" = TypingGame, "susun" = TowerPuzzle, "simulator" = CrossPlatformLab */
+  mode: "ketik" | "susun" | "simulator";
 }
 
 export const SUBGAMES: Record<SubGameId, SubGame> = {
-  ci_backend: {
-    id: "ci_backend",
-    name: "Backend PHP Studio",
-    short: "PHP 8 & MySQL",
-    tagline: "PHP 8 Native • MySQL Database • phpMyAdmin • cPanel Hosting",
-    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur A): Arsitektur Client-Server, PHP 8 Native, CRUD MySQL, Form Validation & Sanitasi XSS/SQLi, Relasi 1:N JOIN, Session Auth & Role Admin, sampai Live Deployment ke cPanel Web Hosting!",
-    points: ["16 Pertemuan OBE", "PHP 8 Native & MySQL", "cPanel Deployment"],
-    cta: "Buka PHP Backend Lab",
-    mode: "backend_ci",
-  },
-  py_backend: {
-    id: "py_backend",
-    name: "Backend Python Studio",
-    short: "Python Django/Flask",
-    tagline: "Python 3 & Flask / Django • MySQL Database • WSGI Hosting",
-    desc: "MK Sistem Aplikasi Web - Backend Dasar (Jalur B): WSGI & Routing Jinja2, CRUD MySQL, Validasi Form, Relasi 1-to-N JOIN, Session Login & Role Decorator, sampai Deployment cPanel Python App!",
-    points: ["16 Pertemuan OBE", "Flask & Django", "cPanel Python WSGI"],
-    cta: "Buka Python Backend Lab",
-    mode: "backend_py",
-  },
   crossplatform: {
     id: "crossplatform",
     name: "CrossPlatform Lab",
@@ -73,8 +57,6 @@ export const SUBGAMES: Record<SubGameId, SubGame> = {
 };
 
 export const SUBGAME_ORDER: SubGameId[] = [
-  "ci_backend",
-  "py_backend",
   "crossplatform",
   "tower",
   "shark",
@@ -88,9 +70,7 @@ export function loadSubGame(fallback: SubGameId): SubGameId {
     if (
       raw === "tower" ||
       raw === "shark" ||
-      raw === "crossplatform" ||
-      raw === "ci_backend" ||
-      raw === "py_backend"
+      raw === "crossplatform"
     ) {
       return raw;
     }

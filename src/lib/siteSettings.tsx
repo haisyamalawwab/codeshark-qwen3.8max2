@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { defaultSettings, validateSettings, type SiteSettings } from '../../shared/site-settings.mjs';
+import { defaultSettings, migrateSettings, validateSettings, type SiteSettings } from '../../shared/site-settings.mjs';
 import { accessToken } from './auth';
 import {
   ADMIN_ENABLED, CONFIGURED_MODE, isLocalMode, setEffectiveDataMode,
@@ -40,7 +40,7 @@ export function loadLocalSettings(): SettingsDocument {
   try {
     const raw = localStorage.getItem(LOCAL_SETTINGS_KEY);
     if (raw) {
-      return { settings: validateSettings(JSON.parse(raw)), revision: 0, updatedAt: null, updatedBy: null };
+      return { settings: validateSettings(migrateSettings(JSON.parse(raw))), revision: 0, updatedAt: null, updatedBy: null };
     }
   } catch {
     /* override rusak/tidak tersedia → pakai default */
@@ -61,7 +61,7 @@ async function fetchCloudSettings(admin = false, update?: SettingsDocument): Pro
   const body = await response.json();
   if (!response.ok || body.ok !== true) throw new Error(body.error || 'Gagal memuat konfigurasi.');
   if (!Number.isSafeInteger(body.revision) || body.revision < 0) throw new Error('Revisi konfigurasi tidak valid.');
-  return { ...body, settings: validateSettings(body.settings) };
+  return { ...body, settings: validateSettings(migrateSettings(body.settings)) };
 }
 
 export async function settingsRequest(admin = false, update?: SettingsDocument): Promise<SettingsDocument> {
