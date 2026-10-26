@@ -16,7 +16,6 @@ import { sfx } from "./lib/audio";
 import Ambient from "./graphics/Ambient";
 import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
-import CrossPlatformHud from "./ui/CrossPlatformHud";
 import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
 import type { GameResult } from "./ui/TypingGame";
@@ -35,7 +34,6 @@ import {
 /* Heavy arena di-lazy agar hub & first-paint HP tetap cepat (code-split per sub-game). */
 const TypingGame = lazy(() => import("./ui/TypingGame"));
 const TowerPuzzle = lazy(() => import("./ui/TowerPuzzle"));
-const CrossPlatformLab = lazy(() => import("./games/crossplatform/CrossPlatformLab"));
 
 interface AppProps {
   /** bila diisi, entry ini dikunci ke satu sub-game (dipakai entry /codingshark & /codingtower).
@@ -93,7 +91,6 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
       const params = new URLSearchParams(window.location.search);
       const sg = params.get("subgame");
       if (
-        sg === "crossplatform" ||
         sg === "tower" ||
         sg === "shark"
       ) {
@@ -361,14 +358,14 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   const selectedModule = screen.s === "materi" ? getModule(screen.id).lang
     : screen.s === "game" ? getSession(screen.id)?.lang
     : screen.s === "materi-html" ? "html" : null;
-  if ((subGame === "tower" || subGame === "shark") && selectedModule && !settings.modules[selectedModule]) {
+  if (selectedModule && !settings.modules[selectedModule]) {
     return <Unavailable message="Modul ini dinonaktifkan sementara." retry={() => setScreen({ s: "dash" })} />;
   }
 
   /* ===== render ===== */
   return (
     <div className={`age-${cfg.id}`} style={{ "--accent": cfg.accent, "--accent-deep": shade(cfg.accent) } as React.CSSProperties}>
-      <Ambient fish={subGame !== "crossplatform" && (!profile || screen.s === "dash")} />
+      <Ambient fish={!profile || screen.s === "dash"} />
 
       {!profile ? (
         <Onboarding
@@ -380,21 +377,6 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
           onAccountLogin={adoptAccountSave}
         />
       ) : screen.s === "dash" ? (
-        subGame === "crossplatform" ? (
-          <CrossPlatformHud
-            save={save}
-            onOpenMeeting={(no) => enterPractice(`crossplatform:${no}`)}
-            onOpenLab={() => enterPractice("crossplatform:1")}
-            onToggleSound={toggleSound}
-            onResetProfile={resetProfile}
-            subGame={subGame}
-            onSelectSubGame={lockedSubGame ? undefined : selectSubGame}
-            hubHref={hubHref}
-            siblingHref={siblingHref}
-            siblingLabel={siblingLabel}
-            lockedSubGame={lockedSubGame}
-          />
-        ) : (
           <>
             {lockedSubGame && (hubHref || siblingHref) && (
               <div className="relative z-40 max-w-6xl mx-auto px-4 pt-3 flex items-center gap-2 text-[12px] font-bold">
@@ -404,9 +386,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
                   </a>
                 )}
                 <span className="chip !text-[var(--teal)]">
-                  {lockedSubGame === "crossplatform"
-                    ? "📱 CrossPlatform Studio"
-                    : lockedSubGame === "tower"
+                  {lockedSubGame === "tower"
                     ? "🧱 Coding Tower"
                     : "🦈 CodeShark"}{" "}
                   • mode sub-game mandiri
@@ -437,7 +417,6 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               onResetProfile={resetProfile}
             />
           </>
-        )
       ) : screen.s === "peta" ? (
         <Pertemuan
           key={screen.no}
@@ -472,9 +451,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             {lockedSubGame ? (
               <div className="mode-switch" role="note" aria-label="Sub-game aktif (dikunci)">
                 <span className="mode-btn on" aria-current="true">
-                  {lockedSubGame === "crossplatform"
-                    ? "📱 CrossPlatform Studio"
-                    : lockedSubGame === "tower"
+                  {lockedSubGame === "tower"
                     ? "🧱 Coding Tower"
                     : "🦈 CodeShark"}
                 </span>
@@ -491,7 +468,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               </div>
             ) : (
               <div className="mode-switch" role="tablist" aria-label="Sub-game aktif">
-                {(["crossplatform", "tower", "shark"] as SubGameId[]).filter(id => settings.games[id]).map((id) => (
+                {(["tower", "shark"] as SubGameId[]).filter(id => settings.games[id]).map((id) => (
                   <button
                     key={id}
                     role="tab"
@@ -499,9 +476,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
                     className={`mode-btn ${subGame === id ? "on" : ""}`}
                     onClick={() => { selectSubGame(id); setGameKey((k) => k + 1); sfx.click(); }}
                   >
-                    {id === "crossplatform"
-                      ? "📱 CrossPlatform"
-                      : id === "tower"
+                    {id === "tower"
                       ? "🧱 Coding Tower"
                       : "🦈 CodeShark"}
                   </button>
@@ -514,17 +489,7 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             </p>
           </div>
           <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat arena…</div>}>
-          {subGame === "crossplatform" ? (
-            <CrossPlatformLab
-              key={`crossplatform-${screen.id}-${screen.k}-${gameKey}`}
-              startMeetingNo={(() => {
-                const m = /^crossplatform:(\d+)/.exec(screen.id)?.[1];
-                return m ? parseInt(m, 10) : 1;
-              })()}
-              onDone={(r) => finishPractice(screen.id, r)}
-              onExit={() => setScreen({ s: "dash" })}
-            />
-          ) : subGame === "tower" ? (
+          {subGame === "tower" ? (
             <TowerPuzzle
               key={`susun-${screen.id}-${screen.k}-${gameKey}`}
               mod={sessionOf(screen.id)}

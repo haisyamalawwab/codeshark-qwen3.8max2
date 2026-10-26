@@ -1,10 +1,11 @@
 // Only public, non-secret settings belong here. Never store credentials in this document.
-export const GAME_IDS = ['crossplatform', 'tower', 'shark'];
-// Sub-game pensiun (MK Sistem Aplikasi Web — Backend Dasar, diarsipkan &
-// dilepas dari aplikasi 26-10-2026; lihat arsip/ + docs/040). Id-id ini
-// HANYA dipakai migrateSettings() untuk membersihkan dokumen settings lama
-// saat dibaca, supaya validasi ketat tidak menolak konfigurasi historis.
-export const RETIRED_GAME_IDS = ['ci_backend', 'py_backend'];
+export const GAME_IDS = ['tower', 'shark'];
+// Sub-game pensiun (MK Sistem Aplikasi Web — Backend Dasar pada docs/040
+// dan modul Cross Platform pada docs/041, keduanya diarsipkan ke arsip/
+// lalu dilepas dari aplikasi pada 26-10-2026). Id-id ini HANYA dipakai
+// migrateSettings() untuk membersihkan dokumen settings lama saat dibaca,
+// supaya validasi ketat tidak menolak konfigurasi historis.
+export const RETIRED_GAME_IDS = ['ci_backend', 'py_backend', 'crossplatform'];
 export const MODULE_IDS = ['html', 'css', 'js'];
 export const defaultSettings = () => ({
   siteName: 'latihan.my.id',

@@ -3,7 +3,6 @@
    Palet mengikuti var CSS tema: cyan #45c6ff · teal #2ee6c8 · amber #ffc247 ·
    koral #ff7a59 · biru dalam #071b2e. */
 import type { ReactNode } from "react";
-import { CROSS_PLATFORM_FIGURES } from "./crossPlatformFigures";
 
 const CYAN = "#45c6ff";
 const TEAL = "#2ee6c8";
@@ -432,9 +431,9 @@ export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
   },
 };
 
-/** Ambil gambar berdasarkan kunci placeholder; gabungkan katalog web dan cross-platform. */
+/** Ambil gambar berdasarkan kunci placeholder dari katalog web. */
 export const getFigure = (key: string) => {
   const k = key.trim();
-  return FIGURES[k] || CROSS_PLATFORM_FIGURES[k];
+  return FIGURES[k];
 };
 

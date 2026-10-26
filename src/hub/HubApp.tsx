@@ -10,7 +10,7 @@ import LocalStorageStatus from "../ui/LocalStorageStatus";
    Animasi kartu murni CSS (.anim-pop, stagger via animationDelay) — nol JS animasi.
    Ikon kartu memakai SVG vektor (ui/icons) agar tajam di semua DPR. */
 import type { ComponentType } from "react";
-import { IconTower, IconFin, IconMobile } from "../ui/icons";
+import { IconTower, IconFin } from "../ui/icons";
 
 interface HubGame {
   id: string;
@@ -26,18 +26,6 @@ interface HubGame {
 }
 
 const GAMES: HubGame[] = [
-  {
-    id: "crossplatform",
-    name: "CrossPlatform Studio",
-    href: "./crossplatform/",
-    tagline: "React Native & Expo • Simulator Mobile HP • 16 Pertemuan RPS",
-    desc: "MK Sistem Aplikasi Lintas Platform (React Native & Expo): Setup Expo, Core Components, Flexbox, State Hooks, React Navigation, AsyncStorage/API, Context API, Auth Flow, Firestore CRUD, Native Camera/GPS, sampai EAS Build APK!",
-    points: ["Expo SDK 52", "Simulator HP Live", "16 Pertemuan RPS", "Build APK EAS"],
-    cta: "Buka CrossPlatform Studio",
-    Icon: IconMobile,
-    accent: "#38bdf8",
-    live: true,
-  },
   {
     id: "tower",
     name: "Coding Tower",
@@ -83,9 +71,6 @@ export default function HubApp() {
             </p>
           </div>
           <a href="./admin/" className="text-xs underline" title="Khusus admin: diagnostik & tes koneksi database">Admin · Tes Koneksi</a>
-          <a href={settings.games.crossplatform ? "./crossplatform/" : undefined} aria-disabled={!settings.games.crossplatform} className="text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-400/40 inline-flex items-center gap-1.5" style={{ background: "rgba(56,189,248,0.15)", color: "#38bdf8" }}>
-            <IconMobile size={14} /> React Native
-          </a>
           <a href={settings.games.tower ? "./codingtower/" : undefined} aria-disabled={!settings.games.tower} className="text-xs font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5" style={{ background: "#f97316", color: "#fff" }}>
             <IconTower size={14} /> Tower
           </a>
@@ -109,7 +94,7 @@ export default function HubApp() {
             tersimpan di perangkat masing-masing (<code>localStorage</code>), berbagi XP, koin, dan streak harian.
           </p>
           <div className="flex items-center justify-center gap-2 mt-4 flex-wrap text-[11px] font-bold" style={{ color: "#7ea4bd" }}>
-            <span>⚡ React Native & Expo</span>•<span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>
+            <span>🧱 Susun Blok Fisika</span>•<span>🦈 Ketik Cepat Keyboard</span>
           </div>
         </section>
 

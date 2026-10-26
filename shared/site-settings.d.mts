@@ -1,4 +1,4 @@
-export type GameId = 'crossplatform' | 'tower' | 'shark';
+export type GameId = 'tower' | 'shark';
 export type ModuleId = 'html' | 'css' | 'js';
 export interface SiteSettings {
   siteName: string; description: string; announcement: string; maintenance: boolean;

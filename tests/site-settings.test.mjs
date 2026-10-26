@@ -41,13 +41,13 @@ test('strict schema rejects unknown keys, injected roles, string booleans, overs
   }
 });
 
-test('legacy settings with retired backend games migrate on read; schema stays strict', () => {
-  // MK Sistem Aplikasi Web (ci_backend/py_backend) pensiun 26-10-2026:
+test('legacy settings with retired backend and cross-platform games migrate on read; schema stays strict', () => {
+  // MK Sistem Aplikasi Web (ci_backend/py_backend) dan Cross Platform pensiun 26-10-2026:
   // tidak lagi sub-game aktif, tetapi dokumen lama tidak boleh menggagalkan boot.
-  assert.deepEqual(GAME_IDS, ['crossplatform', 'tower', 'shark']);
-  assert.deepEqual(RETIRED_GAME_IDS, ['ci_backend', 'py_backend']);
+  assert.deepEqual(GAME_IDS, ['tower', 'shark']);
+  assert.deepEqual(RETIRED_GAME_IDS, ['ci_backend', 'py_backend', 'crossplatform']);
   const legacy = defaultSettings();
-  legacy.games = { ...legacy.games, ci_backend: false, py_backend: true };
+  legacy.games = { ...legacy.games, ci_backend: false, py_backend: true, crossplatform: false };
   assert.throws(() => validateSettings(legacy));
   assert.deepEqual(validateSettings(migrateSettings(legacy)), defaultSettings());
   // Migrasi tidak memutasi dokumen asal dan passthrough untuk nilai non-dokumen.
