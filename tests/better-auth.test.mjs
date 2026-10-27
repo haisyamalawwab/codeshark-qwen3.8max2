@@ -6,7 +6,9 @@ import assert from "node:assert/strict";
 import {
   betterAuthDatabaseUrl,
   betterAuthDatabaseUrlSource,
+  betterAuthMissingConfig,
   betterAuthPublicConfig,
+  layerbaseDiscreteConfig,
   buildBetterAuthOptions,
   createBetterAuth,
   getBetterAuthUser,
@@ -52,6 +54,64 @@ test("URL Auth Server: AUTH_DATABASE_URL didahulukan, DATABASE_URL Layerbase did
   });
   assert(!JSON.stringify(report).includes("layerbase-secret"));
   assert(!JSON.stringify(report).includes("auth-user"));
+});
+
+test("field Layerbase terpisah menyusun URL internal tanpa membocorkan password", () => {
+  const discreteEnv = {
+    HOST: "db.layerbase.example",
+    username: "root",
+    database: "codeshark_auth",
+    PORT: "3307",
+    password: "p@ss:word/with?chars",
+    BETTER_AUTH_SECRET: "test-secret-1234567890",
+    BETTER_AUTH_URL: "https://latihan.my.id",
+    NODE_ENV: "production",
+  };
+
+  const discrete = layerbaseDiscreteConfig(discreteEnv);
+  assert.equal(discrete.complete, true);
+  assert.deepEqual(discrete.missing, []);
+  const parsed = new URL(betterAuthDatabaseUrl(discreteEnv));
+  assert.equal(parsed.protocol, "mysql:");
+  assert.equal(parsed.hostname, "db.layerbase.example");
+  assert.equal(parsed.port, "3307");
+  assert.equal(decodeURIComponent(parsed.username), "root");
+  assert.equal(decodeURIComponent(parsed.password), discreteEnv.password);
+  assert.equal(decodeURIComponent(parsed.pathname.replace(/^\//, "")), "codeshark_auth");
+  assert.equal(betterAuthDatabaseUrlSource(discreteEnv), "HOST/username/database/PORT/password");
+  assert.equal(isBetterAuthConfigured(discreteEnv), true);
+
+  const report = betterAuthPublicConfig(discreteEnv);
+  assert.equal(report.configured, true);
+  assert.equal(report.databaseHost, "db.layerbase.example");
+  assert.equal(report.databaseName, "codeshark_auth");
+  assert(!JSON.stringify(report).includes(discreteEnv.password));
+  assert(!JSON.stringify(report).includes(encodeURIComponent(discreteEnv.password)));
+
+  // PORT kosong memakai port MariaDB/MySQL bawaan.
+  assert.equal(new URL(betterAuthDatabaseUrl({ ...discreteEnv, PORT: "" })).port, "3306");
+
+  // URL eksplisit tetap diprioritaskan daripada field terpisah.
+  assert.equal(
+    betterAuthDatabaseUrl({ ...discreteEnv, DATABASE_URL: "mysql://explicit" }),
+    "mysql://explicit",
+  );
+
+  const partial = { HOST: "db.layerbase.example", username: "root", BETTER_AUTH_SECRET: "x" };
+  assert.equal(isBetterAuthConfigured(partial), false);
+  assert.deepEqual(betterAuthMissingConfig(partial), ["database", "password"]);
+  assert.deepEqual(
+    betterAuthMissingConfig({ ...discreteEnv, PORT: "bukan-angka" }),
+    ["PORT harus berupa angka 1-65535"],
+  );
+
+  let poolOptions;
+  createBetterAuth(discreteEnv, {
+    createPool(options) { poolOptions = options; return { kind: "pool" }; },
+    admin() { return { id: "admin" }; },
+    betterAuth(options) { return { options }; },
+  });
+  assert.equal(poolOptions.uri, discrete.url);
 });
 
 test("factory Better Auth: pool mysql2 UTC + email/password + plugin admin di /api/auth", () => {
@@ -138,7 +198,7 @@ test("handler auth belum terkonfigurasi → 503 JSON informatif tanpa stack/raha
   assert.equal(res.code, 503);
   const body = JSON.parse(res.body);
   assert.equal(body.error, "better_auth_not_configured");
-  assert(body.missing.includes("AUTH_DATABASE_URL/DATABASE_URL"));
+  assert(body.missing.includes("AUTH_DATABASE_URL/DATABASE_URL atau HOST/username/database/PORT/password"));
   assert(body.missing.includes("BETTER_AUTH_SECRET"));
 });
 

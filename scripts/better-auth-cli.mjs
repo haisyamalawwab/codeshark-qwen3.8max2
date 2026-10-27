@@ -18,11 +18,25 @@ if (!supported.has(command)) {
 exitIfLocalMode(`better-auth ${command}`);
 
 const databaseUrl = (process.env.AUTH_DATABASE_URL || process.env.BETTER_AUTH_DATABASE_URL || process.env.DATABASE_URL || "").trim();
+const layerbasePort = (process.env.PORT || "3306").trim();
+const hasLayerbaseDiscreteConfig = Boolean(
+  (process.env.HOST || "").trim()
+    && (process.env.username || "").trim()
+    && (process.env.database || "").trim()
+    && process.env.password
+    && Number.isInteger(Number(layerbasePort))
+    && Number(layerbasePort) >= 1
+    && Number(layerbasePort) <= 65535,
+);
 const secret = (process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "").trim();
-if ((command === "generate" || command === "migrate" || command === "check" || command === "create-admin") && (!databaseUrl || !secret)) {
+if (
+  (command === "generate" || command === "migrate" || command === "check" || command === "create-admin")
+  && (!(databaseUrl || hasLayerbaseDiscreteConfig) || !secret)
+) {
   console.error(
     "Better Auth belum dikonfigurasi: isi AUTH_DATABASE_URL/DATABASE_URL (dari Layerbase → Connect) " +
-      "dan BETTER_AUTH_SECRET di .env terlebih dahulu.",
+      "atau field Layerbase HOST/username/database/PORT/password, " +
+      "serta BETTER_AUTH_SECRET di .env terlebih dahulu.",
   );
   process.exit(1);
 }

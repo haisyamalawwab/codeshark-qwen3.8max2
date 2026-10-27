@@ -33,10 +33,24 @@ Konsekuensinya:
 
 ## 2. Isi environment
 
-Salin connection string dari **Layerbase dashboard → Connect**. Nama standar
-Layerbase adalah `DATABASE_URL`; proyek ini juga menerima nama khusus
-`AUTH_DATABASE_URL` dan **mengutamakannya** agar tidak tertukar dengan
-database game.
+Pilih satu format koneksi Layerbase. Format field terpisah mengikuti label
+panel Layerbase dan tersedia di `.env.example`:
+
+```dotenv
+HOST=
+username=root
+database=
+PORT=
+password=
+```
+
+`PORT` kosong berarti `3306`; `HOST` hanya hostname, tanpa `mysql://` dan
+tanpa `:port`. Isi nilai asli hanya di `.env` lokal atau secret deployment.
+
+Alternatifnya, salin connection string dari **Layerbase dashboard →
+Connect**. Nama standar Layerbase adalah `DATABASE_URL`; proyek ini juga
+menerima nama khusus `AUTH_DATABASE_URL` dan **mengutamakannya** agar tidak
+tertukar dengan database game.
 
 ```dotenv
 # Pilih salah satu: nama khusus (disarankan) ...
@@ -44,7 +58,15 @@ AUTH_DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
 
 # ... atau nama standar Layerbase.
 DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
+```
 
+Prioritas server adalah `AUTH_DATABASE_URL` →
+`BETTER_AUTH_DATABASE_URL` → `DATABASE_URL` → field terpisah
+`HOST/username/database/PORT/password`. Field terpisah hanya dipakai bila
+URL eksplisit kosong dan `HOST`, `username`, `database`, serta `password`
+lengkap.
+
+```dotenv
 BETTER_AUTH_SECRET=hasil-openssl-rand-base64-32
 BETTER_AUTH_URL=http://localhost:3000
 ```
@@ -231,7 +253,7 @@ tabel + kolom admin secara read-only, tanpa menampilkan connection string.
 
 | Gejala | Penyebab paling umum | Perbaikan |
 | --- | --- | --- |
-| `503 better_auth_not_configured` | URL auth/secret kosong | Isi `AUTH_DATABASE_URL`/`DATABASE_URL` + `BETTER_AUTH_SECRET`, redeploy/restart API |
+| `503 better_auth_not_configured` | Koneksi auth/secret kosong | Isi `AUTH_DATABASE_URL`/`DATABASE_URL` atau field `HOST/username/database/PORT/password`, plus `BETTER_AUTH_SECRET`; redeploy/restart API |
 | Login ditolak karena origin tidak tepercaya | `BETTER_AUTH_URL` tidak sama dengan domain halaman | Samakan origin; tambah allowed hosts untuk preview |
 | Kartu admin `schema_missing` | Skema belum dibuat/kolom admin hilang | Jalankan setup Layerbase, `npm run auth:migrate`, atau SQL fallback |
 | Kartu admin `connection_failed` | Connection string/host/TLS/izin jaringan Layerbase salah | Salin ulang dari Connect; cek CA/akses database |
