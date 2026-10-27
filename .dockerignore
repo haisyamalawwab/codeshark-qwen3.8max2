@@ -1,0 +1,31 @@
+# Keep secrets and local/generated state out of the Docker build context.
+.git
+.git/*
+.env
+.env.*
+!.env.example
+node_modules
+npm-debug.log*
+dist
+dist-ssr
+dev-dist
+coverage
+playwright-report
+screenshots
+test-results
+videos
+.vite
+.cache
+.netlify
+.vercel
+
+# The application build needs source and content/, but not project archives
+# or the serialized documentation/image references.
+arsip
+docs
+tests
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
