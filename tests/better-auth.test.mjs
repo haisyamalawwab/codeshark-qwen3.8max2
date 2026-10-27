@@ -40,6 +40,18 @@ test("URL Auth Server: AUTH_DATABASE_URL didahulukan, DATABASE_URL Layerbase did
     betterAuthDatabaseUrl({ AUTH_DATABASE_URL: "mysql://khusus", DATABASE_URL: "mysql://umum" }),
     "mysql://khusus",
   );
+  assert.equal(
+    betterAuthDatabaseUrl({
+      LAYERBASE_DATABASE_URL: "mysql://layerbase-kanonis",
+      AUTH_DATABASE_URL: "mysql://khusus",
+      DATABASE_URL: "mysql://umum",
+    }),
+    "mysql://layerbase-kanonis",
+  );
+  assert.equal(
+    betterAuthDatabaseUrlSource({ LAYERBASE_DATABASE_URL: "mysql://layerbase-kanonis" }),
+    "LAYERBASE_DATABASE_URL",
+  );
   assert.equal(isBetterAuthConfigured(authEnv), true);
   assert.equal(isBetterAuthConfigured({ DATABASE_URL: "postgres://bukan-mariadb", BETTER_AUTH_SECRET: "x" }), false);
   const report = betterAuthPublicConfig(authEnv);
@@ -56,13 +68,13 @@ test("URL Auth Server: AUTH_DATABASE_URL didahulukan, DATABASE_URL Layerbase did
   assert(!JSON.stringify(report).includes("auth-user"));
 });
 
-test("field Layerbase terpisah menyusun URL internal tanpa membocorkan password", () => {
+test("field LAYERBASE_* terpisah menyusun URL internal tanpa membocorkan password", () => {
   const discreteEnv = {
-    HOST: "db.layerbase.example",
-    username: "root",
-    database: "codeshark_auth",
-    PORT: "3307",
-    password: "p@ss:word/with?chars",
+    LAYERBASE_HOST: "db.layerbase.example",
+    LAYERBASE_USERNAME: "root",
+    LAYERBASE_DATABASE: "codeshark_auth",
+    LAYERBASE_PORT: "3307",
+    LAYERBASE_PASSWORD: "p@ss:word/with?chars",
     BETTER_AUTH_SECRET: "test-secret-1234567890",
     BETTER_AUTH_URL: "https://latihan.my.id",
     NODE_ENV: "production",
@@ -76,33 +88,73 @@ test("field Layerbase terpisah menyusun URL internal tanpa membocorkan password"
   assert.equal(parsed.hostname, "db.layerbase.example");
   assert.equal(parsed.port, "3307");
   assert.equal(decodeURIComponent(parsed.username), "root");
-  assert.equal(decodeURIComponent(parsed.password), discreteEnv.password);
+  assert.equal(decodeURIComponent(parsed.password), discreteEnv.LAYERBASE_PASSWORD);
   assert.equal(decodeURIComponent(parsed.pathname.replace(/^\//, "")), "codeshark_auth");
-  assert.equal(betterAuthDatabaseUrlSource(discreteEnv), "HOST/username/database/PORT/password");
+  assert.equal(discrete.kind, "prefixed");
+  assert.equal(
+    betterAuthDatabaseUrlSource(discreteEnv),
+    "LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/LAYERBASE_PORT/LAYERBASE_PASSWORD",
+  );
   assert.equal(isBetterAuthConfigured(discreteEnv), true);
 
   const report = betterAuthPublicConfig(discreteEnv);
   assert.equal(report.configured, true);
   assert.equal(report.databaseHost, "db.layerbase.example");
   assert.equal(report.databaseName, "codeshark_auth");
-  assert(!JSON.stringify(report).includes(discreteEnv.password));
-  assert(!JSON.stringify(report).includes(encodeURIComponent(discreteEnv.password)));
+  assert(!JSON.stringify(report).includes(discreteEnv.LAYERBASE_PASSWORD));
+  assert(!JSON.stringify(report).includes(encodeURIComponent(discreteEnv.LAYERBASE_PASSWORD)));
 
-  // PORT kosong memakai port MariaDB/MySQL bawaan.
-  assert.equal(new URL(betterAuthDatabaseUrl({ ...discreteEnv, PORT: "" })).port, "3306");
+  // LAYERBASE_PORT kosong memakai port MariaDB/MySQL bawaan.
+  assert.equal(new URL(betterAuthDatabaseUrl({ ...discreteEnv, LAYERBASE_PORT: "" })).port, "3306");
 
-  // URL eksplisit tetap diprioritaskan daripada field terpisah.
+  // Grup kanonis LAYERBASE_* didahulukan dari URL legacy, sedangkan
+  // LAYERBASE_DATABASE_URL adalah bentuk URL kanonis yang paling eksplisit.
   assert.equal(
-    betterAuthDatabaseUrl({ ...discreteEnv, DATABASE_URL: "mysql://explicit" }),
+    betterAuthDatabaseUrl({ ...discreteEnv, DATABASE_URL: "mysql://legacy" }),
+    discrete.url,
+  );
+  assert.equal(
+    betterAuthDatabaseUrl({ ...discreteEnv, LAYERBASE_DATABASE_URL: "mysql://explicit" }),
     "mysql://explicit",
   );
 
-  const partial = { HOST: "db.layerbase.example", username: "root", BETTER_AUTH_SECRET: "x" };
+  const partial = {
+    LAYERBASE_HOST: "db.layerbase.example",
+    LAYERBASE_USERNAME: "root",
+    BETTER_AUTH_SECRET: "x",
+  };
   assert.equal(isBetterAuthConfigured(partial), false);
-  assert.deepEqual(betterAuthMissingConfig(partial), ["database", "password"]);
+  assert.deepEqual(betterAuthMissingConfig(partial), ["LAYERBASE_DATABASE", "LAYERBASE_PASSWORD"]);
   assert.deepEqual(
-    betterAuthMissingConfig({ ...discreteEnv, PORT: "bukan-angka" }),
-    ["PORT harus berupa angka 1-65535"],
+    betterAuthMissingConfig({ ...discreteEnv, LAYERBASE_PORT: "bukan-angka" }),
+    ["LAYERBASE_PORT harus berupa angka 1-65535"],
+  );
+
+  // Grup generik lama tetap kompatibel bila LAYERBASE_* sama sekali tidak dipakai.
+  const legacyDiscreteEnv = {
+    HOST: "legacy.layerbase.example",
+    username: "root",
+    database: "legacy_auth",
+    PORT: "3308",
+    password: "legacy-secret",
+    BETTER_AUTH_SECRET: "test-secret-1234567890",
+  };
+  const legacyDiscrete = layerbaseDiscreteConfig(legacyDiscreteEnv);
+  assert.equal(legacyDiscrete.kind, "legacy");
+  assert.equal(legacyDiscrete.complete, true);
+  assert.equal(betterAuthDatabaseUrlSource(legacyDiscreteEnv), "HOST/username/database/PORT/password (legacy)");
+  assert.equal(new URL(betterAuthDatabaseUrl(legacyDiscreteEnv)).hostname, "legacy.layerbase.example");
+
+  // Grup LAYERBASE_* parsial tidak boleh dicampur dengan URL/field legacy.
+  const partialPrefixedWithLegacy = {
+    ...partial,
+    ...legacyDiscreteEnv,
+    DATABASE_URL: authEnv.DATABASE_URL,
+  };
+  assert.equal(betterAuthDatabaseUrl(partialPrefixedWithLegacy), "");
+  assert.deepEqual(
+    betterAuthMissingConfig(partialPrefixedWithLegacy),
+    ["LAYERBASE_DATABASE", "LAYERBASE_PASSWORD"],
   );
 
   let poolOptions;
@@ -198,7 +250,11 @@ test("handler auth belum terkonfigurasi → 503 JSON informatif tanpa stack/raha
   assert.equal(res.code, 503);
   const body = JSON.parse(res.body);
   assert.equal(body.error, "better_auth_not_configured");
-  assert(body.missing.includes("AUTH_DATABASE_URL/DATABASE_URL atau HOST/username/database/PORT/password"));
+  assert(body.missing.includes(
+    "LAYERBASE_DATABASE_URL atau "
+      + "LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/"
+      + "LAYERBASE_PORT/LAYERBASE_PASSWORD",
+  ));
   assert(body.missing.includes("BETTER_AUTH_SECRET"));
 });
 

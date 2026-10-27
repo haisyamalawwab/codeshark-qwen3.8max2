@@ -34,6 +34,7 @@
     "test:diagnostics": "node --test tests/admin-diagnostics.test.mjs tests/redis.test.mjs"
   },
   "dependencies": {
+    "@better-auth/infra": "^0.4.23",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",

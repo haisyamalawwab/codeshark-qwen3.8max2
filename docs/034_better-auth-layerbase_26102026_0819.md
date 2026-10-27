@@ -17,6 +17,9 @@ Browser
 
 Konsekuensinya:
 
+- Namespace env wajib dipisah: `TIDB_*` hanya TiDB Cloud, `LAYERBASE_*`
+  hanya MariaDB Layerbase untuk auth, dan `BETTER_AUTH_*` hanya konfigurasi
+  aplikasi Better Auth. Jangan menukar kredensial antar-namespace.
 - Login email adalah **layanan identitas terpisah** dari database game.
 - Keputusan progres **cloud vs lokal** tetap dari tes awal TiDB/Aiven:
   terhubung → cloud; gagal → SQLite/localStorage.
@@ -33,38 +36,38 @@ Konsekuensinya:
 
 ## 2. Isi environment
 
-Pilih satu format koneksi Layerbase. Format field terpisah mengikuti label
-panel Layerbase dan tersedia di `.env.example`:
+Pilih satu format koneksi Layerbase. Format kanonis memakai prefix
+`LAYERBASE_*` agar tidak tumpang tindih dengan `TIDB_*`:
 
 ```dotenv
-HOST=
-username=root
-database=
-PORT=
-password=
+LAYERBASE_HOST=
+LAYERBASE_USERNAME=root
+LAYERBASE_DATABASE=
+LAYERBASE_PORT=
+LAYERBASE_PASSWORD=
 ```
 
-`PORT` kosong berarti `3306`; `HOST` hanya hostname, tanpa `mysql://` dan
-tanpa `:port`. Isi nilai asli hanya di `.env` lokal atau secret deployment.
+`LAYERBASE_PORT` kosong berarti `3306`; `LAYERBASE_HOST` hanya hostname,
+tanpa `mysql://` dan tanpa `:port`. Isi nilai asli hanya di `.env` lokal
+atau secret deployment.
 
 Alternatifnya, salin connection string dari **Layerbase dashboard →
-Connect**. Nama standar Layerbase adalah `DATABASE_URL`; proyek ini juga
-menerima nama khusus `AUTH_DATABASE_URL` dan **mengutamakannya** agar tidak
-tertukar dengan database game.
+Connect** ke nama kanonis berikut:
 
 ```dotenv
-# Pilih salah satu: nama khusus (disarankan) ...
-AUTH_DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
-
-# ... atau nama standar Layerbase.
-DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
+LAYERBASE_DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
 ```
 
-Prioritas server adalah `AUTH_DATABASE_URL` →
-`BETTER_AUTH_DATABASE_URL` → `DATABASE_URL` → field terpisah
-`HOST/username/database/PORT/password`. Field terpisah hanya dipakai bila
-URL eksplisit kosong dan `HOST`, `username`, `database`, serta `password`
-lengkap.
+Prioritas kanonis server adalah `LAYERBASE_DATABASE_URL`, lalu grup
+`LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/LAYERBASE_PORT/LAYERBASE_PASSWORD`.
+Bila salah satu field grup `LAYERBASE_*` sudah mulai diisi, server memakai
+grup itu sebagai satu kesatuan dan tidak mencampurnya dengan format lama.
+
+Untuk kompatibilitas deployment lama, server masih membaca
+`AUTH_DATABASE_URL`, `BETTER_AUTH_DATABASE_URL`, `DATABASE_URL`
+MySQL/MariaDB, serta grup generik `HOST/username/database/PORT/password`
+bila namespace `LAYERBASE_*` tidak digunakan. Format lama tersebut tidak
+disarankan untuk setup baru.
 
 ```dotenv
 BETTER_AUTH_SECRET=hasil-openssl-rand-base64-32
@@ -79,9 +82,10 @@ openssl rand -base64 32
 
 ### Penting: migrasi nama `DATABASE_URL`
 
-`DATABASE_URL` ber-skema MySQL/MariaDB sekarang **dicadangkan untuk Better
-Auth**, bukan Aiven game. Bila sebelumnya Aiven MySQL disimpan di
-`DATABASE_URL`, pindahkan ke:
+`DATABASE_URL` ber-skema MySQL/MariaDB pada jalur kompatibilitas lama
+**dicadangkan untuk Better Auth**, bukan Aiven game. Untuk setup baru,
+pindahkan nilainya ke `LAYERBASE_DATABASE_URL` atau grup `LAYERBASE_*`.
+Bila sebelumnya Aiven MySQL disimpan di `DATABASE_URL`, pindahkan ke:
 
 ```dotenv
 AIVEN_DATABASE_URL=mysql://...aivencloud.com.../defaultdb
@@ -226,7 +230,9 @@ mengapa `admin()` di server dan `adminClient()` di klien **wajib** dipasang.
 Setel env server berikut di dashboard platform (bukan di Git):
 
 ```dotenv
-AUTH_DATABASE_URL=mysql://...        # atau DATABASE_URL=...
+LAYERBASE_DATABASE_URL=mysql://...
+# Alternatif: LAYERBASE_HOST, LAYERBASE_USERNAME, LAYERBASE_DATABASE,
+# LAYERBASE_PORT, dan LAYERBASE_PASSWORD
 BETTER_AUTH_SECRET=...
 BETTER_AUTH_URL=https://domain-produksi
 ```
@@ -253,7 +259,7 @@ tabel + kolom admin secara read-only, tanpa menampilkan connection string.
 
 | Gejala | Penyebab paling umum | Perbaikan |
 | --- | --- | --- |
-| `503 better_auth_not_configured` | Koneksi auth/secret kosong | Isi `AUTH_DATABASE_URL`/`DATABASE_URL` atau field `HOST/username/database/PORT/password`, plus `BETTER_AUTH_SECRET`; redeploy/restart API |
+| `503 better_auth_not_configured` | Koneksi auth/secret kosong | Isi `LAYERBASE_DATABASE_URL` atau grup `LAYERBASE_*`, plus `BETTER_AUTH_SECRET`; redeploy/restart API |
 | Login ditolak karena origin tidak tepercaya | `BETTER_AUTH_URL` tidak sama dengan domain halaman | Samakan origin; tambah allowed hosts untuk preview |
 | Kartu admin `schema_missing` | Skema belum dibuat/kolom admin hilang | Jalankan setup Layerbase, `npm run auth:migrate`, atau SQL fallback |
 | Kartu admin `connection_failed` | Connection string/host/TLS/izin jaringan Layerbase salah | Salin ulang dari Connect; cek CA/akses database |

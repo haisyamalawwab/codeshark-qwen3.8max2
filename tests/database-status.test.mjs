@@ -220,3 +220,29 @@ test("Better Auth MariaDB counts as configured identity without leaking its URL 
   assert(!raw.includes("better-auth-secret-private"));
   assert(!raw.includes("auth-user"));
 });
+
+test("canonical LAYERBASE_* fields count as configured identity without leaking values", async () => {
+  const layerbaseEnv = {
+    ...env,
+    SUPABASE_URL: "",
+    SUPABASE_ANON_KEY: "",
+    SUPABASE_PUBLISHABLE_KEY: "",
+    LAYERBASE_HOST: "layerbase-private-host.example",
+    LAYERBASE_USERNAME: "layerbase-private-user",
+    LAYERBASE_DATABASE: "codeshark_auth",
+    LAYERBASE_PORT: "3306",
+    LAYERBASE_PASSWORD: "layerbase-canonical-secret",
+    BETTER_AUTH_SECRET: "better-auth-secret-private",
+    BETTER_AUTH_URL: "https://latihan.my.id",
+  };
+  const report = await inspect({ env: layerbaseEnv, pool: () => database() })();
+  assert.equal(report.identityConfigured, true);
+  assert.equal(report.auth?.betterAuthConfigured, true);
+  for (const name of ["LAYERBASE_HOST", "LAYERBASE_USERNAME", "LAYERBASE_DATABASE", "LAYERBASE_PORT", "LAYERBASE_PASSWORD"]) {
+    assert.equal(report.environment.find((field) => field.name === name)?.status, "set", name);
+  }
+  const raw = JSON.stringify(report);
+  for (const privateValue of ["layerbase-private-host", "layerbase-private-user", "layerbase-canonical-secret", "better-auth-secret-private"]) {
+    assert(!raw.includes(privateValue));
+  }
+});

@@ -129,6 +129,12 @@ export function createAdminDiagnosticsHandler(dependencies = {}) {
         presence: {
           AIVEN_DATABASE_URL: Boolean((env.AIVEN_DATABASE_URL || "").trim()),
           GAME_DATABASE_URL: Boolean((env.GAME_DATABASE_URL || "").trim()),
+          LAYERBASE_DATABASE_URL: Boolean((env.LAYERBASE_DATABASE_URL || "").trim()),
+          LAYERBASE_HOST: Boolean((env.LAYERBASE_HOST || "").trim()),
+          LAYERBASE_USERNAME: Boolean((env.LAYERBASE_USERNAME || "").trim()),
+          LAYERBASE_DATABASE: Boolean((env.LAYERBASE_DATABASE || "").trim()),
+          LAYERBASE_PORT: Boolean((env.LAYERBASE_PORT || "").trim()),
+          LAYERBASE_PASSWORD: Boolean((env.LAYERBASE_PASSWORD || "").trim()),
           AUTH_DATABASE_URL: Boolean((env.AUTH_DATABASE_URL || "").trim()),
           DATABASE_URL: Boolean((env.DATABASE_URL || "").trim()),
           BETTER_AUTH_SECRET: Boolean((env.BETTER_AUTH_SECRET || "").trim()),
