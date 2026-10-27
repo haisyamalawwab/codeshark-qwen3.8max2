@@ -6,21 +6,42 @@
 //   - Progres game tetap local-first dan (bila mode cloud aktif) disinkronkan
 //     ke TiDB/Aiven dengan owner "user:<better-auth-user-id>".
 //
-// Urutan env koneksi database auth:
-//   AUTH_DATABASE_URL → BETTER_AUTH_DATABASE_URL → DATABASE_URL
-//   → field Layerbase terpisah HOST/username/database/PORT/password.
-// `DATABASE_URL` didukung karena itulah nama yang diminta Layerbase, tetapi
-// nama khusus AUTH_DATABASE_URL diutamakan supaya tidak tertukar dengan
-// Aiven_DATABASE_URL (database game). Field terpisah hanya dipakai bila
-// tidak ada URL eksplisit dan seluruh field wajibnya lengkap.
+// Namespace env dipisahkan secara tegas:
+//   - TIDB_* hanya untuk database game TiDB Cloud;
+//   - LAYERBASE_* hanya untuk database auth Layerbase;
+//   - BETTER_AUTH_* hanya untuk konfigurasi aplikasi Better Auth.
+// Prioritas koneksi auth kanonis:
+//   LAYERBASE_DATABASE_URL
+//   → LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/
+//     LAYERBASE_PORT/LAYERBASE_PASSWORD.
+// Nama lama AUTH_DATABASE_URL, BETTER_AUTH_DATABASE_URL, DATABASE_URL,
+// dan field generik HOST/username/database/PORT/password tetap dibaca
+// sebagai kompatibilitas, tetapi tidak pernah dicampur dengan grup
+// LAYERBASE_* yang sudah mulai diisi.
 // ============================================================
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins/admin";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { createConnection, createPool } from "mysql2/promise";
 
-const AUTH_URL_ENV_KEYS = ["AUTH_DATABASE_URL", "BETTER_AUTH_DATABASE_URL", "DATABASE_URL"];
-const LAYERBASE_DISCRETE_SOURCE = "HOST/username/database/PORT/password";
+const LAYERBASE_URL_ENV_KEY = "LAYERBASE_DATABASE_URL";
+const LEGACY_AUTH_URL_ENV_KEYS = ["AUTH_DATABASE_URL", "BETTER_AUTH_DATABASE_URL", "DATABASE_URL"];
+const LAYERBASE_DISCRETE_KEYS = {
+  host: "LAYERBASE_HOST",
+  username: "LAYERBASE_USERNAME",
+  database: "LAYERBASE_DATABASE",
+  port: "LAYERBASE_PORT",
+  password: "LAYERBASE_PASSWORD",
+};
+const LEGACY_LAYERBASE_DISCRETE_KEYS = {
+  host: "HOST",
+  username: "username",
+  database: "database",
+  port: "PORT",
+  password: "password",
+};
+const LAYERBASE_DISCRETE_SOURCE = "LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/LAYERBASE_PORT/LAYERBASE_PASSWORD";
+const LEGACY_LAYERBASE_DISCRETE_SOURCE = "HOST/username/database/PORT/password (legacy)";
 const SESSION_COOKIE_PATTERN = /(?:^|;\s*)(?:__Secure-)?better-auth[.-]session_token(?:\.\d+)?=/i;
 
 export class BetterAuthNotConfiguredError extends Error {
@@ -55,36 +76,31 @@ function originOf(value) {
   }
 }
 
-/**
- * Field koneksi Layerbase terpisah sebagaimana ditampilkan panel:
- * HOST, username, database, PORT, password. PORT kosong berarti 3306.
- * Fungsi ini tidak mengembalikan username/password secara terpisah.
- */
-export function layerbaseDiscreteConfig(env = process.env) {
-  const host = clean(env?.HOST);
-  const username = clean(env?.username);
-  const database = clean(env?.database);
-  const portRaw = clean(env?.PORT);
+function discreteConfigForKeys(env, keys, source, kind) {
+  const host = clean(env?.[keys.host]);
+  const username = clean(env?.[keys.username]);
+  const database = clean(env?.[keys.database]);
+  const portRaw = clean(env?.[keys.port]);
   // Password tidak di-trim: spasi dapat menjadi bagian kredensial yang sah
   // dan akan di-encode saat URL internal disusun.
-  const password = typeof env?.password === "string" ? env.password : "";
+  const password = typeof env?.[keys.password] === "string" ? env[keys.password] : "";
   const port = portRaw ? Number(portRaw) : 3306;
   const hasAny = Boolean(host || username || database || portRaw || password);
   const missing = [];
 
-  if (!host) missing.push("HOST");
-  if (!username) missing.push("username");
-  if (!database) missing.push("database");
-  if (!password) missing.push("password");
+  if (!host) missing.push(keys.host);
+  if (!username) missing.push(keys.username);
+  if (!database) missing.push(keys.database);
+  if (!password) missing.push(keys.password);
 
   const bracketedIpv6 = host.startsWith("[") && host.endsWith("]");
   const hostValid = Boolean(host)
     && !host.includes("://")
     && !/[\s/@?#]/.test(host)
     && (bracketedIpv6 || !host.includes(":"));
-  if (host && !hostValid) missing.push("HOST tidak valid");
+  if (host && !hostValid) missing.push(`${keys.host} tidak valid`);
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    missing.push("PORT harus berupa angka 1-65535");
+    missing.push(`${keys.port} harus berupa angka 1-65535`);
   }
 
   let url = "";
@@ -98,7 +114,7 @@ export function layerbaseDiscreteConfig(env = process.env) {
       parsed.pathname = `/${encodeURIComponent(database)}`;
       url = parsed.toString();
     } catch {
-      missing.push("HOST tidak valid");
+      missing.push(`${keys.host} tidak valid`);
     }
   }
 
@@ -110,22 +126,61 @@ export function layerbaseDiscreteConfig(env = process.env) {
     host: host || null,
     database: database || null,
     port,
+    source,
+    kind,
   };
 }
 
+/**
+ * Field koneksi Layerbase terpisah. Grup kanonis LAYERBASE_* selalu dipilih
+ * sebagai satu grup bila salah satu fieldnya mulai diisi; grup generik lama
+ * hanya menjadi fallback kompatibilitas dan tidak pernah dicampur.
+ * Fungsi ini tidak mengembalikan username/password secara terpisah.
+ */
+export function layerbaseDiscreteConfig(env = process.env) {
+  const prefixed = discreteConfigForKeys(
+    env,
+    LAYERBASE_DISCRETE_KEYS,
+    LAYERBASE_DISCRETE_SOURCE,
+    "prefixed",
+  );
+  if (prefixed.hasAny) return prefixed;
+  return discreteConfigForKeys(
+    env,
+    LEGACY_LAYERBASE_DISCRETE_KEYS,
+    LEGACY_LAYERBASE_DISCRETE_SOURCE,
+    "legacy",
+  );
+}
+
 export function betterAuthDatabaseUrl(env = process.env) {
-  for (const key of AUTH_URL_ENV_KEYS) {
+  const layerbaseUrl = clean(env?.[LAYERBASE_URL_ENV_KEY]);
+  if (layerbaseUrl) return layerbaseUrl;
+
+  const discrete = layerbaseDiscreteConfig(env);
+  // Bila grup LAYERBASE_* sudah mulai diisi, jangan diam-diam berpindah ke
+  // URL/field legacy. Hasil kosong akan dilaporkan sebagai konfigurasi parsial.
+  if (discrete.kind === "prefixed") return discrete.url;
+
+  for (const key of LEGACY_AUTH_URL_ENV_KEYS) {
     const value = clean(env?.[key]);
     if (value) return value;
   }
-  return layerbaseDiscreteConfig(env).url;
+  return discrete.url;
 }
 
 export function betterAuthDatabaseUrlSource(env = process.env) {
-  for (const key of AUTH_URL_ENV_KEYS) {
+  if (clean(env?.[LAYERBASE_URL_ENV_KEY])) return LAYERBASE_URL_ENV_KEY;
+
+  const discrete = layerbaseDiscreteConfig(env);
+  if (discrete.kind === "prefixed") {
+    return discrete.complete ? discrete.source : null;
+  }
+
+  for (const key of LEGACY_AUTH_URL_ENV_KEYS) {
     if (clean(env?.[key])) return key;
   }
-  return layerbaseDiscreteConfig(env).complete ? LAYERBASE_DISCRETE_SOURCE : null;
+  return discrete.complete ? discrete.source : null;
 }
 
 export function betterAuthSecret(env = process.env) {
@@ -142,17 +197,25 @@ export function betterAuthMissingConfig(env = process.env) {
   if (!databaseUrl) {
     const discrete = layerbaseDiscreteConfig(env);
     if (discrete.hasAny) missing.push(...discrete.missing);
-    else missing.push("AUTH_DATABASE_URL/DATABASE_URL atau HOST/username/database/PORT/password");
+    else {
+      missing.push(
+        "LAYERBASE_DATABASE_URL atau "
+          + "LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/"
+          + "LAYERBASE_PORT/LAYERBASE_PASSWORD",
+      );
+    }
   } else if (!/^mysql2?:\/\//i.test(databaseUrl) && !/^mariadb:\/\//i.test(databaseUrl)) {
-    missing.push("AUTH_DATABASE_URL/DATABASE_URL harus berawalan mysql://");
+    const source = betterAuthDatabaseUrlSource(env) || "URL database auth";
+    missing.push(`${source} harus berawalan mysql://`);
   } else {
+    const source = betterAuthDatabaseUrlSource(env) || "URL database auth";
     try {
       const parsed = new URL(databaseUrl);
       if (!parsed.hostname || !parsed.pathname.replace(/^\//, "")) {
-        missing.push("AUTH_DATABASE_URL/DATABASE_URL harus memuat host dan nama database");
+        missing.push(`${source} harus memuat host dan nama database`);
       }
     } catch {
-      missing.push("AUTH_DATABASE_URL/DATABASE_URL tidak valid");
+      missing.push(`${source} tidak valid`);
     }
   }
   if (!betterAuthSecret(env)) missing.push("BETTER_AUTH_SECRET");
@@ -493,7 +556,7 @@ export async function handleBetterAuthRequest(req, res, env = process.env, deps 
     sendJson(res, 503, {
       error: "better_auth_not_configured",
       message:
-        "Better Auth belum dikonfigurasi. Isi AUTH_DATABASE_URL/DATABASE_URL atau field Layerbase HOST/username/database/PORT/password, serta BETTER_AUTH_SECRET di server.",
+        "Better Auth belum dikonfigurasi. Isi LAYERBASE_DATABASE_URL atau field LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/LAYERBASE_PORT/LAYERBASE_PASSWORD, serta BETTER_AUTH_SECRET di server.",
       missing: betterAuthMissingConfig(env),
     });
     return false;
@@ -513,7 +576,7 @@ export async function handleBetterAuthWebRequest(request, env = process.env, dep
       {
         error: "better_auth_not_configured",
         message:
-          "Better Auth belum dikonfigurasi. Isi AUTH_DATABASE_URL/DATABASE_URL atau field Layerbase HOST/username/database/PORT/password, serta BETTER_AUTH_SECRET di server.",
+          "Better Auth belum dikonfigurasi. Isi LAYERBASE_DATABASE_URL atau field LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/LAYERBASE_PORT/LAYERBASE_PASSWORD, serta BETTER_AUTH_SECRET di server.",
         missing: betterAuthMissingConfig(env),
       },
       { status: 503, headers: { "Cache-Control": "no-store" } },
