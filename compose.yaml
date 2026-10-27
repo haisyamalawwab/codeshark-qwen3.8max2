@@ -1,0 +1,43 @@
+name: codeshark-academy
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    image: codeshark-academy-api:local
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      API_PORT: "3001"
+      DATA_MODE: ${DATA_MODE:-auto}
+    expose:
+      - "3001"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+      args:
+        VITE_DATA_MODE: ${VITE_DATA_MODE:-auto}
+        VITE_ADMIN_ENABLED: ${VITE_ADMIN_ENABLED:-false}
+        VITE_SYNC_ENDPOINT: ${VITE_SYNC_ENDPOINT:-/api/sync-progress}
+        VITE_SITE_URL: ${VITE_SITE_URL:-}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+        VITE_BETTER_AUTH_URL: ${VITE_BETTER_AUTH_URL:-}
+    image: codeshark-academy-web:local
+    environment:
+      API_UPSTREAM: api:3001
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
