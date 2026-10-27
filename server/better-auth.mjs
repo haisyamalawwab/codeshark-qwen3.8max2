@@ -6,11 +6,13 @@
 //   - Progres game tetap local-first dan (bila mode cloud aktif) disinkronkan
 //     ke TiDB/Aiven dengan owner "user:<better-auth-user-id>".
 //
-// Urutan env URL database auth:
+// Urutan env koneksi database auth:
 //   AUTH_DATABASE_URL → BETTER_AUTH_DATABASE_URL → DATABASE_URL
+//   → field Layerbase terpisah HOST/username/database/PORT/password.
 // `DATABASE_URL` didukung karena itulah nama yang diminta Layerbase, tetapi
 // nama khusus AUTH_DATABASE_URL diutamakan supaya tidak tertukar dengan
-// Aiven_DATABASE_URL (database game).
+// Aiven_DATABASE_URL (database game). Field terpisah hanya dipakai bila
+// tidak ada URL eksplisit dan seluruh field wajibnya lengkap.
 // ============================================================
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins/admin";
@@ -18,6 +20,7 @@ import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { createConnection, createPool } from "mysql2/promise";
 
 const AUTH_URL_ENV_KEYS = ["AUTH_DATABASE_URL", "BETTER_AUTH_DATABASE_URL", "DATABASE_URL"];
+const LAYERBASE_DISCRETE_SOURCE = "HOST/username/database/PORT/password";
 const SESSION_COOKIE_PATTERN = /(?:^|;\s*)(?:__Secure-)?better-auth[.-]session_token(?:\.\d+)?=/i;
 
 export class BetterAuthNotConfiguredError extends Error {
@@ -52,19 +55,77 @@ function originOf(value) {
   }
 }
 
+/**
+ * Field koneksi Layerbase terpisah sebagaimana ditampilkan panel:
+ * HOST, username, database, PORT, password. PORT kosong berarti 3306.
+ * Fungsi ini tidak mengembalikan username/password secara terpisah.
+ */
+export function layerbaseDiscreteConfig(env = process.env) {
+  const host = clean(env?.HOST);
+  const username = clean(env?.username);
+  const database = clean(env?.database);
+  const portRaw = clean(env?.PORT);
+  // Password tidak di-trim: spasi dapat menjadi bagian kredensial yang sah
+  // dan akan di-encode saat URL internal disusun.
+  const password = typeof env?.password === "string" ? env.password : "";
+  const port = portRaw ? Number(portRaw) : 3306;
+  const hasAny = Boolean(host || username || database || portRaw || password);
+  const missing = [];
+
+  if (!host) missing.push("HOST");
+  if (!username) missing.push("username");
+  if (!database) missing.push("database");
+  if (!password) missing.push("password");
+
+  const bracketedIpv6 = host.startsWith("[") && host.endsWith("]");
+  const hostValid = Boolean(host)
+    && !host.includes("://")
+    && !/[\s/@?#]/.test(host)
+    && (bracketedIpv6 || !host.includes(":"));
+  if (host && !hostValid) missing.push("HOST tidak valid");
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    missing.push("PORT harus berupa angka 1-65535");
+  }
+
+  let url = "";
+  if (hasAny && missing.length === 0) {
+    try {
+      const parsed = new URL("mysql://localhost/");
+      parsed.hostname = host;
+      parsed.port = String(port);
+      parsed.username = username;
+      parsed.password = password;
+      parsed.pathname = `/${encodeURIComponent(database)}`;
+      url = parsed.toString();
+    } catch {
+      missing.push("HOST tidak valid");
+    }
+  }
+
+  return {
+    hasAny,
+    complete: Boolean(url),
+    missing,
+    url,
+    host: host || null,
+    database: database || null,
+    port,
+  };
+}
+
 export function betterAuthDatabaseUrl(env = process.env) {
   for (const key of AUTH_URL_ENV_KEYS) {
     const value = clean(env?.[key]);
     if (value) return value;
   }
-  return "";
+  return layerbaseDiscreteConfig(env).url;
 }
 
 export function betterAuthDatabaseUrlSource(env = process.env) {
   for (const key of AUTH_URL_ENV_KEYS) {
     if (clean(env?.[key])) return key;
   }
-  return null;
+  return layerbaseDiscreteConfig(env).complete ? LAYERBASE_DISCRETE_SOURCE : null;
 }
 
 export function betterAuthSecret(env = process.env) {
@@ -79,7 +140,9 @@ export function betterAuthMissingConfig(env = process.env) {
   const missing = [];
   const databaseUrl = betterAuthDatabaseUrl(env);
   if (!databaseUrl) {
-    missing.push("AUTH_DATABASE_URL/DATABASE_URL");
+    const discrete = layerbaseDiscreteConfig(env);
+    if (discrete.hasAny) missing.push(...discrete.missing);
+    else missing.push("AUTH_DATABASE_URL/DATABASE_URL atau HOST/username/database/PORT/password");
   } else if (!/^mysql2?:\/\//i.test(databaseUrl) && !/^mariadb:\/\//i.test(databaseUrl)) {
     missing.push("AUTH_DATABASE_URL/DATABASE_URL harus berawalan mysql://");
   } else {
@@ -111,6 +174,12 @@ export function betterAuthPublicConfig(env = process.env) {
       databaseName = decodeURIComponent(parsed.pathname.replace(/^\//, "")) || null;
     } catch {
       // Jangan pernah mengembalikan URL mentah/kredensial ke klien.
+    }
+  } else {
+    const discrete = layerbaseDiscreteConfig(env);
+    if (discrete.hasAny) {
+      databaseHost = discrete.host;
+      databaseName = discrete.database;
     }
   }
   return {
@@ -424,7 +493,7 @@ export async function handleBetterAuthRequest(req, res, env = process.env, deps 
     sendJson(res, 503, {
       error: "better_auth_not_configured",
       message:
-        "Better Auth belum dikonfigurasi. Isi AUTH_DATABASE_URL/DATABASE_URL dan BETTER_AUTH_SECRET di server.",
+        "Better Auth belum dikonfigurasi. Isi AUTH_DATABASE_URL/DATABASE_URL atau field Layerbase HOST/username/database/PORT/password, serta BETTER_AUTH_SECRET di server.",
       missing: betterAuthMissingConfig(env),
     });
     return false;
@@ -444,7 +513,7 @@ export async function handleBetterAuthWebRequest(request, env = process.env, dep
       {
         error: "better_auth_not_configured",
         message:
-          "Better Auth belum dikonfigurasi. Isi AUTH_DATABASE_URL/DATABASE_URL dan BETTER_AUTH_SECRET di server.",
+          "Better Auth belum dikonfigurasi. Isi AUTH_DATABASE_URL/DATABASE_URL atau field Layerbase HOST/username/database/PORT/password, serta BETTER_AUTH_SECRET di server.",
         missing: betterAuthMissingConfig(env),
       },
       { status: 503, headers: { "Cache-Control": "no-store" } },

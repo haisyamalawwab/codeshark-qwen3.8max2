@@ -86,7 +86,7 @@ function betterAuthErrorMessage(error: unknown, fallback: string): string {
   const status = typeof record.status === "number" ? record.status : 0;
 
   if (status === 503 || bodyError === "better_auth_not_configured" || code === "better_auth_not_configured") {
-    return "Login email belum dikonfigurasi di server (AUTH_DATABASE_URL/DATABASE_URL + BETTER_AUTH_SECRET).";
+    return "Login email belum dikonfigurasi di server (koneksi Layerbase + BETTER_AUTH_SECRET).";
   }
   if (/banned/i.test(code) || /banned/i.test(bodyError)) {
     return "Akun ini dinonaktifkan oleh admin.";
