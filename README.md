@@ -168,12 +168,13 @@ Setiap pertemuan = baca materi konsep → kerjakan kuis → **gladi ketik kode**
 
 ## ☁️ Deploy
 
-Siap pakai untuk dua platform (konfigurasi sudah ada di repo):
+Siap pakai untuk platform berikut (konfigurasi sudah ada di repo):
 
 - **Netlify** — `netlify.toml`: build `npm run build`, publish `dist`, SPA fallback `/* → /index.html`, cache immutable untuk `/assets/*`.
 - **Vercel** — `vercel.json`: framework `vite`, rewrites serupa.
+- **Docker Compose** — `Dockerfile` + `compose.yaml`: service `web` (nginx) melayani `dist/` dan meneruskan `/api/*` ke service `api` (Node). Jalankan `docker compose up --build`, lalu buka `http://localhost:8080`. Port host dapat diubah dengan `WEB_PORT`; environment server dibaca dari `.env` bila ada. Tanpa env cloud, API tetap menjawab status tidak-terkonfigurasi dan aplikasi jatuh ke mode lokal sesuai Env-Gated Graceful Fallback.
 
-Alternatif statis: jalankan `npm run build` lalu unggah isi `dist/` ke hosting apa pun.
+Alternatif statis: jalankan `npm run build` lalu unggah isi `dist/` ke hosting apa pun. Build Docker tanpa Compose (`docker build -t codeshark-academy .`) menghasilkan image web statis; endpoint cloud memerlukan service API pendamping sebagaimana diatur Compose.
 
 ## 📄 Lisensi & Credit
 
