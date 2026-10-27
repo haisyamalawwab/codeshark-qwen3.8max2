@@ -36,6 +36,12 @@ export function environmentReport(env) {
     { name: "SUPABASE_JWKS_URL", required: false, status: configured(env.SUPABASE_JWKS_URL) ? "set" : "default" },
     // Supabase kini legacy: wajib hanya bila Better Auth belum siap.
     ...["SUPABASE_URL", authKeyName(env)].map((name) => ({ name, required: !betterAuthReady, status: configured(env[name]) ? "set" : "missing" })),
+    { name: "LAYERBASE_DATABASE_URL", required: false, status: configured(env.LAYERBASE_DATABASE_URL) ? "set" : "optional" },
+    { name: "LAYERBASE_HOST", required: false, status: configured(env.LAYERBASE_HOST) ? "set" : "optional" },
+    { name: "LAYERBASE_USERNAME", required: false, status: configured(env.LAYERBASE_USERNAME) ? "set" : "optional" },
+    { name: "LAYERBASE_DATABASE", required: false, status: configured(env.LAYERBASE_DATABASE) ? "set" : "optional" },
+    { name: "LAYERBASE_PORT", required: false, status: configured(env.LAYERBASE_PORT) ? "set" : "default" },
+    { name: "LAYERBASE_PASSWORD", required: false, status: configured(env.LAYERBASE_PASSWORD) ? "set" : "optional" },
     { name: "AUTH_DATABASE_URL", required: false, status: configured(env.AUTH_DATABASE_URL) ? "set" : "optional" },
     { name: "DATABASE_URL", required: false, status: configured(env.DATABASE_URL) ? "set" : "optional" },
     { name: "BETTER_AUTH_SECRET", required: false, status: configured(env.BETTER_AUTH_SECRET) ? "set" : "optional" },

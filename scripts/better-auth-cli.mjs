@@ -17,25 +17,60 @@ if (!supported.has(command)) {
 
 exitIfLocalMode(`better-auth ${command}`);
 
-const databaseUrl = (process.env.AUTH_DATABASE_URL || process.env.BETTER_AUTH_DATABASE_URL || process.env.DATABASE_URL || "").trim();
-const layerbasePort = (process.env.PORT || "3306").trim();
-const hasLayerbaseDiscreteConfig = Boolean(
-  (process.env.HOST || "").trim()
-    && (process.env.username || "").trim()
-    && (process.env.database || "").trim()
-    && process.env.password
-    && Number.isInteger(Number(layerbasePort))
-    && Number(layerbasePort) >= 1
-    && Number(layerbasePort) <= 65535,
+const cleanEnv = (key) => (process.env[key] || "").trim();
+const discreteState = (keys) => {
+  const portRaw = cleanEnv(keys.port);
+  const port = Number(portRaw || "3306");
+  const hasAny = Boolean(
+    cleanEnv(keys.host)
+      || cleanEnv(keys.username)
+      || cleanEnv(keys.database)
+      || portRaw
+      || process.env[keys.password],
+  );
+  const complete = Boolean(
+    cleanEnv(keys.host)
+      && cleanEnv(keys.username)
+      && cleanEnv(keys.database)
+      && process.env[keys.password]
+      && Number.isInteger(port)
+      && port >= 1
+      && port <= 65535,
+  );
+  return { hasAny, complete };
+};
+const prefixedDiscrete = discreteState({
+  host: "LAYERBASE_HOST",
+  username: "LAYERBASE_USERNAME",
+  database: "LAYERBASE_DATABASE",
+  port: "LAYERBASE_PORT",
+  password: "LAYERBASE_PASSWORD",
+});
+const legacyDiscrete = discreteState({
+  host: "HOST",
+  username: "username",
+  database: "database",
+  port: "PORT",
+  password: "password",
+});
+const layerbaseDatabaseUrl = cleanEnv("LAYERBASE_DATABASE_URL");
+const legacyDatabaseUrl = cleanEnv("AUTH_DATABASE_URL")
+  || cleanEnv("BETTER_AUTH_DATABASE_URL")
+  || cleanEnv("DATABASE_URL");
+const databaseConfigured = Boolean(
+  layerbaseDatabaseUrl
+    || (prefixedDiscrete.hasAny
+      ? prefixedDiscrete.complete
+      : legacyDatabaseUrl || legacyDiscrete.complete),
 );
 const secret = (process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET || "").trim();
 if (
   (command === "generate" || command === "migrate" || command === "check" || command === "create-admin")
-  && (!(databaseUrl || hasLayerbaseDiscreteConfig) || !secret)
+  && (!databaseConfigured || !secret)
 ) {
   console.error(
-    "Better Auth belum dikonfigurasi: isi AUTH_DATABASE_URL/DATABASE_URL (dari Layerbase → Connect) " +
-      "atau field Layerbase HOST/username/database/PORT/password, " +
+    "Better Auth belum dikonfigurasi: isi LAYERBASE_DATABASE_URL atau field " +
+      "LAYERBASE_HOST/LAYERBASE_USERNAME/LAYERBASE_DATABASE/LAYERBASE_PORT/LAYERBASE_PASSWORD, " +
       "serta BETTER_AUTH_SECRET di .env terlebih dahulu.",
   );
   process.exit(1);
