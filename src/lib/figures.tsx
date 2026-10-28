@@ -3,6 +3,21 @@
    Palet mengikuti var CSS tema: cyan #45c6ff · teal #2ee6c8 · amber #ffc247 ·
    koral #ff7a59 · biru dalam #071b2e. */
 import type { ReactNode } from "react";
+/* Ilustrasi raster materi RPL (JPG gaya HUD selam Neon) — didaftarkan ke
+   katalog FIGURES sebagai node <img> agar placeholder %%IMG%% pada dokumen
+   .md dapat memakainya sama seperti diagram SVG. */
+import rplP1Pabrik from "../assets/materi-rpl/rpl-p1-pabrik-pl.jpg";
+import rplP1Siklus from "../assets/materi-rpl/rpl-p1-siklus-hidup.jpg";
+import rplP2Waterfall from "../assets/materi-rpl/rpl-p2-waterfall.jpg";
+import rplP2Sprint from "../assets/materi-rpl/rpl-p2-sprint-agile.jpg";
+import rplP3Elisitasi from "../assets/materi-rpl/rpl-p3-elisitasi.jpg";
+import rplP3Srs from "../assets/materi-rpl/rpl-p3-dokumen-srs.jpg";
+import rplP4Aktor from "../assets/materi-rpl/rpl-p4-aktor-sistem.jpg";
+import rplP4Alur from "../assets/materi-rpl/rpl-p4-alur-aktivitas.jpg";
+import rplP5Blok from "../assets/materi-rpl/rpl-p5-blok-kelas.jpg";
+import rplP5Sinyal from "../assets/materi-rpl/rpl-p5-sinyal-urutan.jpg";
+import rplP6Bug from "../assets/materi-rpl/rpl-p6-inspeksi-bug.jpg";
+import rplP6Rawat from "../assets/materi-rpl/rpl-p6-pemeliharaan.jpg";
 
 const CYAN = "#45c6ff";
 const TEAL = "#2ee6c8";
@@ -13,6 +28,33 @@ const LINE = "rgba(126,196,236,0.35)";
 const label = { fontFamily: "ui-monospace, monospace", fontWeight: 700 };
 const capStyle: Record<string, unknown> = { ...label, fontSize: 11, fill: "#bfe8ff" };
 const smallStyle: Record<string, unknown> = { ...label, fontSize: 9, fill: "#7ec4ec" };
+
+/** Node katalog untuk ilustrasi raster (JPG/PNG/WebP) materi. */
+const raster = (src: string, alt: string): ReactNode => (
+  <img src={src} alt={alt} loading="lazy" />
+);
+
+/** Kotak HUD berlabel untuk diagram alur (dipakai figur-figur RPL). */
+function HudBox({ x, y, w, h, title, sub, color = CYAN }: { x: number; y: number; w: number; h: number; title: string; sub?: string; color?: string }) {
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx="10" fill="rgba(69,198,255,0.07)" stroke={color} strokeWidth="1.6" />
+      <text x={x + w / 2} y={y + (sub ? h / 2 - 2 : h / 2 + 4)} textAnchor="middle" style={{ ...capStyle, fill: "#e6f6ff" }}>{title}</text>
+      {sub ? <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" style={smallStyle}>{sub}</text> : null}
+    </g>
+  );
+}
+
+/** Aktor UML (stick figure) untuk diagram use case. */
+function StickActor({ x, y, name }: { x: number; y: number; name: string }) {
+  return (
+    <g stroke={AMBER} strokeWidth="2.4" strokeLinecap="round" fill="none">
+      <circle cx={x} cy={y} r="9" />
+      <path d={`M${x} ${y + 9} V${y + 34} M${x - 13} ${y + 20} H${x + 13} M${x} ${y + 34} L${x - 11} ${y + 54} M${x} ${y + 34} L${x + 11} ${y + 54}`} />
+      <text x={x} y={y + 72} textAnchor="middle" stroke="none" style={{ ...capStyle, fill: AMBER }}>{name}</text>
+    </g>
+  );
+}
 
 function Arrow({ d, color = TEAL, dash }: { d: string; color?: string; dash?: boolean }) {
   return (
@@ -387,6 +429,205 @@ function FigCssBoxModel() {
   );
 }
 
+/* ============ FIGUR MATERI RPL (diagram SVG notasi) ============ */
+
+/* ---------- RPL P1 · Enam fase SDLC ---------- */
+function FigSdlcFase() {
+  const phases: Array<[string, string]> = [
+    ["Perencanaan", "proposal & jadwal"],
+    ["Analisis", "SRS / kebutuhan"],
+    ["Desain", "UML & arsitektur"],
+    ["Implementasi", "kode program"],
+    ["Pengujian", "laporan uji"],
+    ["Deploy & Rawat", "sistem live"],
+  ];
+  return (
+    <svg viewBox="0 0 640 300" role="img" aria-label="Diagram enam fase SDLC dari perencanaan sampai deployment dan pemeliharaan dengan panah umpan balik ke analisis">
+      <Markers />
+      <rect x="0" y="0" width="640" height="300" rx="14" fill="url(#sea-bg)" />
+      {phases.map(([title, sub], i) => {
+        const x = 14 + i * 103;
+        return (
+          <g key={title}>
+            <circle cx={x + 47} cy="72" r="13" fill="rgba(255,194,71,0.15)" stroke={AMBER} strokeWidth="1.6" />
+            <text x={x + 47} y="77" textAnchor="middle" style={{ ...capStyle, fill: AMBER }}>{i + 1}</text>
+            <HudBox x={x} y={96} w={94} h={70} title={title} sub={sub} color={i % 2 ? TEAL : CYAN} />
+            {i < phases.length - 1 ? <Arrow d={`M${x + 95} 131 H${x + 101}`} color={TEAL} /> : null}
+          </g>
+        );
+      })}
+      <Arrow d="M576 170 C 576 244, 200 244, 168 170" color={AMBER} dash />
+      <text x="372" y="262" textAnchor="middle" style={{ ...smallStyle, fill: AMBER }}>perubahan &amp; pemeliharaan kembali dianalisis — siklus hidup terus berputar</text>
+      <text x="320" y="34" textAnchor="middle" style={capStyle}>SDLC — dari ide sampai sistem yang dirawat</text>
+    </svg>
+  );
+}
+
+/* ---------- RPL P2 · Siklus Scrum ---------- */
+function FigSiklusScrum() {
+  return (
+    <svg viewBox="0 0 640 320" role="img" aria-label="Diagram siklus Scrum dari product backlog, sprint planning, sprint, increment, review dan retrospective lalu kembali ke product backlog">
+      <Markers />
+      <rect x="0" y="0" width="640" height="320" rx="14" fill="url(#sea-bg)" />
+      <HudBox x={14} y={118} w={106} h={66} title="Product" sub="Backlog" color={CYAN} />
+      <Arrow d="M122 151 H142" color={TEAL} />
+      <HudBox x={146} y={118} w={106} h={66} title="Sprint" sub="Planning" color={TEAL} />
+      <Arrow d="M254 151 H274" color={TEAL} />
+      {/* wadah sprint */}
+      <rect x="278" y="62" width="196" height="176" rx="14" fill="rgba(46,230,200,0.04)" stroke={TEAL} strokeWidth="1.6" strokeDasharray="7 5" />
+      <text x="376" y="86" textAnchor="middle" style={{ ...capStyle, fill: TEAL }}>SPRINT · 1–4 MINGGU</text>
+      <HudBox x={298} y={98} w={156} h={46} title="Sprint Backlog" color={CYAN} />
+      <HudBox x={298} y={168} w={156} h={46} title="Daily Scrum" sub="bangun & uji harian" color={CYAN} />
+      <Arrow d="M340 146 V164" color={AMBER} />
+      <Arrow d="M412 166 C 438 156, 438 140, 416 132" color={AMBER} dash />
+      <Arrow d="M476 121 H494" color={TEAL} />
+      <HudBox x={498} y={88} w={128} h={62} title="Increment" sub="hasil bisa dipakai" color={AMBER} />
+      <Arrow d="M562 152 V180" color={TEAL} />
+      <HudBox x={498} y={184} w={128} h={62} title="Review &" sub="Retrospective" color={AMBER} />
+      <Arrow d="M498 262 C 340 296, 180 296, 70 190" color={CORAL} dash />
+      <text x="300" y="300" textAnchor="middle" style={{ ...smallStyle, fill: CORAL }}>umpan balik masuk lagi ke Product Backlog — sprint berikutnya dimulai</text>
+      <text x="320" y="34" textAnchor="middle" style={capStyle}>Siklus Scrum — iterasi pendek yang selalu menghasilkan increment</text>
+    </svg>
+  );
+}
+
+/* ---------- RPL P3 · Alur rekayasa kebutuhan ---------- */
+function FigAlurKebutuhan() {
+  const steps: Array<[string, string]> = [
+    ["Elisitasi", "wawancara · observasi"],
+    ["Analisis", "konflik & prioritas"],
+    ["Spesifikasi", "SRS / user story"],
+    ["Validasi", "cek bersama pengguna"],
+  ];
+  return (
+    <svg viewBox="0 0 640 300" role="img" aria-label="Diagram empat tahap rekayasa kebutuhan elisitasi analisis spesifikasi validasi dengan panah pengulangan">
+      <Markers />
+      <rect x="0" y="0" width="640" height="300" rx="14" fill="url(#sea-bg)" />
+      <text x="320" y="40" textAnchor="middle" style={capStyle}>Pemangku kepentingan terlibat di semua tahap</text>
+      {steps.map(([title, sub], i) => {
+        const x = 18 + i * 156;
+        return (
+          <g key={title}>
+            <HudBox x={x} y={92} w={136} h={74} title={title} sub={sub} color={i % 2 ? TEAL : CYAN} />
+            {i < steps.length - 1 ? <Arrow d={`M${x + 138} 129 H${x + 152}`} color={TEAL} /> : null}
+          </g>
+        );
+      })}
+      <Arrow d="M554 170 C 554 236, 86 236, 86 170" color={AMBER} dash />
+      <text x="320" y="256" textAnchor="middle" style={{ ...smallStyle, fill: AMBER }}>belum sesuai kebutuhan nyata? gali &amp; perbaiki lagi — bukan lanjut buta</text>
+      <text x="86" y="196" textAnchor="middle" style={smallStyle}>sumber: manusia</text>
+      <text x="398" y="196" textAnchor="middle" style={smallStyle}>hasil: dokumen terukur</text>
+    </svg>
+  );
+}
+
+/* ---------- RPL P4 · Use case diagram perpustakaan ---------- */
+function FigUseCasePerpus() {
+  const uc = (cx: number, cy: number, rx: number, ry: number, name: string) => (
+    <g key={name}>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(69,198,255,0.08)" stroke={CYAN} strokeWidth="1.6" />
+      <text x={cx} y={cy + 4} textAnchor="middle" style={{ ...capStyle, fill: "#e6f6ff" }}>{name}</text>
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 640 350" role="img" aria-label="Use case diagram sistem perpustakaan dengan aktor mahasiswa dan pustakawan serta relasi include dan extend">
+      <Markers />
+      <rect x="0" y="0" width="640" height="350" rx="14" fill="url(#sea-bg)" />
+      {/* batas sistem */}
+      <rect x="170" y="34" width="300" height="282" rx="12" fill="rgba(46,230,200,0.03)" stroke={TEAL} strokeWidth="1.8" />
+      <text x="320" y="58" textAnchor="middle" style={{ ...capStyle, fill: TEAL }}>Sistem Perpustakaan</text>
+      {/* aktor */}
+      <StickActor x={82} y={118} name="Mahasiswa" />
+      <StickActor x={558} y={196} name="Pustakawan" />
+      {/* asosiasi */}
+      <g stroke={LINE} strokeWidth="1.6">
+        <path d="M96 130 L200 92" />
+        <path d="M96 140 L200 146" />
+        <path d="M96 152 L200 198" />
+        <path d="M544 224 L340 258" />
+      </g>
+      {/* use case utama */}
+      {uc(268, 90, 66, 23, "Cari Buku")}
+      {uc(268, 146, 66, 23, "Pinjam Buku")}
+      {uc(268, 202, 66, 23, "Kembalikan Buku")}
+      {uc(268, 264, 66, 23, "Kelola Katalog")}
+      {/* use case pendukung */}
+      {uc(402, 146, 54, 20, "Catat Transaksi")}
+      {uc(402, 202, 54, 20, "Hitung Denda")}
+      {/* include / extend */}
+      <Arrow d="M336 146 H344" color={TEAL} dash />
+      <text x="340" y="136" textAnchor="middle" style={{ ...smallStyle, fill: TEAL }}>&lt;&lt;include&gt;&gt;</text>
+      <Arrow d="M336 194 C 356 178, 366 168, 380 160" color={TEAL} dash />
+      <Arrow d="M346 202 H338" color={CORAL} dash />
+      <text x="342" y="192" textAnchor="middle" style={{ ...smallStyle, fill: CORAL }}>&lt;&lt;extend&gt;&gt;</text>
+      <text x="320" y="336" textAnchor="middle" style={smallStyle}>aktor di luar batas · include = selalu ikut · extend = kondisional (bila terlambat)</text>
+    </svg>
+  );
+}
+
+/* ---------- RPL P5 · Class diagram kuis ---------- */
+function ClassBox({ x, y, w, name, attrs, ops }: { x: number; y: number; w: number; name: string; attrs: string[]; ops: string[] }) {
+  const h = 30 + attrs.length * 16 + ops.length * 16 + 14;
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx="8" fill="rgba(69,198,255,0.06)" stroke={CYAN} strokeWidth="1.6" />
+      <text x={x + w / 2} y={y + 20} textAnchor="middle" style={{ ...capStyle, fill: "#e6f6ff", fontSize: 12 }}>{name}</text>
+      <path d={`M${x} ${y + 28} H${x + w}`} stroke={LINE} strokeWidth="1.2" />
+      {attrs.map((a, i) => (
+        <text key={a} x={x + 10} y={y + 44 + i * 16} style={smallStyle}>{a}</text>
+      ))}
+      <path d={`M${x} ${y + 34 + attrs.length * 16} H${x + w}`} stroke={LINE} strokeWidth="1.2" />
+      {ops.map((o, i) => (
+        <text key={o} x={x + 10} y={y + 50 + attrs.length * 16 + i * 16} style={{ ...smallStyle, fill: "#bfe8ff" }}>{o}</text>
+      ))}
+    </g>
+  );
+}
+
+function FigClassDiagramKuis() {
+  return (
+    <svg viewBox="0 0 640 350" role="img" aria-label="Class diagram mahasiswa hasil kuis kuis dan soal dengan multiplisitas dan relasi komposisi">
+      <Markers />
+      <rect x="0" y="0" width="640" height="350" rx="14" fill="url(#sea-bg)" />
+      <ClassBox x={22} y={92} w={168} name="Mahasiswa" attrs={["- nim : string", "- nama : string"]} ops={["+ ikutiKuis()"]} />
+      <ClassBox x={248} y={92} w={168} name="HasilKuis" attrs={["- skor : int", "- tanggal : date"]} ops={["+ hitungBintang()"]} />
+      <ClassBox x={468} y={36} w={152} name="Kuis" attrs={["- judul : string", "- durasi : int"]} ops={["+ mulai()"]} />
+      <ClassBox x={468} y={208} w={152} name="Soal" attrs={["- teks : string", "- kunci : string"]} ops={["+ periksa(j)"]} />
+      {/* asosiasi Mahasiswa—HasilKuis */}
+      <path d="M190 122 H248" stroke={TEAL} strokeWidth="1.8" />
+      <text x="198" y="112" style={{ ...capStyle, fill: TEAL }}>1</text>
+      <text x="228" y="112" style={{ ...capStyle, fill: TEAL }}>*</text>
+      {/* asosiasi Kuis—HasilKuis */}
+      <path d="M468 84 L416 108" stroke={TEAL} strokeWidth="1.8" />
+      <text x="452" y="80" style={{ ...capStyle, fill: TEAL }}>1</text>
+      <text x="420" y="100" style={{ ...capStyle, fill: TEAL }}>*</text>
+      {/* komposisi Kuis◆—Soal */}
+      <path d="M544 138 V208" stroke={AMBER} strokeWidth="1.8" />
+      <polygon points="544,126 552,138 544,150 536,138" fill={AMBER} />
+      <text x="558" y="146" style={{ ...capStyle, fill: AMBER }}>1</text>
+      <text x="558" y="202" style={{ ...capStyle, fill: AMBER }}>1..*</text>
+      <text x="320" y="336" textAnchor="middle" style={smallStyle}>baca bersuara: satu mahasiswa punya banyak hasil · kuis tersusun atas soal (komposisi ◆)</text>
+    </svg>
+  );
+}
+
+/* ---------- RPL P6 · Level pengujian ---------- */
+function FigLevelPengujian() {
+  return (
+    <svg viewBox="0 0 640 300" role="img" aria-label="Diagram bertingkat empat level pengujian unit integrasi sistem dan penerimaan">
+      <Markers />
+      <rect x="0" y="0" width="640" height="300" rx="14" fill="url(#sea-bg)" />
+      <HudBox x={110} y={216} w={380} h={46} title="Unit" sub="programmer · banyak & cepat" color={CYAN} />
+      <HudBox x={150} y={164} w={300} h={46} title="Integrasi" sub="programmer / QA" color={TEAL} />
+      <HudBox x={190} y={112} w={220} h={46} title="Sistem" sub="QA vs SRS" color={AMBER} />
+      <HudBox x={230} y={60} w={140} h={46} title="Penerimaan" sub="pengguna (UAT)" color={CORAL} />
+      <Arrow d="M548 258 V66" color={CORAL} />
+      <text x="566" y="162" textAnchor="middle" transform="rotate(-90 566 162)" style={{ ...smallStyle, fill: CORAL }}>cakupan meluas · biaya per cacat membesar</text>
+      <text x="300" y="34" textAnchor="middle" style={capStyle}>Empat level pengujian — sedini mungkin, seluas perlu</text>
+    </svg>
+  );
+}
+
 /* ---------- katalog kunci untuk placeholder %%IMG:key%% ---------- */
 export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
   "web-browser-server": {
@@ -428,6 +669,79 @@ export const FIGURES: Record<string, { node: ReactNode; caption: string }> = {
   "checklist-uts": {
     node: <FigChecklist />,
     caption: "Gambar 6.1 — Checklist pra-UTS: lima pemeriksaan wajib sebelum menyerahkan proyek.",
+  },
+  /* ===== Materi RPL (content/rpl) — raster gaya HUD selam + diagram SVG notasi ===== */
+  "rpl-p1-pabrik-pl": {
+    node: raster(rplP1Pabrik, "Ilustrasi tim hiu CodeShark membangun aplikasi di bengkel bawah laut"),
+    caption: "Gambar RPL-1.1 — Perangkat lunak adalah hasil kerja tim yang direkayasa: ada perencanaan, pembangunan, dan pemeriksaan — bukan sulap.",
+  },
+  "rpl-sdlc-fase": {
+    node: <FigSdlcFase />,
+    caption: "Gambar RPL-1.2 — Enam fase SDLC: perencanaan, analisis, desain, implementasi, pengujian, deployment & pemeliharaan — dengan umpan balik yang terus berputar.",
+  },
+  "rpl-p1-siklus-hidup": {
+    node: raster(rplP1Siklus, "Ilustrasi perjalanan melingkar stasiun-stasiun siklus hidup perangkat lunak di terumbu karang"),
+    caption: "Gambar RPL-1.3 — Siklus hidup perangkat lunak sebagai perjalanan melingkar: setiap stasiun fase menghasilkan bekal untuk stasiun berikutnya.",
+  },
+  "rpl-p2-waterfall": {
+    node: raster(rplP2Waterfall, "Ilustrasi air terjun berundak satu arah ke bawah sebagai metafora model Waterfall"),
+    caption: "Gambar RPL-2.1 — Waterfall: aliran fase hanya bergerak turun satu arah; kembali ke fase sebelumnya tidak direncanakan dan mahal.",
+  },
+  "rpl-siklus-scrum": {
+    node: <FigSiklusScrum />,
+    caption: "Gambar RPL-2.2 — Siklus Scrum: dari Product Backlog dipilih pekerjaan sprint, dibangun harian, menjadi increment, ditinjau, lalu umpan balik kembali ke backlog.",
+  },
+  "rpl-p2-sprint-agile": {
+    node: raster(rplP2Sprint, "Ilustrasi tim hiu berlari sprint melingkar mengelilingi pulau karang"),
+    caption: "Gambar RPL-2.3 — Sprint Agile: putaran pendek yang berulang dengan pit-stop evaluasi — cepat, terukur, dan mudah berbelok arah.",
+  },
+  "rpl-p3-elisitasi": {
+    node: raster(rplP3Elisitasi, "Ilustrasi analis hiu mewawancarai para pemangku kepentingan makhluk laut"),
+    caption: "Gambar RPL-3.1 — Elisitasi: analis menggali kebutuhan dari beragam pemangku kepentingan, bukan menebaknya sendiri.",
+  },
+  "rpl-alur-kebutuhan": {
+    node: <FigAlurKebutuhan />,
+    caption: "Gambar RPL-3.2 — Empat tahap rekayasa kebutuhan: elisitasi, analisis, spesifikasi, validasi — dan kembali mengulang bila belum sesuai.",
+  },
+  "rpl-p3-dokumen-srs": {
+    node: raster(rplP3Srs, "Ilustrasi dokumen holografik raksasa berisi daftar periksa yang sedang ditinjau"),
+    caption: "Gambar RPL-3.3 — SRS yang baik ibarat dokumen periksa raksasa: setiap kebutuhan tertulis, terukur, dan dapat dicentang kebenarannya.",
+  },
+  "rpl-p4-aktor-sistem": {
+    node: raster(rplP4Aktor, "Ilustrasi kubah kaca berisi portal oval dengan aktor di luar yang berinteraksi"),
+    caption: "Gambar RPL-4.1 — Gagasan use case: aktor berada di luar batas sistem dan hanya menyentuh fungsi (portal oval) yang menjadi haknya.",
+  },
+  "rpl-usecase-perpus": {
+    node: <FigUseCasePerpus />,
+    caption: "Gambar RPL-4.2 — Use case diagram Sistem Perpustakaan: Catat Transaksi selalu ikut (include); Hitung Denda hanya bila terlambat (extend).",
+  },
+  "rpl-p4-alur-aktivitas": {
+    node: raster(rplP4Alur, "Ilustrasi arus bercahaya yang bercabang di gerbang belah ketupat lalu menyatu kembali"),
+    caption: "Gambar RPL-4.3 — Activity diagram sebagai arus proses: ia dapat bercabang pada keputusan, berjalan paralel, lalu menyatu kembali.",
+  },
+  "rpl-p5-blok-kelas": {
+    node: raster(rplP5Blok, "Ilustrasi arsitek hiu menyusun blok-blok cetak biru berlapis yang saling terhubung"),
+    caption: "Gambar RPL-5.1 — Kelas sebagai blok bangunan berlapis (nama, atribut, operasi) yang dirakit menjadi struktur sistem.",
+  },
+  "rpl-class-diagram-kuis": {
+    node: <FigClassDiagramKuis />,
+    caption: "Gambar RPL-5.2 — Class diagram kuis: multiplisitas pada asosiasi dan komposisi Kuis◆—Soal (soal mati bersama kuisnya).",
+  },
+  "rpl-p5-sinyal-urutan": {
+    node: raster(rplP5Sinyal, "Ilustrasi pilar stasiun bawah laut saling bertukar sinyal sonar berurutan"),
+    caption: "Gambar RPL-5.3 — Sequence diagram sebagai percakapan: sinyal (pesan) berpindah antar stasiun (objek) mengikuti urutan waktu.",
+  },
+  "rpl-level-pengujian": {
+    node: <FigLevelPengujian />,
+    caption: "Gambar RPL-6.1 — Empat level pengujian bertingkat: unit yang banyak dan cepat di dasar, penerimaan pengguna yang sempit dan menentukan di puncak.",
+  },
+  "rpl-p6-inspeksi-bug": {
+    node: raster(rplP6Bug, "Ilustrasi inspektur hiu memeriksa robot kepiting bug dengan kaca pembesar raksasa"),
+    caption: "Gambar RPL-6.2 — Pengujian sebagai inspeksi: cacat (bug) dicari sedini mungkin dengan kasus uji yang dirancang, bukan ditemukan pengguna.",
+  },
+  "rpl-p6-pemeliharaan": {
+    node: raster(rplP6Rawat, "Ilustrasi kru hiu merawat dan meningkatkan stasiun bawah laut"),
+    caption: "Gambar RPL-6.3 — Pemeliharaan: sistem yang sudah rilis terus diperbaiki, disesuaikan, disempurnakan, dan dicegah kerusakannya.",
   },
 };
 

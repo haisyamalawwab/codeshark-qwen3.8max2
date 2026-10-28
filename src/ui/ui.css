@@ -220,6 +220,7 @@
 .md-figure-frame::before { top: -1.5px; left: -1.5px; border-width: 3px 0 0 3px; border-radius: 14px 0 0 0; }
 .md-figure-frame::after { bottom: -1.5px; right: -1.5px; border-width: 0 3px 3px 0; border-radius: 0 0 14px 0; }
 .md-figure-frame svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+.md-figure-frame img { display: block; width: 100%; height: auto; border-radius: 10px; }
 .md-figure-cap {
   margin-top: 10px;
   font-size: 0.78rem;
