@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   // path relatif agar dist/ bisa ditaruh di sub-folder (mis. Laragon: /CODESHARK/qwen3.8max2/dist/)
-  // + tiap sub-game punya folder sendiri: / /codingshark/ /codingtower/
+  // + tiap sub-game/campaign punya folder sendiri: / /codingshark/ /codingtower/ /matchingshark/
   base: "./",
   plugins: [
     react(),
@@ -27,9 +27,9 @@ export default defineConfig({
       manifest: false, // manifest dikelola manual di public/manifest.webmanifest
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2}"],
-        // navigasi offline: hub + dua sub-game tetap bisa dibuka
+        // navigasi offline: hub + sub-game + campaign MatchingShark tetap bisa dibuka
         navigateFallback: "index.html",
-        navigateFallbackAllowlist: [/^\/$/, /codingshark/, /codingtower/],
+        navigateFallbackAllowlist: [/^\/$/, /codingshark/, /codingtower/, /matchingshark/],
         runtimeCaching: [
           {
             // font Google — cache-first agar HUD tetap cantik offline
@@ -74,7 +74,7 @@ export default defineConfig({
         if (warning.code === "INVALID_ANNOTATION") return;
         handler(warning);
       },
-      // ENTRY: hub agregat + admin + 2 sub-game mandiri (output dist sub-folder)
+      // ENTRY: hub agregat + admin + 2 sub-game mandiri + campaign MatchingShark
       input: {
         hub: path.resolve(__dirname, "index.html"),
         // Halaman admin = diagnostik & tes koneksi (khusus admin, tidak
@@ -83,6 +83,7 @@ export default defineConfig({
         admin: path.resolve(__dirname, "admin/index.html"),
         codingshark: path.resolve(__dirname, "codingshark/index.html"),
         codingtower: path.resolve(__dirname, "codingtower/index.html"),
+        matchingshark: path.resolve(__dirname, "matchingshark/index.html"),
       },
       output: {
         // JS, CSS, dan grafis dipisah ke folder masing-masing
