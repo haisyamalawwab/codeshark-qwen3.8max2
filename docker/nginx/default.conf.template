@@ -68,6 +68,10 @@ server {
         try_files $uri $uri/ /codingtower/index.html;
     }
 
+    location /matchingshark/ {
+        try_files $uri $uri/ /matchingshark/index.html;
+    }
+
     location /admin/ {
         try_files $uri $uri/ /admin/index.html;
     }
