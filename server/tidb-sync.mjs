@@ -5,6 +5,12 @@ import {
   isBetterAuthUserBanned,
 } from "./better-auth.mjs";
 import { getTidbPool } from "./tidb.mjs";
+import {
+  persistGamification,
+  refreshAttentionDays,
+  ensureMembership,
+  withGamificationSavepoint,
+} from "./gamification.mjs";
 
 export class SyncError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -121,6 +127,13 @@ export async function persistTidbSync(pool, owner, payload) {
          ON DUPLICATE KEY UPDATE xp=VALUES(xp), coins=VALUES(coins), modules=VALUES(modules), stats=VALUES(stats), save_data=VALUES(save_data), client_sent_at=VALUES(client_sent_at)`,
         [owner, payload.save.xp, payload.save.coins, JSON.stringify(payload.save.modules), JSON.stringify(payload.save.stats), JSON.stringify(payload.save), payload.sentAt],
       );
+      // Tabel ternormalisasi 002 (gamifikasi/achievement/badge/membership)
+      // diturunkan dari snapshot yang sama. Bila skema 002 belum dimigrasi,
+      // savepoint memastikan hanya blok fitur ini yang dilewati.
+      await withGamificationSavepoint(connection, "sp_gamification_snapshot", async () => {
+        await ensureMembership(connection, owner);
+        await persistGamification(connection, owner, payload.save, payload.sentAt);
+      });
     }
     for (const a of payload.attempts) {
       await connection.execute(
@@ -129,6 +142,13 @@ export async function persistTidbSync(pool, owner, payload) {
          ON DUPLICATE KEY UPDATE id=VALUES(id)`,
         [owner, a.id, payload.deviceId, a.sessionId, a.won, a.stars, a.score, a.accuracy, a.wpm, a.maxCombo, a.xpAward, a.coinsAward, a.passed, new Date(a.at)],
       );
+    }
+    // Atensi harian dihitung ulang dari cs_attempts untuk tanggal-tanggal
+    // yang tersentuh batch ini (idempoten terhadap kirim ulang).
+    if (payload.attempts.length) {
+      await withGamificationSavepoint(connection, "sp_attention_days", async () => {
+        await refreshAttentionDays(connection, owner, payload.attempts);
+      });
     }
     await connection.commit();
     return payload.attempts.map((a) => a.id);

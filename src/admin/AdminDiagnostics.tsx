@@ -161,6 +161,9 @@ export default function AdminDiagnostics() {
                 {decision.cloud ? `CLOUD via ${decision.provider === "aiven" ? "Aiven" : "TiDB Cloud"}` : "LOKAL (SQLite/localStorage)"}
               </strong>
               {publicReport && <> · TiDB: <code>{publicReport.providers?.tidb.state ?? publicReport.state}</code> · Aiven: <code>{publicReport.providers?.aiven.state ?? "—"}</code> · diperiksa {new Date(publicReport.checkedAt).toLocaleString("id-ID")} (cache server 30 dtk)</>}
+              {publicReport?.features && (
+                <> · Skema gamifikasi 002: <code>{publicReport.features.gamificationSchema}</code> · Layerbase auth: <code>{publicReport.features.authSchema}</code> · Profil/Membership cloud: <code>{publicReport.features.profile ? "ready" : "belum siap"}</code></>
+              )}
             </p>
           ) : <p role="status">Mengetes koneksi…</p>}
           <button type="button" className="underline text-sm" onClick={() => void runPublicProbe()}>↻ Tes ulang (publik)</button>

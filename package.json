@@ -15,6 +15,7 @@
     "dev:api": "node --env-file-if-exists=.env server/dev-api.mjs",
     "test:tidb": "node --test tests/tidb.test.mjs tests/sync.test.mjs",
     "test:netlify": "node --test tests/netlify.test.mjs",
+    "test:profile": "node --test tests/profile-membership.test.mjs",
     "db:verify": "node --env-file-if-exists=.env scripts/verify-database.mjs",
     "test:database-status": "node --test tests/database-status.test.mjs",
     "db:settings:init": "node --env-file-if-exists=.env scripts/init-site-settings.mjs",

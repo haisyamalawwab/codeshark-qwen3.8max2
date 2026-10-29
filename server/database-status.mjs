@@ -8,7 +8,7 @@ import { tidbOptions, getTidbPool } from "./tidb.mjs";
 import { probeAiven } from "./aiven.mjs";
 import { serverMode } from "./local-mode.mjs";
 import { getSharedCache } from "./redis.mjs";
-import { isBetterAuthConfigured } from "./better-auth.mjs";
+import { isBetterAuthConfigured, probeBetterAuthSchema } from "./better-auth.mjs";
 
 const STATUS_CACHE_KEY = "codeshark:dbstatus:v1";
 
@@ -19,6 +19,17 @@ const QUERIES = [
   "SELECT owner_id, xp, coins, modules, stats, save_data, client_sent_at FROM cs_saves LIMIT 0",
   "SELECT owner_id, id, device_id, session_id, won, stars, score, accuracy, wpm, max_combo, xp_award, coins_award, passed, played_at FROM cs_attempts LIMIT 0",
   "SELECT version FROM cs_schema_migrations WHERE version = '001_initial_tidb' LIMIT 1",
+];
+// Probe fitur 002 (Profil & Membership): kegagalan di sini TIDAK mengubah
+// state inti — sync 001 tetap "connected", fitur dilaporkan terpisah di
+// `features.gamificationSchema` agar operator tahu migrasi 002 belum jalan.
+const GAMIFICATION_QUERIES = [
+  "SELECT owner_id, plan, role, cohort_code FROM cs_memberships LIMIT 0",
+  "SELECT owner_id, xp, coins, rank_name, streak_tier FROM cs_gamification LIMIT 0",
+  "SELECT owner_id, achievement_id, progress, claimed_at FROM cs_achievements LIMIT 0",
+  "SELECT owner_id, badge_id, source, awarded_at FROM cs_badges LIMIT 0",
+  "SELECT owner_id, activity_date, attempts_count FROM cs_attention_days LIMIT 0",
+  "SELECT version FROM cs_schema_migrations WHERE version = '002_gamification_profile_membership' LIMIT 1",
 ];
 const isTimeout = (error) => ["ETIMEDOUT", "PROTOCOL_SEQUENCE_TIMEOUT"].includes(error?.code);
 const configured = (value) => typeof value === "string" && value.trim() !== "" && !["<PASSWORD>", "<CA_PATH>", "&lt;PASSWORD&gt;", "&lt;CA_PATH&gt;"].includes(value.trim());
@@ -64,7 +75,7 @@ export function environmentReport(env) {
 }
 
 export function createDatabaseStatusService(dependencies = {}) {
-  const { env = process.env, pool = getTidbPool, options = tidbOptions, now = Date.now, ttlMs = 30000, timeoutMs = 8000, queries = QUERIES, aivenProbe = probeAiven } = dependencies;
+  const { env = process.env, pool = getTidbPool, options = tidbOptions, now = Date.now, ttlMs = 30000, timeoutMs = 8000, queries = QUERIES, gamificationQueries = GAMIFICATION_QUERIES, aivenProbe = probeAiven, authSchemaProbe = probeBetterAuthSchema } = dependencies;
   // Redis (bila terkonfigurasi) menjadi cache bersama antar-instance serverless;
   // cache: null secara eksplisit = paksa tanpa Redis (dipakai tes admin "fresh").
   const sharedCache = Object.hasOwn(dependencies, "cache") ? dependencies.cache : getSharedCache(env);
@@ -74,7 +85,7 @@ export function createDatabaseStatusService(dependencies = {}) {
 
   /** Probe TiDB — perilaku sama seperti versi awal (state kompatibel). */
   async function inspectTidb(environment) {
-    const tidb = { state: "disabled", database: "not_checked", schema: "not_checked", tls: "not_checked" };
+    const tidb = { state: "disabled", database: "not_checked", schema: "not_checked", tls: "not_checked", gamificationSchema: "not_checked" };
     const forcedProvider = (env.DB_PROVIDER || "").trim().toLowerCase();
     const tidbConfigured = REQUIRED.every((name) => configured(env[name]));
     if (forcedProvider === "aiven") return tidb; // operator memaksa Aiven
@@ -106,7 +117,20 @@ export function createDatabaseStatusService(dependencies = {}) {
               return { ...tidb, schema: "missing", state: "schema_missing" };
             }
           }
-          return { ...tidb, schema: "ready", state: "connected" };
+          // Skema inti siap. Probe fitur 002 pada koneksi yang sama;
+          // kegagalannya hanya menandai fitur, bukan state inti.
+          let gamificationSchema = "ready";
+          try {
+            for (const sql of gamificationQueries) {
+              if (timedOut) return { ...tidb, schema: "ready", state: "timeout" };
+              const [rows] = await connection.query({ sql, timeout: 3000 });
+              if (sql.includes("002_gamification") && !rows.length) { gamificationSchema = "missing"; break; }
+            }
+          } catch (error) {
+            if (isTimeout(error)) { unusable = true; return { ...tidb, schema: "ready", state: "timeout" }; }
+            gamificationSchema = "missing";
+          }
+          return { ...tidb, schema: "ready", state: "connected", gamificationSchema };
         } catch (error) {
           if (isTimeout(error)) { unusable = true; return { ...tidb, state: "timeout" }; }
           return { ...tidb, schema: "missing", state: "schema_missing" };
@@ -157,6 +181,16 @@ export function createDatabaseStatusService(dependencies = {}) {
     const effectiveProvider = order.find((name) => providers[name].state === "connected") ?? null;
     const cloudReady = effectiveProvider !== null;
 
+    // Kesiapan fitur: skema auth Layerbase (probe koneksi singkat, hanya
+    // bila Better Auth terkonfigurasi) + skema gamifikasi 002 di TiDB.
+    let authSchema = "not_configured";
+    if (betterAuthConfigured) {
+      try { authSchema = await authSchemaProbe(env); }
+      catch { authSchema = "connection_failed"; }
+    }
+    const gamificationSchema = tidb.gamificationSchema ?? "not_checked";
+    const profileReady = tidb.state === "connected" && gamificationSchema === "ready" && identityConfigured;
+
     return {
       // Bidang utama tetap mencerminkan TiDB (kompatibilitas klien/admin lama).
       state: tidb.state,
@@ -180,6 +214,13 @@ export function createDatabaseStatusService(dependencies = {}) {
       effectiveProvider,
       decision: cloudReady ? "cloud" : "local",
       providers,
+      // Kesiapan per-fitur (aditif; klien lama mengabaikan bidang ini).
+      features: {
+        gamificationSchema,
+        authSchema,
+        profile: profileReady,
+        membership: profileReady,
+      },
     };
   }
 

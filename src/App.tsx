@@ -1,6 +1,6 @@
 import { useSiteSettings, useEffectiveDataMode, Unavailable } from "./lib/siteSettings";
 import { Suspense, lazy, useEffect, useState } from "react";
-import type { AgeId, SaveData, DailyChallengeAttempt } from "./lib/storage";
+import type { AgeId, SaveData, DailyChallengeAttempt, MembershipState } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, loadSaveFor, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
 import { getSession, questId } from "./data/quests";
@@ -16,6 +16,7 @@ import { sfx } from "./lib/audio";
 import Ambient from "./graphics/Ambient";
 import Onboarding from "./ui/Onboarding";
 import Dashboard from "./ui/Dashboard";
+import ProfilePage from "./ui/ProfilePage";
 import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
 import type { GameResult } from "./ui/TypingGame";
@@ -48,6 +49,7 @@ interface AppProps {
 
 type Screen =
   | { s: "dash" }
+  | { s: "profile" }
   | { s: "peta"; no: number }
   | { s: "materi"; id: string }
   | { s: "materi-html"; no?: number }
@@ -175,6 +177,15 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     setSave(defaultSave());
     setScreen({ s: "dash" });
     sfx.click();
+  };
+
+  /* ===== halaman Profil & Membership ===== */
+  const updateProfile = (name: string, age: AgeId) => {
+    setSave((s) => (s.profile ? { ...s, profile: { ...s.profile, name, age } } : s));
+  };
+
+  const updateMembership = (membership: MembershipState) => {
+    setSave((s) => ({ ...s, membership }));
   };
 
   /* ===== aksi permainan ===== */
@@ -415,8 +426,18 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               onSelectSubGame={lockedSubGame ? undefined : selectSubGame}
               onToggleSound={toggleSound}
               onResetProfile={resetProfile}
+              onOpenProfile={() => setScreen({ s: "profile" })}
             />
           </>
+      ) : screen.s === "profile" ? (
+        <ProfilePage
+          save={save}
+          cfg={cfg}
+          onBack={() => setScreen({ s: "dash" })}
+          onUpdateProfile={updateProfile}
+          onToggleSound={toggleSound}
+          onUpdateMembership={updateMembership}
+        />
       ) : screen.s === "peta" ? (
         <Pertemuan
           key={screen.no}

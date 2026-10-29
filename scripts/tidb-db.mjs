@@ -17,14 +17,21 @@ if (!["init", "check"].includes(command)) {
       // This initial schema has no routines or semicolons within literals.
       const statements = source.replace(/^\s*--.*$/gm, "").split(";").map((s) => s.trim()).filter(Boolean);
       for (const sql of statements) await pool.query(sql);
-      console.log("TiDB schema initialized (001_initial_tidb). DDL is idempotent, not transactional.");
+      console.log("TiDB schema initialized (001_initial_tidb + 002_gamification_profile_membership). DDL is idempotent, not transactional.");
     }
     const [[server]] = await pool.query("SELECT VERSION() AS version, DATABASE() AS db, UTC_TIMESTAMP() AS utc_time");
     const [tables] = await pool.query("SHOW TABLES LIKE 'cs\\_%'");
     const names = tables.map((row) => Object.values(row)[0]);
-    const required = ["cs_schema_migrations", "cs_profiles", "cs_saves", "cs_attempts"];
+    const required = [
+      "cs_schema_migrations", "cs_profiles", "cs_saves", "cs_attempts",
+      "cs_memberships", "cs_gamification", "cs_achievements", "cs_badges", "cs_attention_days",
+    ];
     if (required.some((name) => !names.includes(name))) throw new Error("Schema is incomplete; run db:tidb:init");
-    console.log(JSON.stringify({ ...server, tables: names }, null, 2));
+    const [migrationRows] = await pool.query("SELECT version FROM cs_schema_migrations ORDER BY version");
+    const versions = migrationRows.map((row) => row.version);
+    const requiredVersions = ["001_initial_tidb", "002_gamification_profile_membership"];
+    if (requiredVersions.some((version) => !versions.includes(version))) throw new Error("Schema migrations incomplete; run db:tidb:init");
+    console.log(JSON.stringify({ ...server, tables: names, migrations: versions }, null, 2));
   } catch (error) {
     // Do not print connection strings, credentials, or full database errors.
     console.error("TiDB command failed. Check server env, TLS CA, network access, schema and database permissions.");
