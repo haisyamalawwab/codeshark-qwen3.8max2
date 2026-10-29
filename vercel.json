@@ -17,6 +17,10 @@
       "destination": "/codingtower/index.html"
     },
     {
+      "source": "/matchingshark/(.*)",
+      "destination": "/matchingshark/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
