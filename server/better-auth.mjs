@@ -316,6 +316,27 @@ export function createBetterAuthPool(env = process.env, deps = {}) {
   return poolFactory(options);
 }
 
+/* Probe kesiapan Layerbase (DB auth) untuk status PUBLIK: memetakan
+ * probeBetterAuthDatabase (dipakai diagnostik admin, memeriksa tabel +
+ * kolom Better Auth inti via information_schema) menjadi satu string
+ * status tanpa detail host/database. Timeout lebih pendek dari probe
+ * admin. Tidak pernah melempar; "Layerbase ready" harus bisa dibuktikan
+ * dari /api/database-status, bukan sekadar diklaim terkonfigurasi. */
+export async function probeBetterAuthSchema(env = process.env, deps = {}) {
+  if (!isBetterAuthConfigured(env)) return "not_configured";
+  const probe = deps.probeBetterAuthDatabase ?? probeBetterAuthDatabase;
+  try {
+    const result = await probe(env, { ...deps, timeoutMs: deps.timeoutMs ?? 2500 });
+    if (result?.state === "connected" && result?.schema === "ready") return "ready";
+    if (result?.state === "schema_missing" || result?.schema === "missing") return "missing";
+    if (result?.state === "timeout") return "timeout";
+    if (result?.state === "not_configured") return "not_configured";
+    return "connection_failed";
+  } catch {
+    return "connection_failed";
+  }
+}
+
 export function buildBetterAuthOptions(env = process.env, database, deps = {}) {
   const adminPlugin = deps.admin ?? admin;
   return {

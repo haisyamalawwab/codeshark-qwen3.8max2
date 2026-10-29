@@ -82,8 +82,23 @@ export interface DailyChallengeRecord {
   history?: DailyChallengeAttempt[];
 }
 
+/** Membership pemain (plan + akses kelas/cohort). Sumber kebenaran saat
+ *  cloud siap adalah cs_memberships di TiDB via /api/membership; slice
+ *  lokal ini adalah cache/fallback mode lokal (Env-Gated Fallback). */
+export interface MembershipState {
+  plan: "free" | "kelas" | "pro";
+  role?: string;
+  cohortCode?: string | null;
+  status?: string;
+  /** kapan mulai jadi member (ISO dari server bila ada) */
+  startedAt?: string | null;
+  /** terakhir disinkronkan dari/ke server (ms epoch) */
+  syncedAt?: number;
+}
+
 export interface SaveData {
   profile: Profile | null;
+  membership?: MembershipState;
   xp: number;
   coins: number;
   modules: Record<string, ModProg>;
@@ -141,6 +156,7 @@ export function deviceId(): string {
 
 export const defaultSave = (): SaveData => ({
   profile: null,
+  membership: { plan: "free", role: "peserta", cohortCode: null, status: "active" },
   xp: 0,
   coins: 0,
   modules: {},
@@ -235,6 +251,15 @@ function parseSave(raw: string): SaveData {
   const claimedAchievements = (d.claimedAchievements && typeof d.claimedAchievements === "object")
     ? { ...d.claimedAchievements }
     : {};
+  const rawMembership: Partial<MembershipState> = (d.membership && typeof d.membership === "object") ? d.membership : {};
+  const membership: MembershipState = {
+    plan: rawMembership.plan === "kelas" || rawMembership.plan === "pro" ? rawMembership.plan : "free",
+    role: typeof rawMembership.role === "string" && rawMembership.role ? rawMembership.role : "peserta",
+    cohortCode: typeof rawMembership.cohortCode === "string" && rawMembership.cohortCode ? rawMembership.cohortCode : null,
+    status: typeof rawMembership.status === "string" && rawMembership.status ? rawMembership.status : "active",
+    startedAt: typeof rawMembership.startedAt === "string" ? rawMembership.startedAt : null,
+    syncedAt: typeof rawMembership.syncedAt === "number" ? rawMembership.syncedAt : undefined,
+  };
   const rawLoginStreak = d.loginStreak;
   const loginStreak: DailyStreak = {
     current: typeof rawLoginStreak?.current === "number" ? Math.max(0, rawLoginStreak.current) : 1,
@@ -259,6 +284,7 @@ function parseSave(raw: string): SaveData {
     unlockedStreakMilestones,
     unlockedStreakTiers,
     claimedAchievements,
+    membership,
     deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };

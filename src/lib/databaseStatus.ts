@@ -31,6 +31,13 @@ export interface DatabaseStatus {
   effectiveProvider?: "tidb" | "aiven" | null;
   decision?: "cloud" | "local";
   providers?: { tidb: ProviderStatus; aiven: ProviderStatus };
+  /* Kesiapan per-fitur (server 002+). Opsional demi kompatibilitas. */
+  features?: {
+    gamificationSchema: "not_checked" | "ready" | "missing";
+    authSchema: "not_configured" | "ready" | "missing" | "connection_failed" | "timeout";
+    profile: boolean;
+    membership: boolean;
+  };
 }
 
 /** Provider cloud yang menang tes awal; mendukung respons server lama. */

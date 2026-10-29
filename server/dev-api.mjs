@@ -25,6 +25,8 @@ async function loadCloudRoutes() {
       { default: adminSettings },
       { default: adminDiagnostics },
       { default: betterAuth },
+      { default: profile },
+      { default: membership },
     ] = await Promise.all([
       import("../api/sync-progress.mjs"),
       import("../api/database-status.mjs"),
@@ -33,8 +35,10 @@ async function loadCloudRoutes() {
       import("../api/admin-settings.mjs"),
       import("../api/admin-diagnostics.mjs"),
       import("../api/auth/[...all].mjs"),
+      import("../api/profile.mjs"),
+      import("../api/membership.mjs"),
     ]);
-    cloudRoutes = { handler, databaseStatus, siteSettings, adminSetup, adminSettings, adminDiagnostics, betterAuth };
+    cloudRoutes = { handler, databaseStatus, siteSettings, adminSetup, adminSettings, adminDiagnostics, betterAuth, profile, membership };
   }
   return cloudRoutes;
 }
@@ -44,7 +48,7 @@ createServer(async (req, res) => {
   res.json = (value) => { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify(value)); return res; };
   if (localMode) return sendCloudDisabled(req, res);
 
-  const { handler, databaseStatus, siteSettings, adminSetup, adminSettings, adminDiagnostics, betterAuth } =
+  const { handler, databaseStatus, siteSettings, adminSetup, adminSettings, adminDiagnostics, betterAuth, profile, membership } =
     await loadCloudRoutes();
   // Better Auth membaca body mentah sendiri — jangan lewatkan parser JSON di bawah.
   if (req.url?.split("?")[0].startsWith("/api/auth/") || req.url?.split("?")[0] === "/api/auth") {
@@ -53,7 +57,7 @@ createServer(async (req, res) => {
   if (req.url?.split("?")[0] === "/api/admin-setup") return adminSetup(req, res);
   if (req.url?.split("?")[0] === "/api/admin-diagnostics") return adminDiagnostics(req, res);
   if (req.url === "/api/database-status") return databaseStatus(req, res);
-  const routes = { "/api/sync-progress": handler, "/api/site-settings": siteSettings, "/api/admin-settings": adminSettings };
+  const routes = { "/api/sync-progress": handler, "/api/site-settings": siteSettings, "/api/admin-settings": adminSettings, "/api/profile": profile, "/api/membership": membership };
   const route = routes[req.url?.split("?")[0]];
   if (!route) return res.status(404).json({ ok: false });
   try {
