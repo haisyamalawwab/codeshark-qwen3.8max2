@@ -80,6 +80,18 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/profile"
+  to = "/.netlify/functions/profile"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/membership"
+  to = "/.netlify/functions/membership"
+  status = 200
+  force = true
+
 # Sub-game punya fallback SPA masing-masing (refresh di /codingshark/* tetap ke index sub-game)
 [[redirects]]
   from = "/codingshark/*"

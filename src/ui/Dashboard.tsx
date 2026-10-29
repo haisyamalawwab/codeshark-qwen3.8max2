@@ -11,7 +11,7 @@ import { sfx } from "../lib/audio";
 import {
   IconFin, IconBolt, IconCoin, IconBook, IconKeyboard,
   IconCheck, IconArrowR, IconSound, IconMute,
-  IconTarget, IconTimer, IconX, IconFlame, IconHome,
+  IconTarget, IconTimer, IconX, IconFlame, IconHome, IconAward,
 } from "./icons";
 import { SUBGAMES, SUBGAME_ORDER } from "../data/subgames";
 import type { SubGameId } from "../data/subgames";
@@ -50,6 +50,8 @@ interface Props {
   onSelectSubGame?: (id: SubGameId) => void;
   onToggleSound: () => void;
   onResetProfile: () => void;
+  /** buka halaman Profil & Membership */
+  onOpenProfile?: () => void;
 }
 
 function useReveal() {
@@ -75,7 +77,7 @@ function useReveal() {
 
 export default function Dashboard({
   save, cfg, onMateri, onPractice, onDailyChallenge, onClaimAchievement, onMateriHtml, onPeta,
-  subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile,
+  subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile, onOpenProfile,
 }: Props) {
   const settings = useSiteSettings();
   const dataMode = useEffectiveDataMode();
@@ -204,7 +206,19 @@ export default function Dashboard({
             </span>
           </button>
 
-          {/* Tombol Suara & Profil */}
+          {/* Tombol Profil & Membership, Suara, Ganti Profil */}
+          {onOpenProfile && (
+            <button
+              className="btn btn-ghost !px-3 !py-2 !rounded-xl !bg-[rgba(10,34,56,0.5)] !border-[rgba(46,230,200,0.35)]"
+              onClick={() => { sfx.click(); onOpenProfile(); }}
+              aria-label="Buka halaman Profil dan Membership"
+              title="Profil & Membership — XP, badge, achievement, atensi, dan status database"
+            >
+              <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[var(--teal)]">
+                <IconAward size={15} /> Profil
+              </span>
+            </button>
+          )}
           <button className="btn btn-ghost !p-2 !rounded-xl !bg-[rgba(10,34,56,0.5)] !border-[rgba(126,196,236,0.2)]" onClick={onToggleSound} aria-label="Suara">
             {profile.sound ? <IconSound size={17} /> : <IconMute size={17} />}
           </button>
@@ -337,6 +351,25 @@ export default function Dashboard({
                       Permanen
                     </span>
                   </button>
+
+                  {/* Chip Membership → halaman Profil & Membership */}
+                  {onOpenProfile && (
+                    <button
+                      type="button"
+                      onClick={() => { sfx.click(); onOpenProfile(); }}
+                      className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[rgba(46,230,200,0.1)] border border-[rgba(46,230,200,0.45)] text-[#a7f3ea] text-xs font-bold cursor-pointer hover:scale-105 active:scale-95 transition-all"
+                      title="Buka Profil & Membership: hasil gamifikasi, badge, achievement, atensi, dan kesiapan database"
+                    >
+                      <IconAward size={14} />
+                      <span>
+                        Membership:{" "}
+                        <strong className="text-white font-extrabold">
+                          {save.membership?.plan === "pro" ? "Kapten Pro" : save.membership?.plan === "kelas" ? "Peserta Kelas" : "Penjelajah Bebas"}
+                        </strong>
+                        {save.membership?.cohortCode ? ` · ${save.membership.cohortCode}` : ""}
+                      </span>
+                    </button>
+                  )}
 
                   {rank.next ? (
                     <span className="text-xs text-[var(--dim)] font-semibold">

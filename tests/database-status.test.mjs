@@ -61,8 +61,13 @@ test("successful probe uses read-only queries, migration marker and releases con
   assert.equal(report.tls, "verified");
   assert.equal(report.schema, "ready");
   assert.equal(report.syncPrerequisitesReady, true);
-  assert.equal(db.calls.length, 5);
+  // 1 (SELECT 1) + 4 skema inti 001 + 6 probe fitur gamifikasi 002.
+  assert.equal(db.calls.length, 11);
   assert(db.calls.every((sql) => sql.startsWith("SELECT ")));
+  assert.equal(report.features.gamificationSchema, "ready");
+  assert.equal(report.features.profile, true);
+  assert.equal(report.features.membership, true);
+  assert.equal(report.features.authSchema, "not_configured");
   assert.equal(db.released, 1);
   for (const value of [env.TIDB_HOST, env.TIDB_USER, env.TIDB_PASSWORD, env.SUPABASE_URL, env.SUPABASE_ANON_KEY]) assert(!JSON.stringify(report).includes(value));
 });
@@ -204,8 +209,9 @@ test("Better Auth MariaDB counts as configured identity without leaking its URL 
     BETTER_AUTH_SECRET: "better-auth-secret-private",
     BETTER_AUTH_URL: "https://latihan.my.id",
   };
-  const report = await inspect({ env: betterAuthEnv, pool: () => database() })();
+  const report = await inspect({ env: betterAuthEnv, pool: () => database(), authSchemaProbe: async () => "ready" })();
   assert.equal(report.identityConfigured, true);
+  assert.equal(report.features.authSchema, "ready");
   assert.deepEqual(report.auth, {
     provider: "better-auth",
     configured: true,
@@ -235,8 +241,9 @@ test("canonical LAYERBASE_* fields count as configured identity without leaking 
     BETTER_AUTH_SECRET: "better-auth-secret-private",
     BETTER_AUTH_URL: "https://latihan.my.id",
   };
-  const report = await inspect({ env: layerbaseEnv, pool: () => database() })();
+  const report = await inspect({ env: layerbaseEnv, pool: () => database(), authSchemaProbe: async () => "missing" })();
   assert.equal(report.identityConfigured, true);
+  assert.equal(report.features.authSchema, "missing");
   assert.equal(report.auth?.betterAuthConfigured, true);
   for (const name of ["LAYERBASE_HOST", "LAYERBASE_USERNAME", "LAYERBASE_DATABASE", "LAYERBASE_PORT", "LAYERBASE_PASSWORD"]) {
     assert.equal(report.environment.find((field) => field.name === name)?.status, "set", name);
