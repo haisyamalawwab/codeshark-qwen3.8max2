@@ -1,0 +1,240 @@
+/* MatchingShark demo — arena kartu versus.
+   CSS khusus demo: kemiringan kartu, sonar ring, panah penghubung,
+   dan state face-off. Konten kartu tetap DOM agar teks dapat dibaca
+   pengguna, keyboard, dan screen reader. */
+
+.ms-rail-card {
+  --ms-rotate-y: 0deg;
+  --ms-slide: 0px;
+  --ms-lift: 0px;
+  transform: perspective(1000px) translate3d(var(--ms-slide), var(--ms-lift), 0) rotateY(var(--ms-rotate-y));
+  transform-style: preserve-3d;
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.9, 0.25, 1.15),
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    opacity 180ms ease;
+  touch-action: manipulation;
+}
+
+.ms-rail-card--situation {
+  --ms-rotate-y: 6deg;
+  transform-origin: right center;
+}
+
+.ms-rail-card--choice {
+  --ms-rotate-y: -6deg;
+  transform-origin: left center;
+}
+
+.ms-rail-card:hover:not(:disabled),
+.ms-rail-card:focus-visible:not(:disabled) {
+  --ms-lift: -4px;
+}
+
+.ms-rail-card--situation[data-selected="true"] {
+  --ms-slide: 7px;
+}
+
+.ms-rail-card--choice[data-selected="true"] {
+  --ms-slide: -7px;
+}
+
+.ms-rail-card:disabled {
+  cursor: default;
+}
+
+.ms-card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.ms-card-shine::after {
+  content: "";
+  position: absolute;
+  inset: -35% auto -35% -28%;
+  width: 34%;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  transform: translateX(-130%) rotate(8deg);
+  transition: transform 520ms ease;
+}
+
+.ms-rail-card:hover:not(:disabled) .ms-card-shine::after,
+.ms-rail-card:focus-visible:not(:disabled) .ms-card-shine::after,
+.ms-faceoff-card:hover .ms-card-shine::after {
+  transform: translateX(430%) rotate(8deg);
+}
+
+.ms-versus-slot {
+  border-radius: 1.45rem;
+  transition: filter 180ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+.ms-versus-slot--over {
+  filter: drop-shadow(0 0 18px rgba(46, 230, 200, 0.38));
+  transform: scale(1.015);
+}
+
+.ms-versus-slot--invalid {
+  filter: drop-shadow(0 0 14px rgba(255, 107, 87, 0.3));
+}
+
+.ms-faceoff-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ms-faceoff-card--left {
+  transform-origin: right center;
+  animation: msFaceoffLeft 4.8s ease-in-out infinite;
+}
+
+.ms-faceoff-card--right {
+  transform-origin: left center;
+  animation: msFaceoffRight 4.8s ease-in-out infinite;
+}
+
+.ms-faceoff-card--error {
+  animation: msCardShake 460ms ease-in-out both !important;
+}
+
+.ms-faceoff-card--success {
+  animation-duration: 2.8s;
+}
+
+@keyframes msFaceoffLeft {
+  0%,
+  100% {
+    transform: perspective(1050px) rotateY(7deg) rotateZ(-1.4deg) translateY(0);
+  }
+  50% {
+    transform: perspective(1050px) rotateY(7deg) rotateZ(-1.4deg) translateY(-6px);
+  }
+}
+
+@keyframes msFaceoffRight {
+  0%,
+  100% {
+    transform: perspective(1050px) rotateY(-7deg) rotateZ(1.4deg) translateY(-3px);
+  }
+  50% {
+    transform: perspective(1050px) rotateY(-7deg) rotateZ(1.4deg) translateY(3px);
+  }
+}
+
+@keyframes msCardShake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+.ms-sonar-ring {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  border: 1px solid rgba(46, 230, 200, 0.3);
+  box-shadow:
+    inset 0 0 34px rgba(46, 230, 200, 0.08),
+    0 0 28px rgba(69, 198, 255, 0.1);
+  pointer-events: none;
+  animation: msSonarPing 3.8s ease-out infinite;
+}
+
+@keyframes msSonarPing {
+  0% {
+    opacity: 0.72;
+    transform: scale(0.82);
+  }
+  70% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+.ms-arrow-dash {
+  animation: msArrowDash 1.15s linear infinite;
+}
+
+@keyframes msArrowDash {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.ms-arrow-medallion {
+  animation: msMedallionPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes msMedallionPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+.ms-gem {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  transform: rotate(45deg);
+  border: 1px solid rgba(196, 181, 253, 0.72);
+  background: rgba(167, 139, 250, 0.12);
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.14);
+}
+
+.ms-gem[data-active="true"] {
+  background: linear-gradient(135deg, #67e8f9, #a78bfa);
+  box-shadow: 0 0 10px rgba(103, 232, 249, 0.42);
+}
+
+.ms-card-back {
+  background:
+    radial-gradient(circle at 50% 36%, rgba(167, 139, 250, 0.22), transparent 9rem),
+    repeating-linear-gradient(135deg, rgba(126, 196, 236, 0.07) 0 8px, transparent 8px 16px),
+    linear-gradient(160deg, rgba(76, 29, 149, 0.32), rgba(4, 20, 38, 0.9));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-rail-card,
+  .ms-card-shine::after,
+  .ms-versus-slot {
+    transition: none;
+  }
+
+  .ms-rail-card,
+  .ms-faceoff-card--left,
+  .ms-faceoff-card--right {
+    transform: none;
+  }
+
+  .ms-faceoff-card,
+  .ms-sonar-ring,
+  .ms-arrow-dash,
+  .ms-arrow-medallion {
+    animation: none !important;
+  }
+}

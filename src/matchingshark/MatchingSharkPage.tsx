@@ -5,13 +5,13 @@
    - menjelaskan untuk apa MatchingShark dibuat;
    - memperlihatkan loop Scrum dan enam pulau belajar P1-P6;
    - memakai ulang 12 ilustrasi JPG materi RPL yang sudah ada;
-   - demo mini bersifat lokal di komponen ini dan TIDAK menulis progres,
-     XP, badge, achievement, membership, atau data pemain apa pun.
+   - demo arena kartu versus bersifat lokal di komponen MatchingDemo
+     dan TIDAK menulis progres, XP, badge, achievement, membership,
+     atau data pemain apa pun.
 
    Game penuh dirancang sebagai scope terpisah rpl:matching-shark agar
    progres MK RPL tidak tercampur dengan CodeShark/Coding Tower. */
 
-import { useMemo, useState, type CSSProperties } from "react";
 import {
   IconArrowL,
   IconArrowR,
@@ -26,7 +26,6 @@ import {
   IconFin,
   IconFlame,
   IconHome,
-  IconInfo,
   IconLock,
   IconMap,
   IconPlay,
@@ -34,8 +33,8 @@ import {
   IconSparkles,
   IconTarget,
   IconTower,
-  IconTrophy,
 } from "../ui/icons";
+import MatchingDemo from "./MatchingDemo";
 
 import matchingHeroJpg from "../assets/matchingshark/matching-hero.jpg";
 import matchingHeroWebp from "../assets/matchingshark/matching-hero.webp";
@@ -99,350 +98,6 @@ function Chip({ children, violet = false }: { children: string; violet?: boolean
     >
       {children}
     </span>
-  );
-}
-
-interface DemoPair {
-  id: string;
-  category: string;
-  situation: string;
-  answer: string;
-  rationale: string;
-  hint: string;
-}
-
-const DEMO_PAIRS: DemoPair[] = [
-  {
-    id: "kebutuhan",
-    category: "Rekayasa kebutuhan",
-    situation: "\u201CSistem harus cepat dan mudah dipakai\u201D masih terlalu kabur untuk dibangun dan diuji.",
-    answer: "Ubah menjadi kebutuhan terukur + acceptance criteria",
-    rationale:
-      "Betul. Kebutuhan yang baik harus bisa diverifikasi: misalnya halaman tampil < 2 detik dan pengguna baru dapat menyelesaikan tugas utama dalam 3 langkah.",
-    hint: "Cari kartu yang membuat kata \u201Ccepat\u201D dan \u201Cmudah\u201D dapat diukur, bukan langsung melompat ke diagram.",
-  },
-  {
-    id: "uml",
-    category: "UML use case",
-    situation: "Pustakawan memproses peminjaman buku untuk anggota di sistem perpustakaan.",
-    answer: "Aktor: Pustakawan → Use case: Memproses Peminjaman",
-    rationale:
-      "Tepat. Aktor adalah pihak di luar sistem yang berinteraksi dengannya; elips use case menyatakan tujuan yang ingin dicapai aktor.",
-    hint: "Pisahkan siapa yang berada di luar sistem dari tujuan/fungsi yang ia jalankan di dalam sistem.",
-  },
-  {
-    id: "testing",
-    category: "Pengujian black-box",
-    situation: "Form hanya menerima umur 17–60 tahun. Nilai mana yang paling wajib diuji pada batasnya?",
-    answer: "16, 17, 60, dan 61 — boundary value analysis",
-    rationale:
-      "Benar. Kesalahan paling sering muncul tepat di tepi interval: satu nilai sebelum batas, pada batas, dan satu nilai sesudah batas.",
-    hint: "Jangan hanya memilih nilai tengah yang aman. Uji persis di sekitar angka 17 dan 60.",
-  },
-  {
-    id: "scrum",
-    category: "Sprint Planning",
-    situation: "Kapasitas Sprint dua minggu adalah 40 poin, tetapi backlog prioritas berjumlah 55 poin.",
-    answer: "Ambil 40 poin teratas; sisanya tetap di Product Backlog",
-    rationale:
-      "Betul. Sprint direncanakan berdasarkan kapasitas nyata tim. Memaksa 55 poin hanya menukar komitmen yang jelas dengan kualitas dan kepercayaan yang turun.",
-    hint: "Kapasitas adalah batas rencana. Prioritas teratas masuk Sprint, bukan seluruh backlog dipadatkan.",
-  },
-];
-
-const DEMO_CHOICE_ORDER = ["testing", "scrum", "kebutuhan", "uml"];
-
-type FeedbackKind = "idle" | "success" | "error" | "hint" | "complete";
-
-interface Feedback {
-  kind: FeedbackKind;
-  title: string;
-  text: string;
-}
-
-function MatchingDemo() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [matches, setMatches] = useState<Record<string, string>>({});
-  const [attempts, setAttempts] = useState(0);
-  const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [hintIds, setHintIds] = useState<string[]>([]);
-  const [lastWrongChoice, setLastWrongChoice] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<Feedback>({
-    kind: "idle",
-    title: "Pilih situasi di kiri, lalu pilih artefak/keputusan yang cocok.",
-    text: "Demo ini meniru inti MatchingShark: keputusan dinilai dari hubungan maknanya, dan setiap jawaban disertai alasan.",
-  });
-
-  const choices = useMemo(
-    () => DEMO_CHOICE_ORDER.map((id) => DEMO_PAIRS.find((pair) => pair.id === id)!),
-    [],
-  );
-  const matchedCount = Object.keys(matches).length;
-  const completed = matchedCount === DEMO_PAIRS.length;
-  const demoXp = Math.max(0, matchedCount * 25 - wrongAttempts * 3 - hintIds.length * 5);
-  const selectedPair = DEMO_PAIRS.find((pair) => pair.id === selectedId) ?? null;
-
-  const chooseSituation = (pair: DemoPair) => {
-    if (matches[pair.id]) return;
-    setSelectedId((current) => (current === pair.id ? null : pair.id));
-    setLastWrongChoice(null);
-    setFeedback({
-      kind: "idle",
-      title: `${pair.category} dipilih.`,
-      text: "Sekarang pilih satu kartu keputusan di kanan yang paling tepat untuk situasi ini.",
-    });
-  };
-
-  const chooseAnswer = (choice: DemoPair) => {
-    if (Object.values(matches).includes(choice.id)) return;
-    if (!selectedPair) {
-      setFeedback({
-        kind: "hint",
-        title: "Pilih situasinya dulu.",
-        text: "Klik salah satu kartu situasi di kolom kiri, setelah itu pilih kartu artefak/keputusan pasangannya.",
-      });
-      return;
-    }
-
-    setAttempts((value) => value + 1);
-    if (choice.id === selectedPair.id) {
-      const nextMatches = { ...matches, [selectedPair.id]: choice.id };
-      const isComplete = Object.keys(nextMatches).length === DEMO_PAIRS.length;
-      setMatches(nextMatches);
-      setSelectedId(null);
-      setLastWrongChoice(null);
-      setFeedback(
-        isComplete
-          ? {
-              kind: "complete",
-              title: "Sprint demo selesai!",
-              text: `${selectedPair.rationale} Kamu menyelesaikan 4/4 pasangan dengan ${attempts + 1} percobaan.`,
-            }
-          : {
-              kind: "success",
-              title: "Pasangan tepat.",
-              text: selectedPair.rationale,
-            },
-      );
-      return;
-    }
-
-    setWrongAttempts((value) => value + 1);
-    setLastWrongChoice(choice.id);
-    setFeedback({
-      kind: "error",
-      title: "Belum cocok secara makna.",
-      text: `Kartu \u201C${choice.answer}\u201D milik konteks ${choice.category.toLowerCase()}, bukan untuk situasi ${selectedPair.category.toLowerCase()} yang sedang dipilih. Perhatikan kata kerja dan tujuan keputusannya.`,
-    });
-  };
-
-  const showHint = () => {
-    if (!selectedPair) {
-      setFeedback({
-        kind: "hint",
-        title: "Hint butuh situasi aktif.",
-        text: "Pilih satu situasi yang belum berpasangan, lalu buka hint untuk situasi tersebut.",
-      });
-      return;
-    }
-    if (!hintIds.includes(selectedPair.id)) setHintIds((items) => [...items, selectedPair.id]);
-    setFeedback({ kind: "hint", title: `Hint — ${selectedPair.category}`, text: selectedPair.hint });
-  };
-
-  const reset = () => {
-    setSelectedId(null);
-    setMatches({});
-    setAttempts(0);
-    setWrongAttempts(0);
-    setHintIds([]);
-    setLastWrongChoice(null);
-    setFeedback({
-      kind: "idle",
-      title: "Demo diatur ulang.",
-      text: "Pilih situasi di kiri, lalu pilih artefak/keputusan yang cocok di kanan.",
-    });
-  };
-
-  const situationStyle = (pair: DemoPair): CSSProperties => {
-    const matched = Boolean(matches[pair.id]);
-    const selected = selectedId === pair.id;
-    return {
-      background: matched
-        ? "rgba(46,230,200,0.1)"
-        : selected
-          ? "rgba(167,139,250,0.16)"
-          : "rgba(7,24,42,0.72)",
-      borderColor: matched ? "rgba(46,230,200,0.55)" : selected ? VIOLET : LINE,
-      boxShadow: selected ? "0 0 0 2px rgba(167,139,250,0.18), 0 16px 36px rgba(0,0,0,0.2)" : undefined,
-      opacity: matched ? 0.82 : 1,
-    };
-  };
-
-  const choiceStyle = (choice: DemoPair): CSSProperties => {
-    const matched = Object.values(matches).includes(choice.id);
-    const wrong = lastWrongChoice === choice.id;
-    return {
-      background: matched
-        ? "rgba(46,230,200,0.1)"
-        : wrong
-          ? "rgba(255,107,87,0.12)"
-          : "rgba(7,24,42,0.72)",
-      borderColor: matched ? "rgba(46,230,200,0.55)" : wrong ? "rgba(255,107,87,0.65)" : LINE,
-      opacity: matched ? 0.75 : 1,
-    };
-  };
-
-  return (
-    <div className="rounded-[1.6rem] overflow-hidden" style={{ background: PANEL, border: `1px solid ${LINE}` }}>
-      <div
-        className="px-5 py-5 md:px-7 flex flex-col md:flex-row md:items-center gap-4"
-        style={{ background: "linear-gradient(120deg, rgba(88,28,135,0.4), rgba(8,47,73,0.55))", borderBottom: `1px solid ${LINE}` }}
-      >
-        <div className="flex-1">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.24em]" style={{ color: VIOLET_DIM }}>
-            Demo konsep · 4 pasangan
-          </p>
-          <h3 className="font-display font-extrabold text-2xl text-white mt-1">Cocokkan situasi dengan keputusan engineering</h3>
-          <p className="text-xs md:text-sm mt-1" style={{ color: DIM }}>
-            Klik/ketuk untuk memasangkan. Fokusnya bukan hafalan istilahnya, tetapi alasan hubungan antar-artefak.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-2 text-center min-w-60">
-          <div className="rounded-2xl px-3 py-2" style={{ background: "rgba(4,18,31,0.55)" }}>
-            <div className="font-display font-extrabold text-xl text-white tabular-nums">{matchedCount}/4</div>
-            <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: FAINT }}>Pasangan</div>
-          </div>
-          <div className="rounded-2xl px-3 py-2" style={{ background: "rgba(4,18,31,0.55)" }}>
-            <div className="font-display font-extrabold text-xl text-white tabular-nums">{demoXp}</div>
-            <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: FAINT }}>XP demo</div>
-          </div>
-          <div className="rounded-2xl px-3 py-2" style={{ background: "rgba(4,18,31,0.55)" }}>
-            <div className="font-display font-extrabold text-xl text-white tabular-nums">{attempts}</div>
-            <div className="text-[10px] font-bold uppercase tracking-wide" style={{ color: FAINT }}>Percobaan</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="h-2" style={{ background: "rgba(126,196,236,0.12)" }} aria-hidden="true">
-        <div
-          className="h-full transition-all duration-500"
-          style={{ width: `${(matchedCount / DEMO_PAIRS.length) * 100}%`, background: `linear-gradient(90deg, ${VIOLET}, var(--teal))` }}
-        />
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-5 p-5 md:p-7">
-        <div>
-          <h4 className="text-xs font-extrabold uppercase tracking-[0.2em]" style={{ color: VIOLET_DIM }}>Situasi proyek</h4>
-          <div className="space-y-3 mt-3">
-            {DEMO_PAIRS.map((pair, index) => {
-              const matched = Boolean(matches[pair.id]);
-              return (
-                <button
-                  key={pair.id}
-                  type="button"
-                  disabled={matched}
-                  onClick={() => chooseSituation(pair)}
-                  aria-pressed={selectedId === pair.id}
-                  className="w-full text-left rounded-2xl border p-4 transition hover:-translate-y-0.5 disabled:cursor-default"
-                  style={situationStyle(pair)}
-                >
-                  <span className="flex items-start gap-3">
-                    <span
-                      className="w-9 h-9 shrink-0 rounded-xl grid place-items-center font-display font-extrabold"
-                      style={{ background: matched ? "rgba(46,230,200,0.16)" : "rgba(167,139,250,0.14)", color: matched ? "var(--teal)" : VIOLET_DIM }}
-                    >
-                      {matched ? <IconCheck size={17} /> : index + 1}
-                    </span>
-                    <span>
-                      <span className="block text-[10px] font-extrabold uppercase tracking-[0.18em]" style={{ color: VIOLET_DIM }}>
-                        {pair.category}
-                      </span>
-                      <span className="block text-sm font-bold leading-relaxed text-white mt-1">{pair.situation}</span>
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <h4 className="text-xs font-extrabold uppercase tracking-[0.2em]" style={{ color: "#7ee4ff" }}>Artefak / keputusan</h4>
-          <div className="space-y-3 mt-3">
-            {choices.map((choice) => {
-              const matched = Object.values(matches).includes(choice.id);
-              return (
-                <button
-                  key={choice.id}
-                  type="button"
-                  disabled={matched}
-                  onClick={() => chooseAnswer(choice)}
-                  className="w-full text-left rounded-2xl border p-4 transition hover:-translate-y-0.5 disabled:cursor-default"
-                  style={choiceStyle(choice)}
-                >
-                  <span className="flex items-center gap-3">
-                    <span
-                      className="w-9 h-9 shrink-0 rounded-xl grid place-items-center"
-                      style={{ background: matched ? "rgba(46,230,200,0.16)" : "rgba(69,198,255,0.12)", color: matched ? "var(--teal)" : "#7ee4ff" }}
-                    >
-                      {matched ? <IconCheck size={17} /> : <IconSparkles size={17} />}
-                    </span>
-                    <span className="text-sm font-extrabold leading-relaxed text-white">{choice.answer}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      <div className="px-5 pb-5 md:px-7 md:pb-7">
-        <div
-          aria-live="polite"
-          className="rounded-2xl border p-4 md:p-5"
-          style={{
-            background:
-              feedback.kind === "success" || feedback.kind === "complete"
-                ? "rgba(46,230,200,0.09)"
-                : feedback.kind === "error"
-                  ? "rgba(255,107,87,0.09)"
-                  : feedback.kind === "hint"
-                    ? "rgba(255,194,71,0.09)"
-                    : "rgba(69,198,255,0.07)",
-            borderColor:
-              feedback.kind === "success" || feedback.kind === "complete"
-                ? "rgba(46,230,200,0.4)"
-                : feedback.kind === "error"
-                  ? "rgba(255,107,87,0.4)"
-                  : feedback.kind === "hint"
-                    ? "rgba(255,194,71,0.4)"
-                    : LINE,
-          }}
-        >
-          <p className="font-display font-extrabold text-white flex items-center gap-2">
-            {feedback.kind === "complete" ? <IconTrophy size={18} /> : feedback.kind === "success" ? <IconCheck size={18} /> : <IconInfo size={18} />}
-            {feedback.title}
-          </p>
-          <p className="text-sm leading-relaxed mt-1" style={{ color: "#d5e9f5" }}>{feedback.text}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2.5 mt-4">
-          <button
-            type="button"
-            onClick={showHint}
-            disabled={completed}
-            className="btn btn-ghost inline-flex items-center gap-2 !px-4 !py-2.5 text-sm font-extrabold disabled:opacity-50"
-          >
-            <IconEye size={16} /> Minta hint {hintIds.length ? `(${hintIds.length})` : ""}
-          </button>
-          <button type="button" onClick={reset} className="btn btn-ghost inline-flex items-center gap-2 !px-4 !py-2.5 text-sm font-extrabold">
-            <IconRetry size={16} /> Ulangi demo
-          </button>
-          <p className="text-[11px] font-semibold md:ml-auto" style={{ color: FAINT }}>
-            XP hanya angka demo di layar ini — tidak disimpan dan tidak mengubah progres game lain.
-          </p>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -811,9 +466,9 @@ export default function MatchingSharkPage() {
         <section id="demo" className="max-w-7xl mx-auto px-4 py-14 md:py-20 scroll-mt-24">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-8">
             <SectionHeading
-              eyebrow="Demo interaktif"
-              title="Rasakan loop intinya sekarang."
-              desc="Empat situasi dari empat wilayah RPL: kebutuhan, UML, pengujian, dan Scrum. Pasangan yang benar selalu dijelaskan—bukan hanya diberi tanda centang."
+              eyebrow="Demo card versus"
+              title="Masukkan kartu ke arena, lalu kunci panahnya."
+              desc="Empat duel dari kebutuhan, UML, pengujian, dan Scrum. Kartu situasi dan keputusan saling berhadapan di Sonar Link Arena; setiap link yang dikunci selalu disertai alasan engineering."
             />
             <span className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-extrabold shrink-0" style={{ color: "#ffd98a", borderColor: "rgba(255,194,71,0.4)", background: "rgba(255,194,71,0.08)" }}>
               <IconLock size={14} /> Demo tanpa penyimpanan progres
