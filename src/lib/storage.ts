@@ -2,6 +2,9 @@
     Sejak v0.1 MVP hingga v0.9 pilihan paling tepat — SQLite browser (sql.js/WASM)
     bisa dipertimbangkan bila data makin kompleks. */
 
+import type { AiTrapState } from "./trapMetrics";
+import { normalizeAiTrap } from "./trapMetrics";
+
 export type AgeId = "junior" | "teen" | "senior" | "academy";
 
 export interface Profile {
@@ -113,6 +116,8 @@ export interface SaveData {
   unlockedStreakTiers?: Record<number, number>;
   /** Lencana prestasi yang sudah diklaim hadiahnya (id -> timestamp klaim) */
   claimedAchievements?: Record<string, number>;
+  /** Tahap 1 – Pemicu: riwayat & telemetri AI-Trap Simulator (docs/053, docs/054) */
+  aiTrap?: AiTrapState;
   /** identitas perangkat untuk sync NeonDB (stabil antar sesi) */
   deviceId: string;
   updatedAt: number;
@@ -285,6 +290,7 @@ function parseSave(raw: string): SaveData {
     unlockedStreakTiers,
     claimedAchievements,
     membership,
+    aiTrap: normalizeAiTrap((d as { aiTrap?: unknown }).aiTrap),
     deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };

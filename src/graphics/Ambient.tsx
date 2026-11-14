@@ -59,7 +59,7 @@ export default function Ambient({ fish = false }: { fish?: boolean }) {
   const img = "w-full h-full object-cover";
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div className="ambient-root fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* fallback gradasi di bawah SVG */}
       <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #072036 0%, #051829 42%, #04121f 100%)" }} />
 

@@ -1329,3 +1329,301 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 340px;
 }
+
+/* ============================================================
+   AI-TRAP & PRODUCTION CRISIS SIMULATOR (Tahap 1 – Pemicu)
+   Komponen: ui/AiTrapModule.tsx, ui/AiTrapDiagnostic.tsx,
+   ui/KeyboardHeatmap.tsx, ui/AiTrapCard.tsx
+   ============================================================ */
+.trap-incident-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+.trap-incident-label i {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--coral);
+}
+/* denyut memakai transform + opacity saja (murni kompositor): animasi box-shadow
+   memaksa repaint tiap frame dan mengganggu pengukuran latensi di laptop lemah */
+.trap-incident-label i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--coral);
+  will-change: transform, opacity;
+  animation: trapPulse 1.2s ease-out infinite;
+}
+@keyframes trapPulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+.trap-confidence {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(10, 38, 62, 0.6);
+  color: var(--dim);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+}
+.trap-confidence strong { font-family: var(--font-d); font-size: 1.4rem; line-height: 1; color: var(--ink); }
+.trap-confidence span { font-size: 10.5px; font-weight: 700; text-align: center; line-height: 1.2; }
+.trap-confidence:hover { border-color: rgba(255, 107, 87, 0.55); transform: translateY(-1px); }
+.trap-confidence[data-on="true"] { border-color: var(--coral); background: rgba(255, 107, 87, 0.16); color: #fff; }
+.trap-confidence[data-on="true"] strong { color: var(--coral); }
+.trap-confidence:focus-visible,
+.trap-history-row:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.trap-arena { background: linear-gradient(180deg, rgba(30, 6, 10, 0.55), rgba(4, 12, 22, 0.2) 40%); }
+.trap-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #0f070b;
+  border-bottom: 1px solid rgba(255, 107, 87, 0.35);
+}
+.trap-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1.45rem;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: rgba(4, 16, 28, 0.9);
+  border: 1px solid var(--line);
+}
+.trap-timer.urgent {
+  position: relative;
+  color: #fff;
+  background: rgba(190, 40, 28, 0.9);
+  border-color: var(--coral);
+}
+.trap-timer.urgent::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 16px;
+  border: 2px solid var(--coral);
+  pointer-events: none;
+  will-change: opacity;
+  animation: trapBlink 1s ease-in-out infinite;
+}
+@keyframes trapBlink {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 0; }
+}
+
+/* selama arena berwaktu: latar laut beranimasi dimatikan supaya render tidak
+   berebut frame dengan editor (lihat AiTrapModule → kelas html.trap-live) */
+html.trap-live .ambient-root { display: none; }
+html.trap-live body { background: #050d17; }
+
+.trap-editor-shell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 26rem;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #06111d;
+}
+.trap-editor-head,
+.trap-side-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  background: rgba(4, 12, 22, 0.9);
+  border-bottom: 1px solid var(--line-soft);
+}
+.trap-editor { display: flex; flex: 1; min-height: 0; height: calc(100vh - 11.5rem); max-height: 46rem; }
+.trap-gutter {
+  flex: none;
+  width: 3.1rem;
+  padding: 0.85rem 0.6rem 0.85rem 0;
+  overflow: hidden;
+  text-align: right;
+  color: #4f7088;
+  background: rgba(4, 12, 22, 0.6);
+  border-right: 1px solid var(--line-soft);
+  user-select: none;
+}
+.trap-gutter,
+.trap-textarea { font-size: 13.5px; line-height: 1.6; }
+.trap-textarea {
+  flex: 1;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: #d7e6f2; /* satu warna: tanpa pewarnaan sintaks */
+  caret-color: var(--coral);
+  white-space: pre;
+  overflow: auto;
+  tab-size: 2;
+}
+.trap-textarea:focus-visible { box-shadow: inset 0 0 0 2px rgba(69, 198, 255, 0.35); }
+
+.trap-console {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 107, 87, 0.3);
+  background: #0a0507;
+  padding: 0.75rem 0.9rem;
+  font-size: 12.5px;
+  line-height: 1.55;
+  min-height: 6.5rem;
+}
+.trap-console-head {
+  font-family: var(--font-b);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.4rem;
+}
+.trap-console-err { color: #ff8b7b; overflow-wrap: anywhere; }
+.trap-console-line { color: var(--amber); font-weight: 700; white-space: nowrap; }
+
+/* ---------- Babak 2 ---------- */
+.trap-replay {
+  position: relative;
+  max-height: 19rem;
+  overflow: auto;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #06111d;
+  color: #d7e6f2;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre;
+  tab-size: 2;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.trap-replay.is-frozen { border-color: var(--coral); box-shadow: 0 0 0 2px rgba(255, 107, 87, 0.25); }
+.trap-replay-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  margin: 0 -1px;
+  vertical-align: text-bottom;
+  background: var(--teal);
+  box-shadow: 0 0 8px rgba(46, 230, 200, 0.8);
+}
+.trap-replay-caret.deleting { background: var(--amber); box-shadow: 0 0 8px rgba(255, 194, 71, 0.9); }
+.trap-replay-caret.frozen {
+  width: 0.6em;
+  margin: 0;
+  background: var(--coral);
+  box-shadow: 0 0 14px rgba(255, 107, 87, 0.95);
+  animation: trapBlink 0.5s ease-in-out infinite;
+}
+.trap-freeze-badge {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: var(--coral);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.trap-kbd { display: flex; flex-direction: column; gap: 5px; max-width: 46rem; }
+.trap-kbd-row { display: flex; gap: 5px; }
+.trap-key {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-family: var(--font-m);
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+}
+.trap-key-dual { flex-direction: column; align-items: stretch; gap: 2px; border: 0; background: none; }
+.trap-key-dual > span {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1;
+}
+.trap-legend {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(10, 30, 50, 0.55);
+  border: 1px solid rgba(126, 196, 236, 0.2);
+}
+@media (max-width: 520px) {
+  .trap-kbd, .trap-kbd-row { gap: 3px; }
+  .trap-key { height: 2.2rem; font-size: 10px; border-radius: 5px; }
+  .trap-key-dual > span { font-size: 9.5px; }
+}
+
+.trap-diff {
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.trap-diff-bad { background: rgba(255, 107, 87, 0.1); border: 1px solid rgba(255, 107, 87, 0.35); color: #ffb3a8; }
+.trap-diff-good { background: rgba(46, 230, 200, 0.08); border: 1px solid rgba(46, 230, 200, 0.35); color: var(--mint); }
+
+.trap-history-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: rgba(10, 38, 62, 0.4);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.trap-history-row:hover { border-color: var(--line); }
+.trap-history-row[data-on="true"] { border-color: var(--cyan); background: rgba(69, 198, 255, 0.1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .trap-incident-label i::after, .trap-timer.urgent::after, .trap-replay-caret.frozen { animation: none !important; }
+}
