@@ -155,6 +155,18 @@ test('gerbang: hanya academy, bukan perangkat sentuh, dan hanya sebelum percobaa
   assert.equal(lib.trapVisibleFor('junior'), false);
 });
 
+test('gerbang masuk CodeShark: hanya arena ketik, mengikuti aturan needsTrapGate', () => {
+  const profile = (age) => ({ name: 'A', age, sound: true, createdAt: 1 });
+  const fresh = { profile: profile('academy') };
+  assert.equal(lib.needsTrapEntryGate(fresh, false, 'shark'), true);
+  assert.equal(lib.needsTrapEntryGate(fresh, false, 'tower'), false, 'Coding Tower tidak digerbang di pintu masuk');
+  assert.equal(lib.needsTrapEntryGate(fresh, true, 'shark'), false, 'tanpa keyboard fisik');
+  assert.equal(lib.needsTrapEntryGate({ profile: null }, false, 'shark'), false, 'belum punya profil → onboarding dulu');
+  assert.equal(lib.needsTrapEntryGate({ ...fresh, aiTrap: { attempts: [{ id: 'x' }] } }, false, 'shark'), false, 'cukup satu kali');
+  assert.equal(lib.needsTrapEntryGate({ ...fresh, aiTrap: { attempts: [], deferred: true } }, false, 'shark'), false);
+  for (const age of ['junior', 'teen', 'senior']) assert.equal(lib.needsTrapEntryGate({ profile: profile(age) }, false, 'shark'), false);
+});
+
 /* ---------------------------------------------------------------- metrik */
 
 const typing = (start, pos, text, gap = 150) => {

@@ -42,9 +42,10 @@ const NAV_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Ho
 const CONFIDENCE = ["Tidak yakin", "Kurang yakin", "Cukup yakin", "Yakin", "Sangat yakin"];
 
 function Briefing({
-  scenario, gated, onStart, onDefer, onExit,
+  scenario, gated, gate, hubHref, onStart, onDefer, onExit,
 }: {
-  scenario: TrapScenario; gated: boolean; onStart: (confidence: number) => void; onDefer: () => void; onExit: () => void;
+  scenario: TrapScenario; gated: boolean; gate: "entry" | "practice"; hubHref?: string;
+  onStart: (confidence: number) => void; onDefer: () => void; onExit: () => void;
 }) {
   const [confidence, setConfidence] = useState(0);
   const lines = scenario.code.trimEnd().split("\n").length;
@@ -116,11 +117,17 @@ function Briefing({
 
         {gated && (
           <p className="text-[12px] text-[var(--faint)] mt-5 leading-relaxed">
-            Simulasi ini wajib dikerjakan satu kali sebelum latihan pertama.{" "}
+            Simulasi ini wajib dikerjakan satu kali sebelum {gate === "entry" ? "masuk ke CodeShark" : "latihan pertama"}.{" "}
             <button type="button" className="underline hover:text-[var(--dim)]" onClick={onDefer}>
               Saya tidak bisa mengerjakannya (kebutuhan aksesibilitas)
             </button>
-            {" "}— latihan tetap dibuka tanpa diagnosis.
+            {" "}— {gate === "entry" ? "CodeShark" : "latihan"} tetap dibuka tanpa diagnosis.
+            {gate === "entry" && hubHref && (
+              <>
+                {" "}
+                <a className="underline hover:text-[var(--dim)]" href={hubHref}>Kembali ke hub</a>.
+              </>
+            )}
           </p>
         )}
       </div>
@@ -644,8 +651,12 @@ function History({
 interface Props {
   save: SaveData;
   mode: "run" | "history";
-  /** datang dari gerbang latihan (wajib) — tanpa tombol kembali, ada tautan penundaan */
+  /** datang dari gerbang (wajib) — tanpa tombol kembali, ada tautan penundaan */
   gated: boolean;
+  /** gerbang mana yang mengalihkan ke sini: pintu masuk CodeShark atau latihan pertama */
+  gate?: "entry" | "practice";
+  /** tautan keluar ke hub; hanya ditampilkan di gerbang masuk */
+  hubHref?: string;
   /** perangkat sentuh tidak boleh memulai simulasi (data tidak sahih) */
   isTouch: boolean;
   continueLabel: string;
@@ -657,7 +668,7 @@ interface Props {
 }
 
 export default function AiTrapModule({
-  save, mode, gated, isTouch, continueLabel, onRecord, onDefer, onContinue, onExit, onRetake,
+  save, mode, gated, gate = "practice", hubHref, isTouch, continueLabel, onRecord, onDefer, onContinue, onExit, onRetake,
 }: Props) {
   const [scenario] = useState(() => pickTrapScenario(save.aiTrap?.attempts.at(-1)?.scenarioId));
   const [step, setStep] = useState<"brief" | "count" | "play" | "diag">("brief");
@@ -690,6 +701,8 @@ export default function AiTrapModule({
       <Briefing
         scenario={scenario}
         gated={gated}
+        gate={gate}
+        hubHref={hubHref}
         onStart={(c) => { sfx.click(); setConfidence(c); setCount(3); setStep("count"); }}
         onDefer={onDefer}
         onExit={onExit}
