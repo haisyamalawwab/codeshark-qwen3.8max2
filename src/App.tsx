@@ -1,5 +1,5 @@
 import { useSiteSettings, useEffectiveDataMode, Unavailable } from "./lib/siteSettings";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useLayoutEffect, useState } from "react";
 import type { AgeId, SaveData, DailyChallengeAttempt, MembershipState } from "./lib/storage";
 import { clearSave, defaultSave, loadSave, loadSaveFor, persist, rankOf, recordDailyStreak, isDailyCompletedToday, getLocalDateString } from "./lib/storage";
 import { AGE_GROUPS, getModule } from "./data/modules";
@@ -22,7 +22,7 @@ import MateriHtml from "./ui/MateriHtml";
 import type { GameResult } from "./ui/TypingGame";
 import type { AiTrapAttempt } from "./lib/trapMetrics";
 import { trimAttempts } from "./lib/trapMetrics";
-import { needsTrapGate, trapVisibleFor, TRAP_PARTICIPATION_XP } from "./data/aiTrapScenarios";
+import { needsTrapEntryGate, needsTrapGate, trapVisibleFor, TRAP_PARTICIPATION_XP } from "./data/aiTrapScenarios";
 import { isTouchDevice, lacksPhysicalKeyboard } from "./lib/device";
 import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
 import type { SubGameId } from "./data/subgames";
@@ -59,8 +59,9 @@ type Screen =
   | { s: "materi"; id: string }
   | { s: "materi-html"; no?: number }
   | { s: "game"; id: string; k: number }
-  /** simulator AI-Trap: `next` = sesi latihan yang dituju sebelum dialihkan gerbang */
-  | { s: "trap"; mode: "run" | "history"; next?: string; k: number }
+  /** simulator AI-Trap: `next` = sesi latihan yang dituju sebelum dialihkan gerbang;
+      `entry` = gerbang masuk CodeShark (tampil sebelum Dashboard) */
+  | { s: "trap"; mode: "run" | "history"; next?: string; entry?: boolean; k: number }
   | {
       s: "result";
       id: string;
@@ -84,12 +85,16 @@ type Screen =
       } | null;
     };
 
+/* Layar gerbang masuk CodeShark. k = 0 dipakai khusus gerbang ini (openTrap dan
+   enterPractice selalu memakai k ≥ 1), sehingga key komponennya stabil. */
+const ENTRY_TRAP: Screen = { s: "trap", mode: "run", entry: true, k: 0 };
+
 export default function App({ lockedSubGame = null, hubHref, siblingHref, siblingLabel }: AppProps) {
   const settings = useSiteSettings();
   const dataMode = useEffectiveDataMode();
   const [save, setSave] = useState<SaveData>(() => loadSave());
   const [sound, setSound] = useState<boolean>(() => loadSave().profile?.sound ?? true);
-  const [screen, setScreen] = useState<Screen>({ s: "dash" });
+  const [screenState, setScreen] = useState<Screen>({ s: "dash" });
   const [gameKey, setGameKey] = useState(0);
   /* SUB-GAME aktif — dipilih di hub Dashboard, tersimpan antar sesi.
      Bila entry dikunci (/codingshark, /codingtower) pilihan dikunci juga. */
@@ -112,6 +117,19 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     }
     return loadSubGame(isTouchDevice() ? "tower" : "shark");
   });
+
+  /* GERBANG MASUK CODESHARK (docs/055): selama simulasi krisis masih wajib, Dashboard
+     CodeShark tidak pernah dirender — yang tampil langsung simulasinya. Berlaku di
+     semua jalur menuju Dashboard: muat halaman, tautan dari hub, selesai membuat
+     profil, masuk akun, dan ganti kelompok usia. `screen` diturunkan saat render
+     supaya Dashboard tidak sempat ter-mount; layout effect lalu menetapkannya ke
+     state agar layar diagnosis bertahan setelah percobaan tersimpan. */
+  const entryGate =
+    !!save.profile && screenState.s === "dash" && needsTrapEntryGate(save, noKeyboard, subGame);
+  const screen: Screen = entryGate ? ENTRY_TRAP : screenState;
+  useLayoutEffect(() => {
+    if (entryGate) setScreen(ENTRY_TRAP);
+  }, [entryGate]);
 
   const selectSubGame = (id: SubGameId) => {
     if (lockedSubGame) return;
@@ -240,8 +258,9 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   };
 
   /* SATU pintu masuk semua latihan (peta, misi, harian, lanjut dari materi).
-     Kelompok Mahasiswa/Umum dialihkan sekali ke simulator AI-Trap sebelum
-     latihan pertama; aturan lengkap di needsTrapGate(). */
+     Di CodeShark simulasi AI-Trap sudah dijalankan di gerbang masuk (entryGate di
+     atas), jadi pengalihan di sini praktis hanya terjadi di Coding Tower: kelompok
+     Mahasiswa/Umum dialihkan sekali sebelum latihan pertama (needsTrapGate()). */
   const enterPractice = (id: string) => {
     if (needsTrapGate(save, noKeyboard)) {
       setGameKey((k) => k + 1);
@@ -521,9 +540,11 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             key={`trap-${screen.mode}-${screen.k}`}
             save={save}
             mode={screen.mode}
-            gated={!!screen.next}
+            gated={!!screen.next || !!screen.entry}
+            gate={screen.entry ? "entry" : "practice"}
+            hubHref={screen.entry ? hubHref : undefined}
             isTouch={noKeyboard}
-            continueLabel={screen.next ? "Mulai latihan reguler" : "Kembali ke Dashboard"}
+            continueLabel={screen.entry ? "Masuk ke CodeShark" : screen.next ? "Mulai latihan reguler" : "Kembali ke Dashboard"}
             onRecord={recordTrap}
             onDefer={() => deferTrap(screen.next)}
             onContinue={() => (screen.next ? startPractice(screen.next) : setScreen({ s: "dash" }))}

@@ -350,3 +350,15 @@ export function needsTrapGate(save: Pick<SaveData, "profile" | "aiTrap">, isTouc
   if (save.aiTrap?.deferred) return false;
   return (save.aiTrap?.attempts.length ?? 0) === 0;
 }
+
+/** Gerbang MASUK CodeShark (docs/055): simulasi dijalankan sebelum Dashboard
+    CodeShark tampil — bukan baru saat latihan pertama ditekan. Hanya arena ketik
+    ("shark") yang digerbang di pintu masuk: Coding Tower adalah arena tanpa
+    mengetik, dan di sana gerbangnya tetap di latihan pertama (needsTrapGate). */
+export function needsTrapEntryGate(
+  save: Pick<SaveData, "profile" | "aiTrap">,
+  isTouch: boolean,
+  subGame: string,
+): boolean {
+  return subGame === "shark" && needsTrapGate(save, isTouch);
+}
