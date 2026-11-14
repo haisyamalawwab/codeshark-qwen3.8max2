@@ -15,6 +15,7 @@ Silabusnya dirancang untuk **16 pertemuan latihan**: HTML 6 pertemuan, UTS 1, CS
 | ⌨️ **Game Ketik Kode** | Arena mengetik dengan HP, combo, overdrive (skor ×2), damage float, dan feedback suara WebAudio. Preview iframe menjalankan kode hasil ketikan (`sandbox="allow-scripts"`). |
 | 📚 **Materi HTML berbasis `.md`** | Enam dokumen markdown per pertemuan (`content/html/*.md`) dirender dengan parser markdown ringan buatan sendiri — heading, list, tabel pipe, blok kode, dan callout bergaya HUD. |
 | 🗺️ **Peta Pertemuan 16×** | Silabus 16 pertemuan (`src/ui/Pertemuan.tsx`): materi slide + kuis interaktif, lalu tiga sesi per pertemuan — **Quest** (kode utuh), **Drill** (sintaks inti), **Juggling** (anyam dua materi). Status Perunggu/Perak/Emas dan gating dibahas di bawah. |
+| 🚨 **Simulasi Krisis Produksi (Tahap 1 – Pemicu)** | Pemicu kesadaran ketergantungan AI, 5–7 menit: murid memperbaiki kode HTML/CSS/JS "hasil AI" berisi 4 cacat dalam 3 menit tanpa autocomplete dan tanpa tempel, lalu melihat diagnosisnya — putar ulang ketikan, perbandingan dengan AI, dan peta panas keyboard. Wajib sekali untuk Academy, opsional untuk Senior Diver. Rincian di bawah. |
 | 🧠 **Ruang Materi interaktif** | Slide teori + kuis per modul HTML/CSS/JS (`src/data/modules.ts`). |
 | 👤 **Profil adaptif usia** | 4 kelompok usia — Kadet Samudra (10–13), Ranger Laut (13–15), Senior Diver, Academy — mengatur tempo ancaman, penalti salah ketik, petunjuk karakter, dan aksen warna. |
 | 🏆 **Gamifikasi penuh** | XP, koin, level (kurva 150·n), rank S/A/B/C, bintang, statistik keystroke, dan anti-farm (hanya delta skor terbaik yang dihitung). |
@@ -165,6 +166,33 @@ Setiap pertemuan = baca materi konsep → kerjakan kuis → **gladi ketik kode**
 - Pertemuan *n+1* terbuka setelah pertemuan *n* mencapai **Perak**.
 - Lulus = menyelesaikan kode **dan** akurasi memenuhi target sesi.
 - Daftar drill dan tugas tiap pertemuan: [`docs/007_kurikulum-quest-16-pertemuan_13102026_1343.md`](./docs/007_kurikulum-quest-16-pertemuan_13102026_1343.md). Analisis dan perubahan v0.4: [`docs/006_analisis-v0-4_13102026_1343.md`](./docs/006_analisis-v0-4_13102026_1343.md).
+
+## 🚨 Simulasi Krisis Produksi (Tahap 1 – Pemicu)
+
+Modul pembuka kelas yang membuat murid melihat sendiri jarak antara "merasa bisa"
+dan "bisa tanpa AI". Rancangan: `docs/053_…`; catatan implementasi dan hasil uji:
+`docs/054_…`.
+
+| Babak | Isi |
+|---|---|
+| **1 — Jebakan** (3 menit) | Satu berkas HTML + CSS + JS berisi 4 cacat: kutip atribut tidak ditutup, titik koma atau kurung CSS hilang, nama variabel yang nyaris sama, dan satu baris yang "terpotong saat disalin". Editor polos, tanpa autocomplete, tempel diblokir. Tombol **Jalankan** mengeksekusi kode di iframe ter-sandbox dan menampilkan pesan error asli dari browser. |
+| **2 — Cermin** | Putar ulang ketikan ±10 detik, perbandingan waktu dan biaya dengan AI, peta panas keyboard untuk tombol dengan jeda > 2 detik, angka pendukung, lalu pembongkaran keempat cacat. |
+
+- **Siapa yang mengerjakan:** wajib satu kali sebelum latihan pertama untuk
+  kelompok Academy; opsional lewat kartu Dashboard untuk Senior Diver; tidak
+  tampil untuk Kadet dan Ranger. Perangkat tanpa keyboard fisik tidak digerbang.
+- **Tidak memengaruhi nilai:** rank dan koin tidak berubah; 30 XP partisipasi,
+  sekali saja.
+- **Yang direkam:** tiap suntingan beserta waktunya, tiap Jalankan, upaya tempel,
+  dan keluar jendela. Tersimpan di perangkat (ikut sinkron bila cloud aktif):
+  10 percobaan terakhir, log ketikan mentah untuk 5 terbaru. Bisa diunduh sebagai
+  JSON dari layar riwayat.
+- **Angka pembanding AI** ada di `src/data/aiBenchmark.ts` dan berupa perkiraan
+  kasar, bukan tarif resmi. Periksa dan sesuaikan sebelum dipakai di kelas.
+- **Kode di skenario bukan keluaran AI sungguhan.** Cacatnya ditanam dengan
+  sengaja, dan layar pembongkaran mengatakannya kepada murid.
+- **Menambah skenario:** tambahkan objek `TrapScenario` di
+  `src/data/aiTrapScenarios.ts`, lalu jalankan `npm run test:trap`.
 
 ## ☁️ Deploy
 

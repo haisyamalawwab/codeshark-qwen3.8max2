@@ -30,6 +30,7 @@ import StreakMultiplierModal from "./StreakMultiplierModal";
 import { getPermanentStreakTier } from "../lib/streakMultiplier";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
+import AiTrapCard from "./AiTrapCard";
 
 const StreakTrendsVisualizer = lazy(() => import("./StreakTrendsVisualizer"));
 
@@ -52,6 +53,11 @@ interface Props {
   onResetProfile: () => void;
   /** buka halaman Profil & Membership */
   onOpenProfile?: () => void;
+  /** Tahap 1 – Pemicu: mulai / lihat riwayat AI-Trap Simulator */
+  onTrapStart?: () => void;
+  onTrapHistory?: () => void;
+  /** perangkat tanpa keyboard fisik: simulasi krisis tidak bisa dimulai */
+  trapNoKeyboard?: boolean;
 }
 
 function useReveal() {
@@ -78,6 +84,7 @@ function useReveal() {
 export default function Dashboard({
   save, cfg, onMateri, onPractice, onDailyChallenge, onClaimAchievement, onMateriHtml, onPeta,
   subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile, onOpenProfile,
+  onTrapStart, onTrapHistory, trapNoKeyboard = false,
 }: Props) {
   const settings = useSiteSettings();
   const dataMode = useEffectiveDataMode();
@@ -508,6 +515,11 @@ export default function Dashboard({
             </div>
           </div>
         </section>
+
+        {/* ============ TAHAP 1 – PEMICU: AI-TRAP SIMULATOR ============ */}
+        {onTrapStart && onTrapHistory && (
+          <AiTrapCard save={save} isTouch={trapNoKeyboard} onStart={onTrapStart} onHistory={onTrapHistory} />
+        )}
 
         {/* ============ TANTANGAN HARIAN (DAILY CHALLENGE) ============ */}
         <section className="mt-8 reveal">
