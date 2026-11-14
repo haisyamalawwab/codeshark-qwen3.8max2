@@ -20,7 +20,10 @@ import ProfilePage from "./ui/ProfilePage";
 import Materi from "./ui/Materi";
 import MateriHtml from "./ui/MateriHtml";
 import type { GameResult } from "./ui/TypingGame";
-import { isTouchDevice } from "./lib/device";
+import type { AiTrapAttempt } from "./lib/trapMetrics";
+import { trimAttempts } from "./lib/trapMetrics";
+import { needsTrapGate, trapVisibleFor, TRAP_PARTICIPATION_XP } from "./data/aiTrapScenarios";
+import { isTouchDevice, lacksPhysicalKeyboard } from "./lib/device";
 import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
 import type { SubGameId } from "./data/subgames";
 import Results from "./ui/Results";
@@ -35,6 +38,8 @@ import {
 /* Heavy arena di-lazy agar hub & first-paint HP tetap cepat (code-split per sub-game). */
 const TypingGame = lazy(() => import("./ui/TypingGame"));
 const TowerPuzzle = lazy(() => import("./ui/TowerPuzzle"));
+/* Tahap 1 – Pemicu: AI-Trap & Production Crisis Simulator (docs/053, docs/054) */
+const AiTrapModule = lazy(() => import("./ui/AiTrapModule"));
 
 interface AppProps {
   /** bila diisi, entry ini dikunci ke satu sub-game (dipakai entry /codingshark & /codingtower).
@@ -54,6 +59,8 @@ type Screen =
   | { s: "materi"; id: string }
   | { s: "materi-html"; no?: number }
   | { s: "game"; id: string; k: number }
+  /** simulator AI-Trap: `next` = sesi latihan yang dituju sebelum dialihkan gerbang */
+  | { s: "trap"; mode: "run" | "history"; next?: string; k: number }
   | {
       s: "result";
       id: string;
@@ -87,6 +94,8 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
   /* SUB-GAME aktif — dipilih di hub Dashboard, tersimpan antar sesi.
      Bila entry dikunci (/codingshark, /codingtower) pilihan dikunci juga. */
   const [touch] = useState(() => isTouchDevice());
+  /* simulasi krisis butuh keyboard fisik; laptop layar sentuh tetap ikut */
+  const [noKeyboard] = useState(() => lacksPhysicalKeyboard());
   const [subGame, setSubGame] = useState<SubGameId>(() => {
     if (lockedSubGame) return lockedSubGame;
     try {
@@ -224,9 +233,47 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     else setScreen({ s: "dash" });
   };
 
-  const enterPractice = (id: string) => {
+  /* masuk arena tanpa gerbang — dipakai setelah diagnosis AI-Trap selesai */
+  const startPractice = (id: string) => {
     setGameKey((k) => k + 1);
     setScreen({ s: "game", id, k: gameKey + 1 });
+  };
+
+  /* SATU pintu masuk semua latihan (peta, misi, harian, lanjut dari materi).
+     Kelompok Mahasiswa/Umum dialihkan sekali ke simulator AI-Trap sebelum
+     latihan pertama; aturan lengkap di needsTrapGate(). */
+  const enterPractice = (id: string) => {
+    if (needsTrapGate(save, noKeyboard)) {
+      setGameKey((k) => k + 1);
+      setScreen({ s: "trap", mode: "run", next: id, k: gameKey + 1 });
+      return;
+    }
+    startPractice(id);
+  };
+
+  const openTrap = (mode: "run" | "history") => {
+    if (!trapVisibleFor(save.profile?.age)) return;
+    setGameKey((k) => k + 1);
+    setScreen({ s: "trap", mode, k: gameKey + 1 });
+  };
+
+  /* simpan satu percobaan AI-Trap: riwayat + telemetri masuk save (ikut sinkron
+     sebagai save_data). XP partisipasi hanya sekali dan tidak bergantung hasil. */
+  const recordTrap = (attempt: AiTrapAttempt) => {
+    setSave((s) => {
+      const prev = s.aiTrap?.attempts ?? [];
+      return {
+        ...s,
+        xp: s.xp + (prev.length === 0 ? TRAP_PARTICIPATION_XP : 0),
+        aiTrap: { ...s.aiTrap, attempts: trimAttempts([...prev, attempt]) },
+      };
+    });
+  };
+
+  const deferTrap = (next?: string) => {
+    setSave((s) => ({ ...s, aiTrap: { attempts: s.aiTrap?.attempts ?? [], deferred: true } }));
+    if (next) startPractice(next);
+    else setScreen({ s: "dash" });
   };
 
   /* sesi dihitung ulang di sini (satu sumber aturan: lib/progress.ts).
@@ -423,10 +470,13 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               onPeta={() => setScreen({ s: "peta", no: nextMeeting(save) })}
               subGame={subGame}
               isTouch={touch}
+              trapNoKeyboard={noKeyboard}
               onSelectSubGame={lockedSubGame ? undefined : selectSubGame}
               onToggleSound={toggleSound}
               onResetProfile={resetProfile}
               onOpenProfile={() => setScreen({ s: "profile" })}
+              onTrapStart={() => openTrap("run")}
+              onTrapHistory={() => openTrap("history")}
             />
           </>
       ) : screen.s === "profile" ? (
@@ -465,6 +515,22 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
           onPractice={() => enterPractice(screen.id)}
           onExit={() => setScreen({ s: "dash" })}
         />
+      ) : screen.s === "trap" ? (
+        <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat simulasi…</div>}>
+          <AiTrapModule
+            key={`trap-${screen.mode}-${screen.k}`}
+            save={save}
+            mode={screen.mode}
+            gated={!!screen.next}
+            isTouch={noKeyboard}
+            continueLabel={screen.next ? "Mulai latihan reguler" : "Kembali ke Dashboard"}
+            onRecord={recordTrap}
+            onDefer={() => deferTrap(screen.next)}
+            onContinue={() => (screen.next ? startPractice(screen.next) : setScreen({ s: "dash" }))}
+            onExit={() => setScreen({ s: "dash" })}
+            onRetake={() => openTrap("run")}
+          />
+        </Suspense>
       ) : screen.s === "game" ? (
         <div key={`${screen.id}-${screen.k}`}>
           {/* banner arena aktif — ganti sub-game tanpa kembali ke hub */}
