@@ -171,7 +171,11 @@ Setiap pertemuan = baca materi konsep → kerjakan kuis → **gladi ketik kode**
 
 Modul pembuka kelas yang membuat murid melihat sendiri jarak antara "merasa bisa"
 dan "bisa tanpa AI". Rancangan: `docs/053_…`; catatan implementasi dan hasil uji:
-`docs/054_…`; gerbang masuk CodeShark: `docs/055_…`.
+`docs/054_…`; gerbang masuk CodeShark: `docs/055_…`. PRD, requirement, design, dan
+tasklist lanjutan: `docs/056_…`–`docs/059_…`. Rencana modul Tahap 3 – Aksi
+(gelombang tiga tingkat dan ritual 10 menit pra-lab): naskah di `docs/060_…`;
+PRD, requirement, design, dan tasklist di `docs/061_…`–`docs/064_…`. Tahap 3
+belum dibangun.
 
 | Babak | Isi |
 |---|---|
