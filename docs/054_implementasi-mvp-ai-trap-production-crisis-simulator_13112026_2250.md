@@ -2,7 +2,9 @@
 
 > Disimpan: 13-11-2026 22:50 WIB (+07).
 > Branch kerja: `arena/25443d5c-codeshark-qwen3-8max2` (dari `main` @ `a3d2d87`).
-> Status: **MVP selesai dan sudah diuji; belum di-commit.**
+> Status: **selesai dan sudah digabung ke `main`** lewat PR #15 (commit `21aef11`, gabung `11c10c1`).
+> Diperbarui 14-11-2026 18:17 WIB: baris status ini, jumlah uji di bagian 4, dan catatan di akhir bagian 9.
+> Letak gerbang kemudian berubah, lihat `docs/055_…`. Rencana lanjutan: `docs/056_…`–`docs/059_…`.
 > Rancangan: `docs/053_…`. Dokumen ini mencatat apa yang benar-benar dibangun,
 > keputusan yang berubah dari rancangan, dan apa yang sudah serta belum diverifikasi.
 
@@ -70,7 +72,7 @@ Wajib satu kali untuk kelompok **Academy** sebelum latihan pertama, opsional unt
 | `src/ui/AiTrapDiagnostic.tsx` | Babak 2 (lima "Cermin") |
 | `src/ui/KeyboardHeatmap.tsx` | Keyboard QWERTY di layar |
 | `src/ui/AiTrapCard.tsx` | Kartu Dashboard |
-| `tests/ai-trap.test.mjs` | 26 uji (`npm run test:trap`) |
+| `tests/ai-trap.test.mjs` | 26 uji saat PR #15; 27 sejak PR #16 (`npm run test:trap`) |
 
 Berkas lama yang disentuh: `src/App.tsx` (layar `trap`, gerbang di
 `enterPractice`), `src/ui/Dashboard.tsx` (kartu), `src/lib/storage.ts`
@@ -162,3 +164,8 @@ Uji alur di Chromium headless (dev server, 1366×820):
 2. Tambah skenario ketiga dan keempat supaya pengulangan tidak mudah dihafal.
 3. Rekap kelas untuk dosen (agregat anonim dari berkas telemetri).
 4. Uji di Firefox dan Safari.
+
+**Catatan 14-11-2026.** Keempat butir di atas sudah masuk rencana kerja di
+`docs/059_…` (T2.11–T2.12, T3.3–T3.4, T4.2–T4.4, T2.7). Satu cacat ditemukan
+setelah dokumen ini ditulis: vonis `PRODUKSI PULIH` bisa dipalsukan dari dalam
+kode murid. Rinciannya di `docs/058_…` bagian 8.1; perbaikannya adalah T2.1.

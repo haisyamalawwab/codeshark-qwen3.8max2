@@ -2,7 +2,8 @@
 
 > Disimpan: 14-11-2026 14:22 WIB (+07).
 > Branch kerja: `arena/2b16f04b-codeshark-qwen3-8max2` (dari `main` @ `11c10c1`).
-> Status: **selesai dan sudah diuji; belum di-commit.**
+> Status: **selesai dan sudah digabung ke `main`** lewat PR #16 (commit `9ba40d9`, gabung `c6bc695`).
+> Diperbarui 14-11-2026 18:17 WIB: baris status ini. Rencana lanjutan: `docs/056_…`–`docs/059_…`.
 > Melanjutkan `docs/053_…` (rancangan) dan `docs/054_…` (implementasi MVP).
 
 ---
