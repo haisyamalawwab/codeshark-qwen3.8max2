@@ -23,6 +23,9 @@ import type { GameResult } from "./ui/TypingGame";
 import type { AiTrapAttempt } from "./lib/trapMetrics";
 import { trimAttempts } from "./lib/trapMetrics";
 import { needsTrapEntryGate, needsTrapGate, trapVisibleFor, TRAP_PARTICIPATION_XP } from "./data/aiTrapScenarios";
+import type { BlindAttempt } from "./lib/blindMetrics";
+import { trimBlindAttempts } from "./lib/blindMetrics";
+import { blindVisibleFor, needsBlindGate, BLIND_PARTICIPATION_XP } from "./data/blindChallenges";
 import { isTouchDevice, lacksPhysicalKeyboard } from "./lib/device";
 import { SUBGAMES, loadSubGame, saveSubGame } from "./data/subgames";
 import type { SubGameId } from "./data/subgames";
@@ -40,6 +43,8 @@ const TypingGame = lazy(() => import("./ui/TypingGame"));
 const TowerPuzzle = lazy(() => import("./ui/TowerPuzzle"));
 /* Tahap 1 – Pemicu: AI-Trap & Production Crisis Simulator (docs/053, docs/054) */
 const AiTrapModule = lazy(() => import("./ui/AiTrapModule"));
+/* Tahap 1 – Pemicu: Blind Live-Coding Challenge (docs/052, docs/065) */
+const BlindChallenge = lazy(() => import("./ui/BlindChallenge"));
 
 interface AppProps {
   /** bila diisi, entry ini dikunci ke satu sub-game (dipakai entry /codingshark & /codingtower).
@@ -62,6 +67,8 @@ type Screen =
   /** simulator AI-Trap: `next` = sesi latihan yang dituju sebelum dialihkan gerbang;
       `entry` = gerbang masuk CodeShark (tampil sebelum Dashboard) */
   | { s: "trap"; mode: "run" | "history"; next?: string; entry?: boolean; k: number }
+  /** Blind Live-Coding Challenge: `next` = sesi latihan yang dituju sebelum dialihkan gerbang */
+  | { s: "blind"; mode: "run" | "history"; next?: string; k: number }
   | {
       s: "result";
       id: string;
@@ -251,23 +258,36 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
     else setScreen({ s: "dash" });
   };
 
-  /* masuk arena tanpa gerbang — dipakai setelah diagnosis AI-Trap selesai */
+  /* masuk arena tanpa gerbang — dipakai setelah rapor Blind Challenge selesai */
   const startPractice = (id: string) => {
     setGameKey((k) => k + 1);
     setScreen({ s: "game", id, k: gameKey + 1 });
   };
 
+  /* Gerbang kedua (docs/052 D3): Blind Live-Coding Challenge wajib satu kali sebelum
+     latihan pertama. Dipanggil dari enterPractice dan dari tombol lanjut di diagnosis
+     AI-Trap, supaya kedua jalur melewati gerbang yang sama. */
+  const enterAfterTrap = (id: string) => {
+    if (needsBlindGate(save, noKeyboard)) {
+      setGameKey((k) => k + 1);
+      setScreen({ s: "blind", mode: "run", next: id, k: gameKey + 1 });
+      return;
+    }
+    startPractice(id);
+  };
+
   /* SATU pintu masuk semua latihan (peta, misi, harian, lanjut dari materi).
      Di CodeShark simulasi AI-Trap sudah dijalankan di gerbang masuk (entryGate di
      atas), jadi pengalihan di sini praktis hanya terjadi di Coding Tower: kelompok
-     Mahasiswa/Umum dialihkan sekali sebelum latihan pertama (needsTrapGate()). */
+     Mahasiswa/Umum dialihkan sekali sebelum latihan pertama (needsTrapGate()).
+     Setelah itu berlaku gerbang Blind Challenge (enterAfterTrap), di kedua arena. */
   const enterPractice = (id: string) => {
     if (needsTrapGate(save, noKeyboard)) {
       setGameKey((k) => k + 1);
       setScreen({ s: "trap", mode: "run", next: id, k: gameKey + 1 });
       return;
     }
-    startPractice(id);
+    enterAfterTrap(id);
   };
 
   const openTrap = (mode: "run" | "history") => {
@@ -291,6 +311,38 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
 
   const deferTrap = (next?: string) => {
     setSave((s) => ({ ...s, aiTrap: { attempts: s.aiTrap?.attempts ?? [], deferred: true } }));
+    if (next) enterAfterTrap(next);
+    else setScreen({ s: "dash" });
+  };
+
+  const openBlind = (mode: "run" | "history") => {
+    if (!blindVisibleFor(save.profile?.age)) return;
+    setGameKey((k) => k + 1);
+    setScreen({ s: "blind", mode, k: gameKey + 1 });
+  };
+
+  /* sesi blind benar-benar dimulai: catat variannya, supaya sesi yang batal karena
+     muat ulang tidak mengulang soal yang sudah terlihat */
+  const beginBlind = (briefId: string) => {
+    setSave((s) => ({ ...s, blind: { ...s.blind, attempts: s.blind?.attempts ?? [], lastBriefId: briefId } }));
+  };
+
+  /* simpan satu rapor blind. Percobaan pertama = baseline dan tidak pernah ditimpa
+     (trimBlindAttempts). XP partisipasi hanya sekali dan tidak bergantung hasil;
+     tidak dicatat ke history.ts (bentuk AttemptRecord tidak cocok, docs/052 8.2). */
+  const recordBlind = (attempt: BlindAttempt) => {
+    setSave((s) => {
+      const prev = s.blind?.attempts ?? [];
+      return {
+        ...s,
+        xp: s.xp + (prev.length === 0 ? BLIND_PARTICIPATION_XP : 0),
+        blind: { ...s.blind, attempts: trimBlindAttempts([...prev, attempt]), lastBriefId: attempt.briefId },
+      };
+    });
+  };
+
+  const deferBlind = (next?: string) => {
+    setSave((s) => ({ ...s, blind: { ...s.blind, attempts: s.blind?.attempts ?? [], deferred: true } }));
     if (next) startPractice(next);
     else setScreen({ s: "dash" });
   };
@@ -496,6 +548,8 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
               onOpenProfile={() => setScreen({ s: "profile" })}
               onTrapStart={() => openTrap("run")}
               onTrapHistory={() => openTrap("history")}
+              onBlindStart={() => openBlind("run")}
+              onBlindHistory={() => openBlind("history")}
             />
           </>
       ) : screen.s === "profile" ? (
@@ -544,12 +598,35 @@ export default function App({ lockedSubGame = null, hubHref, siblingHref, siblin
             gate={screen.entry ? "entry" : "practice"}
             hubHref={screen.entry ? hubHref : undefined}
             isTouch={noKeyboard}
-            continueLabel={screen.entry ? "Masuk ke CodeShark" : screen.next ? "Mulai latihan reguler" : "Kembali ke Dashboard"}
+            continueLabel={
+              screen.entry
+                ? "Masuk ke CodeShark"
+                : screen.next
+                  ? needsBlindGate(save, noKeyboard) ? "Lanjut ke Blind Live-Coding Challenge" : "Mulai latihan reguler"
+                  : "Kembali ke Dashboard"
+            }
             onRecord={recordTrap}
             onDefer={() => deferTrap(screen.next)}
-            onContinue={() => (screen.next ? startPractice(screen.next) : setScreen({ s: "dash" }))}
+            onContinue={() => (screen.next ? enterAfterTrap(screen.next) : setScreen({ s: "dash" }))}
             onExit={() => setScreen({ s: "dash" })}
             onRetake={() => openTrap("run")}
+          />
+        </Suspense>
+      ) : screen.s === "blind" ? (
+        <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-16 text-center text-sm text-[var(--dim)] font-bold">Memuat tantangan…</div>}>
+          <BlindChallenge
+            key={`blind-${screen.mode}-${screen.k}`}
+            save={save}
+            mode={screen.mode}
+            gated={!!screen.next}
+            noKeyboard={noKeyboard}
+            continueLabel={screen.next ? "Mulai latihan reguler" : "Kembali ke Dashboard"}
+            onBegin={beginBlind}
+            onRecord={recordBlind}
+            onDefer={() => deferBlind(screen.next)}
+            onContinue={() => (screen.next ? startPractice(screen.next) : setScreen({ s: "dash" }))}
+            onExit={() => setScreen({ s: "dash" })}
+            onRetake={() => openBlind("run")}
           />
         </Suspense>
       ) : screen.s === "game" ? (

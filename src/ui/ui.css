@@ -1627,3 +1627,113 @@ html.trap-live body { background: #050d17; }
 @media (prefers-reduced-motion: reduce) {
   .trap-incident-label i::after, .trap-timer.urgent::after, .trap-replay-caret.frozen { animation: none !important; }
 }
+
+/* ============================================================
+   TAHAP 1 – PEMICU: BLIND LIVE-CODING CHALLENGE (docs/052, docs/065)
+   Komponen: ui/BlindChallenge.tsx, ui/BlindReportCard.tsx, ui/BlindCard.tsx
+   Editor memakai ulang kelas trap-editor*; yang di sini hanya pembeda warna
+   (biru, bukan merah insiden) dan gaya rapor.
+   ============================================================ */
+.blind-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.blind-confidence:hover { border-color: rgba(69, 198, 255, 0.6); }
+.blind-confidence[data-on="true"] { border-color: var(--cyan); background: rgba(69, 198, 255, 0.16); }
+.blind-confidence[data-on="true"] strong { color: var(--cyan); }
+
+.blind-arena { background: linear-gradient(180deg, rgba(5, 22, 40, 0.6), rgba(4, 12, 22, 0.2) 40%); }
+.blind-topbar { background: #06111d; border-bottom-color: rgba(69, 198, 255, 0.3); }
+.blind-editor-shell { border-color: rgba(69, 198, 255, 0.3); height: calc(100vh - 7.5rem); max-height: 46rem; }
+@media (min-width: 1024px) {
+  .blind-brief { position: sticky; top: 5rem; }
+}
+
+.blind-sym {
+  font-family: var(--font-m, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  font-size: 0.92em;
+  font-weight: 700;
+  padding: 0.05rem 0.35rem;
+  border-radius: 6px;
+  background: rgba(69, 198, 255, 0.12);
+  border: 1px solid rgba(69, 198, 255, 0.28);
+  color: #fff;
+}
+
+.blind-timeline {
+  display: block;
+  width: 100%;
+  height: 84px;
+}
+.blind-axis { position: relative; height: 1.1rem; font-size: 11px; font-weight: 700; color: var(--dim); }
+.blind-axis span { position: absolute; top: 0; font-variant-numeric: tabular-nums; }
+.blind-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin-top: 0.6rem;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--dim);
+}
+.blind-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.blind-legend i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+
+.blind-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 87, 0.3);
+  background: rgba(255, 107, 87, 0.07);
+}
+.blind-error[data-unfinished="true"] { border-color: rgba(255, 194, 71, 0.35); background: rgba(255, 194, 71, 0.06); }
+
+.blind-code {
+  margin: 0.6rem 0 0;
+  padding: 0.7rem 0.8rem 0.7rem 0;
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  background: rgba(4, 16, 28, 0.9);
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.6;
+  max-height: 22rem;
+  overflow: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+.blind-code-line i {
+  display: inline-block;
+  width: 2.6rem;
+  padding-right: 0.8rem;
+  text-align: right;
+  font-style: normal;
+  color: var(--faint);
+  user-select: none;
+}
+
+.blind-rule {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  color: var(--dim);
+}
+.blind-rule[data-on="true"] { border-color: var(--line); background: rgba(10, 38, 62, 0.6); color: var(--ink); }
+@media (max-width: 480px) {
+  .blind-rule { grid-template-columns: minmax(0, 1fr); gap: 0.15rem; }
+}
