@@ -4,6 +4,8 @@
 
 import type { AiTrapState } from "./trapMetrics";
 import { normalizeAiTrap } from "./trapMetrics";
+import type { BlindState } from "./blindMetrics";
+import { normalizeBlind } from "./blindMetrics";
 
 export type AgeId = "junior" | "teen" | "senior" | "academy";
 
@@ -118,6 +120,8 @@ export interface SaveData {
   claimedAchievements?: Record<string, number>;
   /** Tahap 1 – Pemicu: riwayat & telemetri AI-Trap Simulator (docs/053, docs/054) */
   aiTrap?: AiTrapState;
+  /** Blind Live-Coding Challenge (docs/052): rapor kegagapan sintaksis; percobaan pertama = baseline */
+  blind?: BlindState;
   /** identitas perangkat untuk sync NeonDB (stabil antar sesi) */
   deviceId: string;
   updatedAt: number;
@@ -291,6 +295,7 @@ function parseSave(raw: string): SaveData {
     claimedAchievements,
     membership,
     aiTrap: normalizeAiTrap((d as { aiTrap?: unknown }).aiTrap),
+    blind: normalizeBlind((d as { blind?: unknown }).blind),
     deviceId: typeof d.deviceId === "string" && d.deviceId ? d.deviceId : base.deviceId,
     updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
   };

@@ -33,7 +33,8 @@
     "test:local-mode": "node --test tests/local-mode.test.mjs tests/sync.test.mjs",
     "test:data-mode": "node --test tests/local-mode.test.mjs tests/aiven.test.mjs tests/database-status.test.mjs tests/sync.test.mjs",
     "test:diagnostics": "node --test tests/admin-diagnostics.test.mjs tests/redis.test.mjs",
-    "test:trap": "node --test tests/ai-trap.test.mjs"
+    "test:trap": "node --test tests/ai-trap.test.mjs",
+    "test:blind": "node --test tests/blind-lint.test.mjs tests/blind-metrics.test.mjs"
   },
   "dependencies": {
     "@better-auth/infra": "^0.4.23",

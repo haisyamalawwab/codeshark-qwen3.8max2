@@ -171,7 +171,11 @@ Setiap pertemuan = baca materi konsep → kerjakan kuis → **gladi ketik kode**
 
 Modul pembuka kelas yang membuat murid melihat sendiri jarak antara "merasa bisa"
 dan "bisa tanpa AI". Rancangan: `docs/053_…`; catatan implementasi dan hasil uji:
-`docs/054_…`; gerbang masuk CodeShark: `docs/055_…`.
+`docs/054_…`; gerbang masuk CodeShark: `docs/055_…`. PRD, requirement, design, dan
+tasklist lanjutan: `docs/056_…`–`docs/059_…`. Rencana modul Tahap 3 – Aksi
+(gelombang tiga tingkat dan ritual 10 menit pra-lab): naskah di `docs/060_…`;
+PRD, requirement, design, dan tasklist di `docs/061_…`–`docs/064_…`. Tahap 3
+belum dibangun.
 
 | Babak | Isi |
 |---|---|
@@ -196,6 +200,38 @@ dan "bisa tanpa AI". Rancangan: `docs/053_…`; catatan implementasi dan hasil u
   sengaja, dan layar pembongkaran mengatakannya kepada murid.
 - **Menambah skenario:** tambahkan objek `TrapScenario` di
   `src/data/aiTrapScenarios.ts`, lalu jalankan `npm run test:trap`.
+
+## ⌨️ Blind Live-Coding Challenge (Tahap 1 – Pemicu)
+
+Modul kedua Tahap 1: murid menulis satu halaman mini (HTML + `<style>` +
+`<script>`) **dari halaman kosong** selama 3 menit, lalu menerima **Rapor
+Kegagapan Sintaksis**. Rancangan: `docs/052_…`; catatan implementasi, hasil uji,
+dan batasnya: `docs/065_…`.
+
+- **Editor:** `<textarea>` polos. Tanpa kode contoh, pewarnaan sintaks, pratinjau,
+  autocomplete, penutup kurung otomatis, maupun tombol jeda. Tempel, seret-lepas,
+  klik kanan, dan sisipan skrip ditolak dan dihitung. Waktu tetap berjalan saat
+  pindah tab.
+- **Rapor:** jumlah jeda panjang sebelum `{ }` dan `;`, jumlah *syntax error* pada
+  kode akhir, garis waktu 3 menit, waktu beku, salah tombol simbol, tuntutan soal
+  yang terpenuhi, dan keyakinan diri berbanding hasil. Tingkat (Lancar, Tersendat,
+  Gagap berat) ditentukan aturan yang ditampilkan di rapor itu sendiri.
+- **Siapa yang mengerjakan:** wajib satu kali sebelum latihan pertama untuk
+  kelompok Academy, termasuk pengguna lama; opsional lewat kartu Dashboard untuk
+  Senior Diver; tidak tampil untuk Kadet dan Ranger. Tanpa keyboard fisik
+  tantangan ditunda dan latihan tetap terbuka.
+- **Urutan dengan Simulasi Krisis Produksi:** simulasi krisis lebih dulu (di pintu
+  masuk CodeShark), lalu tantangan ini sebelum latihan pertama.
+- **Tidak memengaruhi nilai:** rank dan koin tidak berubah; 30 XP partisipasi,
+  sekali saja, berapa pun hasilnya.
+- **Yang disimpan:** kode akhir dan angka ringkasan. Urutan ketikan satu per satu
+  tidak disimpan. Rapor pertama tidak pernah dihapus; sesudahnya 9 rapor terbaru.
+- **Ambang masih sementara** dan belum dikalibrasi dengan data kelas. Semua
+  konstanta ada di awal `src/lib/blindMetrics.ts`.
+- **Mematikan gerbang:** `BLIND_GATE_ENABLED = false` di
+  `src/data/blindChallenges.ts`.
+- **Menambah soal:** tambahkan objek `BlindBrief` di `src/data/blindChallenges.ts`,
+  lalu jalankan `npm run test:blind`.
 
 ## ☁️ Deploy
 
