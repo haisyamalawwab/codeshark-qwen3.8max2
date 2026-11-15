@@ -31,6 +31,7 @@ import { getPermanentStreakTier } from "../lib/streakMultiplier";
 import { getDailyChallenge } from "../data/dailyChallenges";
 import { isDailyCompletedToday } from "../lib/storage";
 import AiTrapCard from "./AiTrapCard";
+import BlindCard from "./BlindCard";
 
 const StreakTrendsVisualizer = lazy(() => import("./StreakTrendsVisualizer"));
 
@@ -56,6 +57,9 @@ interface Props {
   /** Tahap 1 – Pemicu: mulai / lihat riwayat AI-Trap Simulator */
   onTrapStart?: () => void;
   onTrapHistory?: () => void;
+  /** Blind Live-Coding Challenge (docs/052): mulai/ulangi dan lihat rapor */
+  onBlindStart?: () => void;
+  onBlindHistory?: () => void;
   /** perangkat tanpa keyboard fisik: simulasi krisis tidak bisa dimulai */
   trapNoKeyboard?: boolean;
 }
@@ -84,7 +88,7 @@ function useReveal() {
 export default function Dashboard({
   save, cfg, onMateri, onPractice, onDailyChallenge, onClaimAchievement, onMateriHtml, onPeta,
   subGame = "shark", isTouch = false, onSelectSubGame, onToggleSound, onResetProfile, onOpenProfile,
-  onTrapStart, onTrapHistory, trapNoKeyboard = false,
+  onTrapStart, onTrapHistory, trapNoKeyboard = false, onBlindStart, onBlindHistory,
 }: Props) {
   const settings = useSiteSettings();
   const dataMode = useEffectiveDataMode();
@@ -519,6 +523,11 @@ export default function Dashboard({
         {/* ============ TAHAP 1 – PEMICU: AI-TRAP SIMULATOR ============ */}
         {onTrapStart && onTrapHistory && (
           <AiTrapCard save={save} isTouch={trapNoKeyboard} onStart={onTrapStart} onHistory={onTrapHistory} />
+        )}
+
+        {/* ============ TAHAP 1 – PEMICU: BLIND LIVE-CODING CHALLENGE ============ */}
+        {onBlindStart && onBlindHistory && (
+          <BlindCard save={save} noKeyboard={trapNoKeyboard} onStart={onBlindStart} onHistory={onBlindHistory} />
         )}
 
         {/* ============ TANTANGAN HARIAN (DAILY CHALLENGE) ============ */}
